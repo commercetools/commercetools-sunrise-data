@@ -1,10 +1,10 @@
 externalId,name.de,slug.en,name.en,slug.en,name.it,slug.en,parentId
-1,NEW,new,NEW,new,NEW,new,
-2,DAMEN,women,WOMEN,women,DONNA,women,
-3,HERREN,men,MEN,men,UOMO,men,
-4,ACCESSOIRES,accessories,ACCESSORIES,accessories,ACCESSORI,accessories,
-5,MARKEN,brands,BRANDS,brands,BRANDS,brands,
-6,SALE,sale,SALE,sale,SALE,sale,
+1,New,new,New,new,New,new,
+2,Women,women,Women,women,Donna,women,
+3,Men,men,Men,men,Uomo,men,
+4,Accessories,accessories,Accessories,accessories,Accessori,accessories,
+5,Brands,brands,Brands,brands,Brands,brands,
+6,Sale,sale,Sale,sale,Sales,sale,
 7,damen,new-women,women,new-women,donna,new-women,1
 8,herren,new-men,men,new-men,uomo,new-men,1
 9,special,new-special,special,new-special,special,new-special,1
