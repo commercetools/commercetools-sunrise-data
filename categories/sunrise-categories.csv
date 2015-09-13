@@ -88,7 +88,6 @@ externalId,name.de,slug.de,name.en,slug.en,name.it,slug.it,parentId
 89,Schnürschuhe,new-women-shoes-lace-up-shoes,Lace-up shoes,new-women-shoes-lace-up-shoes,Stringate,new-women-shoes-lace-up-shoes,65
 90,Loafers,new-women-shoes-loafers,Loafers,new-women-shoes-loafers,Loafers,new-women-shoes-loafers,65
 91,Sandalen,new-women-shoes-sandals,Sandals,new-women-shoes-sandals,Sandali,new-women-shoes-sandals,65
-92,Boots,new-women-shoes-boots,Boots,new-women-shoes-boots,Boots,new-women-shoes-boots,65
 93,Clutches,new-women-bags-clutches,Clutches,new-women-bags-clutches,Clutches,new-women-bags-clutches,66
 94,Umhängetaschen,new-women-bags-shoulder-bags,Shoulder bags,new-women-bags-shoulder-bags,Pochette,new-women-bags-shoulder-bags,66
 95,Shopper,new-women-bags-shopper,Shopper,new-women-bags-shopper,Borse shopping,new-women-bags-shopper,66
@@ -131,4 +130,3 @@ externalId,name.de,slug.de,name.en,slug.en,name.it,slug.it,parentId
 154,Herren,sale-men,Men,sale-men,Uomo,sale-men,6
 155,Bekleidung,sale-men-clothing,Clothing,sale-men-clothing,Abbigliamento,sale-men-clothing,154
 156,Schuhe,sale-men-shoes,Shoes,sale-men-shoes,Scarpe,sale-men-shoes,154
-157,Schultertaschen,shoulder-bag,Shoulder bag,shoulder-bag,Borse a mano,shoulder-bag,12
