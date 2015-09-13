@@ -1,4 +1,4 @@
-externalId,name.de,slug.de,name.en,slug.en,name.it,slug.it,parentId
+externalId,name.de,slug.en,name.en,slug.en,name.it,slug.en,parentId
 1,NEW,new,NEW,new,NEW,new,
 2,DAMEN,women,WOMEN,women,DONNA,women,
 3,HERREN,men,MEN,men,UOMO,men,
@@ -16,50 +16,50 @@ externalId,name.de,slug.de,name.en,slug.en,name.it,slug.it,parentId
 15,schuhe,men-shoes,shoes,men-shoes,scarpe,men-shoes,3
 16,taschen,men-bags,bags,men-bags,borse,men-bags,3
 17,looks,men-looks,looks,men-looks,looks,men-looks,3
-20,jacken,women-clothing-jacken,jackets,women-clothing-jackets,giacche,women-clothing-jacken,10
+20,jacken,women-clothing-jackets,jackets,women-clothing-jackets,giacche,women-clothing-jackets,10
 21,blazer,women-clothing-blazer,blazer,women-clothing-blazer,blazer,women-clothing-blazer,10
-22,oberteile,women-clothing-oberteile,tops,women-clothing-tops,tops,women-clothing-oberteile,10
-23,blusen,women-clothing-blusen,shirts,women-clothing-shirts,camicie,women-clothing-blusen,10
+22,oberteile,women-clothing-tops,tops,women-clothing-tops,tops,women-clothing-tops,10
+23,blusen,women-clothing-shirts,shirts,women-clothing-shirts,camicie,women-clothing-shirts,10
 24,t-shirts,women-clothing-t-shirts,t-shirts,women-clothing-t-shirts,t-shirt,women-clothing-t-shirts,10
 25,jeans,women-clothing-jeans,jeans,women-clothing-jeans,jeans,women-clothing-jeans,10
-26,hosen,women-clothing-hosen,trouser,women-clothing-trouser,pantaloni,women-clothing-hosen,10
-27,röcke,women-clothing-roecke,skirts,women-clothing-skirts,gonne,women-clothing-roecke,10
-28,kleider,women-clothing-kleider,dresses,women-clothing-dresses,abiti,women-clothing-kleider,10
-29,bademode,women-clothing-bademode,swimwear,women-clothing-swimwear,costumi da bagno,women-clothing-bademode,10
+26,hosen,women-clothing-trouser,trouser,women-clothing-trouser,pantaloni,women-clothing-trouser,10
+27,röcke,women-clothing-skirts,skirts,women-clothing-skirts,gonne,women-clothing-skirts,10
+28,kleider,women-clothing-dresses,dresses,women-clothing-dresses,abiti,women-clothing-dresses,10
+29,bademode,women-clothing-swimwear,swimwear,women-clothing-swimwear,costumi da bagno,women-clothing-swimwear,10
 30,sneakers,women-shoes-sneakers,sneakers,women-shoes-sneakers,sneakers,women-shoes-sneakers,11
-31,stiefel,women-shoes-stiefel,boots,women-shoes-boots,boots,women-shoes-stiefel,11
-32,stiefeletten,women-shoes-stiefeletten,ankle boots,women-shoes-ankle-boots,stivali,women-shoes-stiefeletten,11
+31,stiefel,women-shoes-boots,boots,women-shoes-boots,boots,women-shoes-boots,11
+32,stiefeletten,women-shoes-ankle-boots,ankle boots,women-shoes-ankle-boots,stivali,women-shoes-ankle-boots,11
 33,pumps,women-shoes-pumps,pumps,women-shoes-pumps,tacco ,women-shoes-pumps,11
 34,ballerinas,women-shoes-ballerinas,ballerinas,women-shoes-ballerinas,ballerinas,women-shoes-ballerinas,11
-35,schnürschuhe,women-shoes-schnuerschuhe,lace-up shoes,women-shoes-lace-up-shoes,lace-up shoes,women-shoes-schnuerschuhe,11
+35,schnürschuhe,women-shoes-lace-up-shoes,lace-up shoes,women-shoes-lace-up-shoes,lace-up shoes,women-shoes-lace-up-shoes,11
 36,loafers,women-shoes-loafers,loafers,women-shoes-loafers,mocassini,women-shoes-loafers,11
-37,sandalen,women-shoes-sandalen,sandals,women-shoes-sandals,sandali,women-shoes-sandalen,11
-38,boots,women-shoes-boots,winterboots,women-shoes-winterboots,boots,women-shoes-boots,11
+37,sandalen,women-shoes-sandals,sandals,women-shoes-sandals,sandali,women-shoes-sandals,11
+38,boots,women-shoes-winterboots,winterboots,women-shoes-winterboots,boots,women-shoes-winterboots,11
 39,clutches,women-bags-clutches,clutches,women-bags-clutches,pochette,women-bags-clutches,12
-40,umhängetaschen,women-bags-umhaengetaschen,shoulder bags,women-bags-shoulder-bags,borse a spalla,women-bags-umhaengetaschen,12
+40,umhängetaschen,women-bags-shoulder-bags,shoulder bags,women-bags-shoulder-bags,borse a spalla,women-bags-shoulder-bags,12
 41,shopper,women-bags-shopper,shopper,women-bags-shopper,borse shopping,women-bags-shopper,12
-42,handtaschen,women-bags-handtaschen,handbag,women-bags-handbag,borse a mano,women-bags-handtaschen,12
-43,brieftaschen,women-bags-brieftaschen,wallets,women-bags-wallets,portafogli,women-bags-brieftaschen,12
-44,beutel & rucksäcke,women-bags-beutel-rucksaecke,bucketbag & packbag,women-bags-bucket-and-packbag,borse a secchiello e zaini,women-bags-beutel-rucksaecke,12
-45,jacken,men-clothing-jacken,jackets,men-clothing-jackets,giacche,men-clothing-jacken,14
-46,oberteile,men-clothing-oberteile,tops,men-clothing-tops,tops,men-clothing-oberteile,14
-47,hemden,men-clothing-hemden,shirts,men-clothing-shirts,camicie,men-clothing-hemden,14
-48,hosen,men-clothing-hosen,trousers,men-clothing-trousers,pantaloni,men-clothing-hosen,14
+42,handtaschen,women-bags-handbag,handbag,women-bags-handbag,borse a mano,women-bags-handbag,12
+43,brieftaschen,women-bags-wallets,wallets,women-bags-wallets,portafogli,women-bags-wallets,12
+44,beutel & rucksäcke,women-bags-bucket-and-packbag,bucketbag & packbag,women-bags-bucket-and-packbag,borse a secchiello e zaini,women-bags-bucket-and-packbag,12
+45,jacken,men-clothing-jackets,jackets,men-clothing-jackets,giacche,men-clothing-jackets,14
+46,oberteile,men-clothing-tops,tops,men-clothing-tops,tops,men-clothing-tops,14
+47,hemden,men-clothing-shirts,shirts,men-clothing-shirts,camicie,men-clothing-shirts,14
+48,hosen,men-clothing-trousers,trousers,men-clothing-trousers,pantaloni,men-clothing-trousers,14
 49,jeans,men-clothing-jeans,jeans,men-clothing-jeans,jeans,men-clothing-jeans,14
 50,blazer,men-clothing-blazer,blazer,men-clothing-blazer,blazer,men-clothing-blazer,14
-51,anzüge,men-clothing-anzuege,suits,men-clothing-suits,completi,men-clothing-anzuege,14
-52,t-shirts,men-clothing-t-shirt,t-shirts,men-clothing-t-shirts,t-shirt,men-clothing-t-shirt,14
+51,anzüge,men-clothing-suits,suits,men-clothing-suits,completi,men-clothing-suits,14
+52,t-shirts,men-clothing-t-shirts,t-shirts,men-clothing-t-shirts,t-shirt,men-clothing-t-shirts,14
 53,sneakers,men-shoes-sneakers,sneakers,men-shoes-sneakers,sneakers,men-shoes-sneakers,15
-54,stiefel,men-shoes-stiefel,boots,men-shoes-boots,boots,men-shoes-stiefel,15
-55,schnürschuhe,men-shoes-schnuerschuhe,lace-up shoes,men-shoes-lace-up-shoes,stringate,men-shoes-schnuerschuhe,15
+54,stiefel,men-shoes-boots,boots,men-shoes-boots,boots,men-shoes-boots,15
+55,schnürschuhe,men-shoes-lace-up-shoes,lace-up shoes,men-shoes-lace-up-shoes,stringate,men-shoes-lace-up-shoes,15
 56,loafers,men-shoes-loafers,loafers,men-shoes-loafers,loafers,men-shoes-loafers,15
-57,sandalen,men-shoes-sandalen,sandals,men-shoes-sandals,sandali,men-shoes-sandalen,15
+57,sandalen,men-shoes-sandals,sandals,men-shoes-sandals,sandali,men-shoes-sandals,15
 58,clutches,men-bags-clutches,clutches,men-bags-clutches,pochette,men-bags-clutches,16
-59,umhängetaschen,men-bags-umhaengetaschen,shoulder bags,men-bags-shoulder-bags,borse a spalla,men-bags-umhaengetaschen,16
+59,umhängetaschen,men-bags-shoulder-bags,shoulder bags,men-bags-shoulder-bags,borse a spalla,men-bags-shoulder-bags,16
 60,shopper,men-bags-shopper,shopper,men-bags-shopper,borse shopping,men-bags-shopper,16
-61,handtaschen,men-bags-handtaschen,handbag,men-bags-handbag,borse a mano,men-bags-handtaschen,16
-62,brieftaschen,men-bags-brieftaschen,wallets,men-bags-wallets,portafogli,men-bags-brieftaschen,16
-63,beutel & rucksäcke,men-bags-beutel-rucksaecke,bucketbag & packbag,men-bags-bucket-and-packbag,borse a secchiello e zaini,men-bags-beutel-rucksaecke,16
+61,handtaschen,men-bags-handbag,handbag,men-bags-handbag,borse a mano,men-bags-handbag,16
+62,brieftaschen,men-bags-wallets,wallets,men-bags-wallets,portafogli,men-bags-wallets,16
+63,beutel & rucksäcke,men-bags-bucket-and-packbag,bucketbag & packbag,men-bags-bucket-and-packbag,borse a secchiello e zaini,men-bags-bucket-and-packbag,16
 64,bekleidung,new-women-clothing,clothing,new-women-clothing,abbigliamento,new-women-clothing,7
 65,schuhe,new-women-shoes,shoes,new-women-shoes,scarpe,new-women-shoes,7
 66,taschen,new-women-bags,bags,new-women-bags,borse,new-women-bags,7
@@ -70,49 +70,49 @@ externalId,name.de,slug.de,name.en,slug.en,name.it,slug.it,parentId
 71,looks,new-men-looks,looks,new-men-looks,looks,new-men-looks,8
 72,fall in love,new-special-fall-in-love,fall in love,new-special-fall-in-love,fall in love,new-special-fall-in-love,9
 73,just go,new-special-just-go,just go,new-special-just-go,just go,new-special-just-go,9
-74,jacken,new-women-clothing-jacken,jackets,new-women-clothing-jackets,giacche,new-women-clothing-jacken,64
+74,jacken,new-women-clothing-jackets,jackets,new-women-clothing-jackets,giacche,new-women-clothing-jackets,64
 75,blazer,new-women-clothing-blazer,blazer,new-women-clothing-blazer,blazer,new-women-clothing-blazer,64
-76,oberteile,new-women-clothing-oberteile,tops,new-women-clothing-tops,tops,new-women-clothing-oberteile,64
-77,blusen,new-women-clothing-blusen,shirts,new-women-clothing-shirts,camicie,new-women-clothing-blusen,64
+76,oberteile,new-women-clothing-tops,tops,new-women-clothing-tops,tops,new-women-clothing-tops,64
+77,blusen,new-women-clothing-shirts,shirts,new-women-clothing-shirts,camicie,new-women-clothing-shirts,64
 78,t-shirts,new-women-clothing-t-shirts,t-shirts,new-women-clothing-t-shirts,t-shirt,new-women-clothing-t-shirts,64
 79,jeans,new-women-clothing-jeans,jeans,new-women-clothing-jeans,jeans,new-women-clothing-jeans,64
-80,hosen,new-women-clothing-hosen,trousers,new-women-clothing-trousers,pantaloni,new-women-clothing-hosen,64
-81,röcke,new-women-clothing-roecke,skirts,new-women-clothing-skirts,gonne,new-women-clothing-roecke,64
-82,kleider,new-women-clothing-kleider,dresses,new-women-clothing-dresses,abiti,new-women-clothing-kleider,64
-83,bademode,new-women-clothing-bademode,swimwear,new-women-clothing-swimwear,costumi da bagno,new-women-clothing-bademode,64
+80,hosen,new-women-clothing-trousers,trousers,new-women-clothing-trousers,pantaloni,new-women-clothing-trousers,64
+81,röcke,new-women-clothing-skirts,skirts,new-women-clothing-skirts,gonne,new-women-clothing-skirts,64
+82,kleider,new-women-clothing-dresses,dresses,new-women-clothing-dresses,abiti,new-women-clothing-dresses,64
+83,bademode,new-women-clothing-swimwear,swimwear,new-women-clothing-swimwear,costumi da bagno,new-women-clothing-swimwear,64
 84,sneakers,new-women-shoes-sneakers,sneakers,new-women-shoes-sneakers,sneakers,new-women-shoes-sneakers,65
-85,stiefel,new-women-shoes-stiefel,boots,new-women-shoes-boots,stivali,new-women-shoes-stiefel,65
-86,stiefeletten,new-women-shoes-stiefeletten,ankle boots,new-women-shoes-ankle-boots,stivaletti,new-women-shoes-stiefeletten,65
+85,stiefel,new-women-shoes-boots,boots,new-women-shoes-boots,stivali,new-women-shoes-boots,65
+86,stiefeletten,new-women-shoes-ankle-boots,ankle boots,new-women-shoes-ankle-boots,stivaletti,new-women-shoes-ankle-boots,65
 87,pumps,new-women-shoes-pumps,pumps,new-women-shoes-pumps,tacco,new-women-shoes-pumps,65
 88,ballerinas,new-women-shoes-ballerinas,ballerinas,new-women-shoes-ballerinas,ballerinas,new-women-shoes-ballerinas,65
-89,schnürschuhe,new-women-shoes-schnuerschuhe,lace-up shoes,new-women-shoes-lace-up-shoes,stringate,new-women-shoes-schnuerschuhe,65
+89,schnürschuhe,new-women-shoes-lace-up-shoes,lace-up shoes,new-women-shoes-lace-up-shoes,stringate,new-women-shoes-lace-up-shoes,65
 90,loafers,new-women-shoes-loafers,loafers,new-women-shoes-loafers,loafers,new-women-shoes-loafers,65
-91,sandalen,new-women-shoes-sandalen,sandals,new-women-shoes-sandals,sandali,new-women-shoes-sandalen,65
+91,sandalen,new-women-shoes-sandals,sandals,new-women-shoes-sandals,sandali,new-women-shoes-sandals,65
 92,boots,new-women-shoes-boots,boots,new-women-shoes-boots,boots,new-women-shoes-boots,65
 93,clutches,new-women-bags-clutches,clutches,new-women-bags-clutches,clutches,new-women-bags-clutches,66
-94,umhängetaschen,new-women-bags-umhaengetaschen,shoulder bags,new-women-bags-shoulder-bags,pochette,new-women-bags-umhaengetaschen,66
+94,umhängetaschen,new-women-bags-shoulder-bags,shoulder bags,new-women-bags-shoulder-bags,pochette,new-women-bags-shoulder-bags,66
 95,shopper,new-women-bags-shopper,shopper,new-women-bags-shopper,borse shopping,new-women-bags-shopper,66
-96,handtaschen,new-women-bags-handtaschen,handbag,new-women-bags-handbag,borse a mano,new-women-bags-handtaschen,66
-97,brieftaschen,new-women-bags-brieftaschen,wallets,new-women-bags-wallets,portafogli,new-women-bags-brieftaschen,66
-98,beutel & rucksäcke,new-women-bags-beutel-rucksaecke,bucketbag & packbag,new-women-bags-bucket-and-packbags,borse a secchiello e zaini,new-women-bags-beutel-rucksaecke,66
-99,jacken,new-men-clothing-jacken,jackets,new-men-clothing-jackets,giacche,new-men-clothing-jacken,68
-100,oberteile,new-men-clothing-oberteile,tops,new-men-clothing-tops,tops,new-men-clothing-oberteile,68
-101,hemden,new-men-clothing-hemden,shirts,new-men-clothing-shirts,camicie,new-men-clothing-hemden,68
-102,hosen,new-men-clothing-hosen,trousers,new-men-clothing-trousers,pantaloni,new-men-clothing-hosen,68
+96,handtaschen,new-women-bags-handbag,handbag,new-women-bags-handbag,borse a mano,new-women-bags-handbag,66
+97,brieftaschen,new-women-bags-wallets,wallets,new-women-bags-wallets,portafogli,new-women-bags-wallets,66
+98,beutel & rucksäcke,new-women-bags-bucket-and-packbags,bucketbag & packbag,new-women-bags-bucket-and-packbags,borse a secchiello e zaini,new-women-bags-bucket-and-packbags,66
+99,jacken,new-men-clothing-jackets,jackets,new-men-clothing-jackets,giacche,new-men-clothing-jackets,68
+100,oberteile,new-men-clothing-tops,tops,new-men-clothing-tops,tops,new-men-clothing-tops,68
+101,hemden,new-men-clothing-shirts,shirts,new-men-clothing-shirts,camicie,new-men-clothing-shirts,68
+102,hosen,new-men-clothing-trousers,trousers,new-men-clothing-trousers,pantaloni,new-men-clothing-trousers,68
 103,jeans,new-men-clothing-jeans,jeans,new-men-clothing-jeans,jeans,new-men-clothing-jeans,68
 104,blazer,new-men-clothing-blazer,blazer,new-men-clothing-blazer,blazer,new-men-clothing-blazer,68
-105,anzüge,new-men-clothing-anzuege,suits,new-men-clothing-suits,completi,new-men-clothing-anzuege,68
-106,t-shirt,new-men-clothing-t-shirt,t-shirts,new-men-clothing-t-shirts,t-shirt,new-men-clothing-t-shirt,68
+105,anzüge,new-men-clothing-suits,suits,new-men-clothing-suits,completi,new-men-clothing-suits,68
+106,t-shirt,new-men-clothing-t-shirts,t-shirts,new-men-clothing-t-shirts,t-shirt,new-men-clothing-t-shirts,68
 107,sneakers,new-men-shoes-sneakers,sneakers,new-men-shoes-sneakers,sneakers,new-men-shoes-sneakers,69
-108,stiefel,new-men-shoes-stiefel,boots,new-men-shoes-boots,stivali,new-men-shoes-stiefel,69
-109,schnürschuhe,new-men-shoes-schnuerschuhe,lace-up shoes,new-men-shoes-lace-up-shoes,stivaletti,new-men-shoes-schnuerschuhe,69
+108,stiefel,new-men-shoes-boots,boots,new-men-shoes-boots,stivali,new-men-shoes-boots,69
+109,schnürschuhe,new-men-shoes-lace-up-shoes,lace-up shoes,new-men-shoes-lace-up-shoes,stivaletti,new-men-shoes-lace-up-shoes,69
 110,loafers,new-men-shoes-loafers,loafers,new-men-shoes-loafers,loafers,new-men-shoes-loafers,69
-111,sandalen,new-men-shoes-sandalen,sandals,new-men-shoes-sandals,sandali,new-men-shoes-sandalen,69
+111,sandalen,new-men-shoes-sandals,sandals,new-men-shoes-sandals,sandali,new-men-shoes-sandals,69
 112,clutches,new-men-bags-clutches,clutches,new-men-bags-clutches,pochette,new-men-bags-clutches,70
-113,umhängetaschen,new-men-bags-umhaengetaschen,shoulder bags,new-men-bags-shoulder-bags,borse a spalla,new-men-bags-umhaengetaschen,70
+113,umhängetaschen,new-men-bags-shoulder-bags,shoulder bags,new-men-bags-shoulder-bags,borse a spalla,new-men-bags-shoulder-bags,70
 114,shopper,new-men-bags-shopper,shopper,new-men-bags-shopper,borse shopping,new-men-bags-shopper,70
-115,handtaschen,new-men-bags-handtaschen,handbag,new-men-bags-handbag,borse a mano,new-men-bags-handtaschen,70
-116,brieftaschen,new-men-bags-brieftaschen,wallets,new-men-bags-wallets,portafogli,new-men-bags-brieftaschen,70
+115,handtaschen,new-men-bags-handbag,handbag,new-men-bags-handbag,borse a mano,new-men-bags-handbag,70
+116,brieftaschen,new-men-bags-wallets,wallets,new-men-bags-wallets,portafogli,new-men-bags-wallets,70
 117,beutel & rucksäcke,new-men-bags-beutel-rucksaecke,bucketbag & packbag,new-men-bags-beutel-rucksaecke,borse a secchiello e zaini,new-men-bags-beutel-rucksaecke,70
 118,damen,accessories-women,women,accessories-women,donna,accessories-women,4
 119,herren,accessories-men,men,accessories-men,uomo,accessories-men,4
@@ -123,12 +123,12 @@ externalId,name.de,slug.de,name.en,slug.en,name.it,slug.it,parentId
 124,bekleidung,accessories-men-clothing,clothing,accessories-men-clothing,abbigliamento,accessories-men-clothing,119
 138,parfüms,accessories-women-parfums,parfums,accessories-women-parfums,profumi,accessories-women-parfums,118
 139,parfüms,accessories-men-parfums,parfums,accessories-men-parfums,profumi,accessories-men-parfums,119
-140,sonnenbrillen,accessories-women-sonnenbrillen,sunglasses,accessories-women-sunglasses,occhiali da sole,accessories-women-sonnenbrillen,118
-141,sonnenbrillen,accessories-men-sonnenbrillen,sunglasses,accessories-men-sunglasses,occhiali da sole,accessories-men-sonnenbrillen,119
+140,sonnenbrillen,accessories-women-sunglasses,sunglasses,accessories-women-sunglasses,occhiali da sole,accessories-women-sunglasses,118
+141,sonnenbrillen,accessories-men-sunglasses,sunglasses,accessories-men-sunglasses,occhiali da sole,accessories-men-sunglasses,119
 151,damen,sale-women,women,sale-women,donna,sale-women,6
 152,bekleidung,sale-women-clothing,clothing,sale-women-clothing,abbigliamento,sale-women-clothing,151
 153,schuhe,sale-women-shoes,shoes,sale-women-shoes,scarpe,sale-women-shoes,151
 154,herren,sale-men,men,sale-men,uomo,sale-men,6
 155,bekleidung,sale-men-clothing,clothing,sale-men-clothing,abbigliamento,sale-men-clothing,154
 156,schuhe,sale-men-shoes,shoes,sale-men-shoes,scarpe,sale-men-shoes,154
-157,schultertaschen,schultertaschen,shoulder bag,shoulder-bag,borse a mano,shoulder-bag,12
+157,schultertaschen,shoulder-bag,shoulder bag,shoulder-bag,borse a mano,shoulder-bag,12
