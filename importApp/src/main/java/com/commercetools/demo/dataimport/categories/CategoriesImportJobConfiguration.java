@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 import java.util.List;
 import java.util.Locale;
@@ -120,22 +121,27 @@ public class CategoriesImportJobConfiguration {
     @Autowired
     private BlockingSphereClient sphereClient;
 
+    @Autowired
+    private Resource categoryCsvResource;
+
     @Bean
-    public Job importCategories() {
+    public Job importCategories(final Step importStep) {
         return jobBuilderFactory.get("categoriesImportJob")
-                .start(importStep())
+                .start(importStep)
                 .build();
     }
 
     @Bean
-    public Step importStep() {
+    public Step importStep(final ItemReader<CategoryCsvLineValue> categoryReader,
+                           final ItemProcessor<CategoryCsvLineValue, CategoryDraft> categoryProcessor,
+                           final ItemWriter<CategoryDraft> categoryWriter) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("importStep");
         final SimpleStepBuilder<CategoryCsvLineValue, CategoryDraft> chunk = stepBuilder
                 .chunk(1);
         return chunk
-                .reader(categoryReader())
-                .processor(categoryProcessor())
-                .writer(categoryWriter())
+                .reader(categoryReader)
+                .processor(categoryProcessor)
+                .writer(categoryWriter)
                 .build();
     }
 
@@ -170,7 +176,7 @@ public class CategoriesImportJobConfiguration {
     @Bean
     public ItemReader<CategoryCsvLineValue> categoryReader() {
         FlatFileItemReader<CategoryCsvLineValue> reader = new FlatFileItemReader<>();
-        reader.setResource(new FileSystemResource("/Users/mschleichardt/dev/commercetools-sunrise-data/categories/sunrise-categories.csv"));
+        reader.setResource(categoryCsvResource);
         reader.setLineMapper(new DefaultLineMapper<CategoryCsvLineValue>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(new String[] {"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId"});
@@ -185,8 +191,19 @@ public class CategoriesImportJobConfiguration {
         return reader;
     }
 
+    @Configuration
+    public static class MainConfiguration {//TODO improve
+        public MainConfiguration() {
+        }
+
+        @Bean Resource categoryCsvResource() {
+            return new FileSystemResource("../categories/sunrise-categories.csv");
+        }
+
+    }
+
     public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, CategoriesImportJobConfiguration.class};
+        final Object[] sources = {CommercetoolsConfig.class, CategoriesImportJobConfiguration.class, MainConfiguration.class};
         System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }

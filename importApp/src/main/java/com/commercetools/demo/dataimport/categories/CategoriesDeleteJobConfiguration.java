@@ -34,7 +34,7 @@ public class CategoriesDeleteJobConfiguration {
     private BlockingSphereClient sphereClient;
 
     @Bean
-    public Job deleteCategories() {
+    public Job categoryDeleteJob() {
         return jobBuilderFactory.get("categoriesDeleteJob")
                 .start(deleteRootCategories())
                 .next(deleteRemainingCategories())
@@ -60,7 +60,8 @@ public class CategoriesDeleteJobConfiguration {
     }
 
     private ItemWriter<Versioned<Category>> categoryDeleteWriter() {
-        return items -> items.forEach(item -> sphereClient.executeBlocking(CategoryDeleteCommand.of(item)));
+        return items -> items.forEach(item ->
+                sphereClient.executeBlocking(CategoryDeleteCommand.of(item)));
     }
 
     public static void main(String [] args) {
