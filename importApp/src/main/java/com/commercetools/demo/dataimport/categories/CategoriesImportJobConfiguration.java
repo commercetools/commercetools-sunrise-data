@@ -1,11 +1,14 @@
 package com.commercetools.demo.dataimport.categories;
 
 import com.commercetools.demo.dataimport.commercetools.CommercetoolsConfig;
+import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
 import io.sphere.sdk.categories.commands.CategoryCreateCommand;
+import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.models.LocalizedString;
+import io.sphere.sdk.models.Referenceable;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -162,8 +165,10 @@ public class CategoriesImportJobConfiguration {
             final LocalizedString slug = importLocalizedField(item.getSlug());
             final String externalId = item.getExternalId();
             final String externalParentId = item.getParentId();
-            //TODO include parent
-            return CategoryDraftBuilder.of(name, slug).externalId(externalId).build();
+            final Referenceable<Category> parent = externalParentId == null
+                    ? null
+                    : sphereClient.executeBlocking(CategoryQuery.of().byExternalId(externalParentId)).head().orElse(null);
+            return CategoryDraftBuilder.of(name, slug).externalId(externalId).parent(parent).build();
         };
     }
 
