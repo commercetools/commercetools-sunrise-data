@@ -31,7 +31,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Locale;
 
@@ -201,8 +203,8 @@ public class CategoriesImportJobConfiguration {
         public MainConfiguration() {
         }
 
-        @Bean Resource categoryCsvResource() {
-            return new FileSystemResource("../categories/sunrise-categories.csv");
+        @Bean Resource categoryCsvResource() throws MalformedURLException {
+            return new UrlResource("https://raw.githubusercontent.com/sphereio/commercetools-sunrise-data/master/categories/sunrise-categories.csv");
         }
 
     }
