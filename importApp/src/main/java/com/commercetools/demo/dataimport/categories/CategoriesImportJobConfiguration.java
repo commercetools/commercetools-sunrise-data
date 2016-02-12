@@ -1,6 +1,7 @@
 package com.commercetools.demo.dataimport.categories;
 
 import com.commercetools.demo.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.demo.dataimport.common.LocalizedField;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
@@ -29,7 +30,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
@@ -41,39 +41,6 @@ import java.util.Locale;
 @EnableBatchProcessing
 @EnableAutoConfiguration
 public class CategoriesImportJobConfiguration {
-
-    public static class LocalizedField {
-        private String de;
-        private String en;
-        private String it;
-
-        public LocalizedField() {
-        }
-
-        public String getDe() {
-            return de;
-        }
-
-        public void setDe(final String de) {
-            this.de = de;
-        }
-
-        public String getEn() {
-            return en;
-        }
-
-        public void setEn(final String en) {
-            this.en = en;
-        }
-
-        public String getIt() {
-            return it;
-        }
-
-        public void setIt(final String it) {
-            this.it = it;
-        }
-    }
 
     public static class CategoryCsvLineValue {//should be serializable?
         private LocalizedField name = new LocalizedField();
@@ -163,8 +130,8 @@ public class CategoriesImportJobConfiguration {
     @Bean
     public ItemProcessor<CategoryCsvLineValue, CategoryDraft> categoryProcessor() {
         return item -> {
-            final LocalizedString name = importLocalizedField(item.getName());
-            final LocalizedString slug = importLocalizedField(item.getSlug());
+            final LocalizedString name = item.getName().toLocalizedString();
+            final LocalizedString slug = item.getSlug().toLocalizedString();
             final String externalId = item.getExternalId();
             final String externalParentId = item.getParentId();
             final Referenceable<Category> parent = externalParentId == null
@@ -172,12 +139,6 @@ public class CategoriesImportJobConfiguration {
                     : sphereClient.executeBlocking(CategoryQuery.of().byExternalId(externalParentId)).head().orElse(null);
             return CategoryDraftBuilder.of(name, slug).externalId(externalId).parent(parent).build();
         };
-    }
-
-    private LocalizedString importLocalizedField(final LocalizedField localizedField) {
-        return LocalizedString.of(Locale.GERMAN, localizedField.getDe())
-                .plus(Locale.ENGLISH, localizedField.getEn())
-                .plus(Locale.ITALIAN, localizedField.getIt());
     }
 
     @Bean
