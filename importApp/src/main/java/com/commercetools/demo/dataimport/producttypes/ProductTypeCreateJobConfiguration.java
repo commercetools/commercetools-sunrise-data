@@ -104,7 +104,7 @@ public class ProductTypeCreateJobConfiguration {
             }
 
             @BeforeStep
-            public void retrieveInterstepData(final StepExecution stepExecution) {
+            public void retrieveInterStepData(final StepExecution stepExecution) {
                 JobExecution jobExecution = stepExecution.getJobExecution();
                 ExecutionContext jobContext = jobExecution.getExecutionContext();
                 this.attributeDefinitions = (List<AttributeDefinition>) jobContext.get(ATTRIBUTE_DEFINITIONS_LIST_KEY);

@@ -1,12 +1,17 @@
 package com.commercetools.demo.dataimport.products;
 
+import com.neovisionaries.i18n.CountryCode;
+import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.models.LocalizedString;
+import io.sphere.sdk.models.Reference;
+import io.sphere.sdk.models.Referenceable;
 import io.sphere.sdk.models.ResourceIdentifier;
-import io.sphere.sdk.products.ProductDraft;
-import io.sphere.sdk.products.ProductDraftBuilder;
-import io.sphere.sdk.products.ProductVariantDraft;
-import io.sphere.sdk.products.ProductVariantDraftBuilder;
+import io.sphere.sdk.products.*;
 import io.sphere.sdk.producttypes.ProductType;
+import io.sphere.sdk.utils.MoneyImpl;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemStreamReader;
@@ -21,12 +26,21 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private FlatFileItemReader<FieldSet> delegate;
     private final Resource attributeDefinitionsCsvResource;
     private ProductDraftBuilder prevEntry = null;
+    private String b2bCustomerGroupId;
+    private static final Pattern pricePattern = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d{1,})(?:[ ](?<customerGroup>\\p{Alnum}+))?");
 
     public ProductDraftReader(final Resource attributeDefinitionsCsvResource) {
         this.attributeDefinitionsCsvResource = attributeDefinitionsCsvResource;
@@ -79,12 +93,37 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         final LocalizedString name = productsCsvEntry.getName().toLocalizedString();
         final LocalizedString slug = productsCsvEntry.getSlug().toLocalizedString();
 
-        asList(productsCsvEntry.getPrices().split(";")).forEach(System.err::println);
+        final List<PriceDraft> prices = asList(productsCsvEntry.getPrices().split(";"))
+                .stream()
+                .map((String priceString) -> parsePriceString(priceString))
+                .collect(toList());
+
 
         final ProductVariantDraft masterVariant = ProductVariantDraftBuilder.of()
+                .prices(prices)
                 .build();
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant);
         return entry;
+    }
+
+    private PriceDraft parsePriceString(final String priceString) {
+        final Matcher matcher = pricePattern.matcher(priceString);
+        final String currencyCode = matcher.group("currency");
+        final String centAmount = matcher.group("centAmount");
+        final String nullableCountryCode = matcher.group("country");
+        final String nullableCustomerGroup = matcher.group("customerGroup");
+
+        final Reference<CustomerGroup> customerGroup =
+                (!isEmpty(nullableCustomerGroup) && "b2b".equals(nullableCustomerGroup))
+                ? b2bCustomerGroupReference()
+                : null;
+        return PriceDraft.of(MoneyImpl.ofCents(Long.parseLong(centAmount), currencyCode))
+                .withCountry(nullableCountryCode == null ? null : CountryCode.valueOf(nullableCountryCode))
+                .withCustomerGroup(customerGroup);
+    }
+
+    private Reference<CustomerGroup> b2bCustomerGroupReference() {
+        return CustomerGroup.referenceOfId(b2bCustomerGroupId);
     }
 
     private boolean isNewEntry(final FieldSet currentLine) {
@@ -105,5 +144,12 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     @Override
     public void update(final ExecutionContext executionContext) throws ItemStreamException {
         delegate.update(executionContext);
+    }
+
+    @BeforeStep
+    public void retrieveInterStepData(final StepExecution stepExecution) {
+        JobExecution jobExecution = stepExecution.getJobExecution();
+        ExecutionContext jobContext = jobExecution.getExecutionContext();
+        b2bCustomerGroupId = (String) jobContext.get(ProductsImportJobConfiguration.b2bCustomerGroupStepContextKey);
     }
 }
