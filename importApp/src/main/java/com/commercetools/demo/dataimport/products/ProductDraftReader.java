@@ -3,11 +3,13 @@ package com.commercetools.demo.dataimport.products;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.models.LocalizedString;
+import io.sphere.sdk.models.LocalizedStringEntry;
 import io.sphere.sdk.models.Reference;
-import io.sphere.sdk.models.Referenceable;
 import io.sphere.sdk.models.ResourceIdentifier;
 import io.sphere.sdk.products.*;
+import io.sphere.sdk.products.attributes.*;
 import io.sphere.sdk.producttypes.ProductType;
+import io.sphere.sdk.producttypes.ProductTypeLocalRepository;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -26,13 +28,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 class ProductDraftReader implements ItemStreamReader<ProductDraft> {
@@ -40,6 +41,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private final Resource attributeDefinitionsCsvResource;
     private ProductDraftBuilder prevEntry = null;
     private String b2bCustomerGroupId;
+    private List<ProductType> productTypes;
     private static final Pattern pricePattern = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d{1,})(?:[ ](?<customerGroup>\\p{Alnum}+))?");
 
     public ProductDraftReader(final Resource attributeDefinitionsCsvResource) {
@@ -73,7 +75,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                         prevEntry = createNewEntry(currentLine);
                     }
                 } else {
-                    final ProductVariantDraftBuilder variantDraftBuilder = createNewVariantDraftBuilder(currentLine);
+                    final ProductVariantDraftBuilder variantDraftBuilder = createNewVariantDraftBuilder(currentLine, prevEntry.build().getProductType().getKey());
                     prevEntry.plusVariants(variantDraftBuilder.build());
                 }
             }
@@ -81,12 +83,48 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         return entry != null ? entry.build() : null;
     }
 
-    private ProductVariantDraftBuilder createNewVariantDraftBuilder(final FieldSet currentLine) throws BindException {
+    private ProductVariantDraftBuilder createNewVariantDraftBuilder(final FieldSet currentLine, final String productTypeKey) throws BindException {
         final ProductsCsvEntry productsCsvEntry = mapLineToEntry(currentLine);
         final ProductVariantDraftBuilder builder = ProductVariantDraftBuilder.of();
         builder.sku(productsCsvEntry.getSku());
         builder.prices(parsePricesLine(productsCsvEntry.getPrices()));
+        builder.attributes(parseAttributes(currentLine, productTypes, productTypeKey));
         return builder;
+    }
+
+    private List<AttributeDraft> parseAttributes(final FieldSet currentLine, final List<ProductType> productTypes, final String productTypeKey) {
+        final ProductType productType = productTypes.stream().filter(p -> p.getKey().equals(productTypeKey)).findFirst().get();
+        final Properties properties = currentLine.getProperties();
+        final List<AttributeDraft> result = productType.getAttributes().stream()
+                .map(a -> {
+                    final AttributeType attributeType = a.getAttributeType();
+                    final String name = a.getName();
+                    if (attributeType instanceof DateTimeAttributeType || attributeType instanceof StringAttributeType || attributeType instanceof EnumAttributeType || attributeType instanceof LocalizedEnumAttributeType) {
+                        final String value = properties.getProperty(name, null);
+                        return AttributeDraft.of(name, value);
+                    } else if(attributeType instanceof LocalizedStringAttributeType) {
+                        final LocalizedString localizedString = Arrays.asList(currentLine.getNames()).stream()
+                                .filter(columnName -> columnName.startsWith(name + "."))
+                                .map(columnName -> {
+                                    final String nullableValue = properties.getProperty(columnName);
+                                    if (nullableValue == null) {
+                                        return null;
+                                    } else {
+                                        final Locale locale = Locale.forLanguageTag(columnName.replace(name + ".", ""));
+                                        return LocalizedStringEntry.of(locale, nullableValue);
+                                    }
+                                })
+                                .filter(x -> x != null)
+                                .collect(LocalizedString.streamCollector());
+                        return AttributeDraft.of(name, localizedString);
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(x -> x != null)
+                .filter(x -> x.getValue() != null)
+                .collect(toList());
+        return result;
     }
 
     private ProductDraftBuilder createNewEntry(final FieldSet currentLine) throws BindException {
@@ -99,6 +137,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         final List<PriceDraft> prices = parsePricesLine(pricesLine);
         final ProductVariantDraft masterVariant = ProductVariantDraftBuilder.of()
                 .prices(prices)
+                .attributes(parseAttributes(currentLine, productTypes, productsCsvEntry.getProductType()))
                 .build();
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant);
         return entry;
@@ -173,5 +212,6 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         JobExecution jobExecution = stepExecution.getJobExecution();
         ExecutionContext jobContext = jobExecution.getExecutionContext();
         b2bCustomerGroupId = (String) jobContext.get(ProductsImportJobConfiguration.b2bCustomerGroupStepContextKey);
+        productTypes = (List<ProductType>) jobContext.get(ProductsImportJobConfiguration.productTypesStepContextKey);
     }
 }

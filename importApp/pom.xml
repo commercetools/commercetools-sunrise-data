@@ -27,17 +27,22 @@
         <dependency>
             <groupId>com.commercetools.sdk.jvm.spring</groupId>
             <artifactId>commercetools-spring-batch-add-ons</artifactId>
-            <version>0.2.0</version>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
-            <groupId>io.sphere.sdk.jvm</groupId>
-            <artifactId>sphere-models</artifactId>
-            <version>1.0.0-M26</version>
+            <groupId>com.commercetools.sdk.jvm.core</groupId>
+            <artifactId>commercetools-models</artifactId>
+            <version>1.0.0-RC1</version>
         </dependency>
         <dependency>
-            <groupId>io.sphere.sdk.jvm</groupId>
-            <artifactId>sphere-java-client</artifactId>
-            <version>1.0.0-M26</version>
+            <groupId>com.commercetools.sdk.jvm.core</groupId>
+            <artifactId>commercetools-java-client</artifactId>
+            <version>1.0.0-RC1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.commercetools.sdk.jvm.core</groupId>
+            <artifactId>commercetools-convenience</artifactId>
+            <version>1.0.0-RC1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
