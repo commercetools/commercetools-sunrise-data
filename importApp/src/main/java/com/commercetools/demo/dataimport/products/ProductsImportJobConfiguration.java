@@ -6,6 +6,7 @@ import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
 import io.sphere.sdk.products.ProductDraft;
+import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
 import org.springframework.batch.core.Job;
@@ -139,7 +140,7 @@ public class ProductsImportJobConfiguration {
         return new ItemWriter<ProductDraft>() {
             @Override
             public void write(final List<? extends ProductDraft> items) throws Exception {
-                items.forEach(item -> System.err.println("write " + item));
+                items.forEach(item -> sphereClient.executeBlocking(ProductCreateCommand.of(item)));
             }
         };
     }

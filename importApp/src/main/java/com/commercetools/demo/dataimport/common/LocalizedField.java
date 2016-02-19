@@ -1,8 +1,12 @@
 package com.commercetools.demo.dataimport.common;
 
 import io.sphere.sdk.models.LocalizedString;
+import io.sphere.sdk.models.LocalizedStringEntry;
 
 import java.util.Locale;
+
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class LocalizedField {
     private String de;
@@ -37,6 +41,11 @@ public class LocalizedField {
     }
 
     public LocalizedString toLocalizedString() {
-        return LocalizedString.of(Locale.GERMAN, getDe()).plus(Locale.ENGLISH, getEn()).plus(Locale.ITALIAN, getIt());
+        return asList(LocalizedStringEntry.of(Locale.GERMAN, getDe()),
+                LocalizedStringEntry.of(Locale.ENGLISH, getEn()),
+                LocalizedStringEntry.of(Locale.ITALIAN, getIt()))
+                .stream()
+                .filter(entry -> !isEmpty(entry.getValue()))
+                .collect(LocalizedString.streamCollector());
     }
 }

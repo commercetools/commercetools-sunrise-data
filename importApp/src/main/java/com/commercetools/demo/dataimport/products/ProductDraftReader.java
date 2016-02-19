@@ -100,7 +100,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         }
         if (!isEmpty(productsCsvEntry.getImages())) {
             final String url = productsCsvEntry.getImages();
-            builder.images(Image.of(url, null, null));
+            builder.images(Image.of(url, ImageDimensions.of(0, 0)));
         }
     }
 
@@ -113,7 +113,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                     final String name = a.getName();
                     if (attributeType instanceof DateTimeAttributeType || attributeType instanceof StringAttributeType || attributeType instanceof EnumAttributeType || attributeType instanceof LocalizedEnumAttributeType) {
                         final String value = properties.getProperty(name, null);
-                        return AttributeDraft.of(name, value);
+                        return isEmpty(value) ? null : AttributeDraft.of(name, value);
                     } else if(attributeType instanceof LocalizedStringAttributeType) {
                         final LocalizedString localizedString = Arrays.asList(currentLine.getNames()).stream()
                                 .filter(columnName -> columnName.startsWith(name + "."))
