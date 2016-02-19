@@ -73,38 +73,56 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                         prevEntry = createNewEntry(currentLine);
                     }
                 } else {
-                    //TODO
-                    //add to prevEntry the variants
+                    final ProductVariantDraftBuilder variantDraftBuilder = createNewVariantDraftBuilder(currentLine);
+                    prevEntry.plusVariants(variantDraftBuilder.build());
                 }
             }
         } while (currentLine != null && entry == null);
         return entry != null ? entry.build() : null;
     }
 
-    private ProductDraftBuilder createNewEntry(final FieldSet currentLine) throws BindException {
-        final FieldSetMapper<ProductsCsvEntry> fieldSetMapper = new BeanWrapperFieldSetMapper<ProductsCsvEntry>() {{
-            setDistanceLimit(3);
-            setTargetType(ProductsCsvEntry.class);
-            setStrict(false);
-        }};
-        final ProductsCsvEntry productsCsvEntry = fieldSetMapper.mapFieldSet(currentLine);
+    private ProductVariantDraftBuilder createNewVariantDraftBuilder(final FieldSet currentLine) throws BindException {
+        final ProductsCsvEntry productsCsvEntry = mapLineToEntry(currentLine);
+        final ProductVariantDraftBuilder builder = ProductVariantDraftBuilder.of();
+        builder.sku(productsCsvEntry.getSku());
+        builder.prices(parsePricesLine(productsCsvEntry.getPrices()));
+        return builder;
+    }
 
+    private ProductDraftBuilder createNewEntry(final FieldSet currentLine) throws BindException {
+        final ProductsCsvEntry productsCsvEntry = mapLineToEntry(currentLine);
         final ResourceIdentifier<ProductType> productType = ResourceIdentifier.ofKey(productsCsvEntry.getProductType());
         final LocalizedString name = productsCsvEntry.getName().toLocalizedString();
         final LocalizedString slug = productsCsvEntry.getSlug().toLocalizedString();
 
-        final List<PriceDraft> prices = asList(productsCsvEntry.getPrices().split(";"))
-                .stream()
-                .filter(s -> !StringUtils.isEmpty(s))
-                .map((String priceString) -> parsePriceString(priceString))
-                .collect(toList());
-
-
+        final String pricesLine = productsCsvEntry.getPrices();
+        final List<PriceDraft> prices = parsePricesLine(pricesLine);
         final ProductVariantDraft masterVariant = ProductVariantDraftBuilder.of()
                 .prices(prices)
                 .build();
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant);
         return entry;
+    }
+
+    private List<PriceDraft> parsePricesLine(final String pricesLine) {
+        return asList(pricesLine.split(";"))
+                    .stream()
+                    .filter(s -> !StringUtils.isEmpty(s))
+                    .map((String priceString) -> parsePriceString(priceString))
+                    .collect(toList());
+    }
+
+    private ProductsCsvEntry mapLineToEntry(final FieldSet currentLine) throws BindException {
+        final FieldSetMapper<ProductsCsvEntry> fieldSetMapper = getProductsCsvEntryFieldSetMapper();
+        return fieldSetMapper.mapFieldSet(currentLine);
+    }
+
+    private FieldSetMapper<ProductsCsvEntry> getProductsCsvEntryFieldSetMapper() {
+        return new BeanWrapperFieldSetMapper<ProductsCsvEntry>() {{
+                setDistanceLimit(3);
+                setTargetType(ProductsCsvEntry.class);
+                setStrict(false);
+            }};
     }
 
     private PriceDraft parsePriceString(final String priceString) {
