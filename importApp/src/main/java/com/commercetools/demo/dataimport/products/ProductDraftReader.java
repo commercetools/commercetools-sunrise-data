@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 class ProductDraftReader implements ItemStreamReader<ProductDraft> {
@@ -117,8 +118,26 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                                 .filter(x -> x != null)
                                 .collect(LocalizedString.streamCollector());
                         return AttributeDraft.of(name, localizedString);
+                    } else if(attributeType instanceof SetAttributeType) {
+                        final SetAttributeType setAttributeType = (SetAttributeType) attributeType;
+                        final AttributeType elementType = setAttributeType.getElementType();
+                        if (elementType instanceof StringAttributeType) {
+                            final Set<String> values = Arrays.stream(properties.getProperty(name).split(";")).collect(toSet());
+                            return AttributeDraft.of(name, values);
+                        } else if (elementType instanceof LocalizedEnumAttributeType) {
+                            final String value = properties.getProperty(name);
+                            if (!isEmpty(value)) {
+                                throw new RuntimeException("not prepared for sets of localized enums");
+                            }
+                            return null;
+                        } else {
+                            throw new RuntimeException("unknown element type of attribute type " + attributeType);
+                        }
+                    } else if(attributeType instanceof BooleanAttributeType) {
+                        final String value = properties.getProperty(name);
+                        return isEmpty(value) ? null : AttributeDraft.of(name, Boolean.valueOf(value));
                     } else {
-                        return null;
+                        throw new RuntimeException("unknown attribute type " + attributeType);
                     }
                 })
                 .filter(x -> x != null)
