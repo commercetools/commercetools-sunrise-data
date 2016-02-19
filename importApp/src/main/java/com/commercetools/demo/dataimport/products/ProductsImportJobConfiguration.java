@@ -151,7 +151,7 @@ public class ProductsImportJobConfiguration {
         }
 
         @Bean Resource productsCsvResource() throws MalformedURLException {
-            return new UrlResource("file:///Users/mschleichardt/dev/commercetools-sunrise-data/products/products/151123-sunrise-product-data.csv");
+            return new UrlResource("file:///Users/mschleichardt/dev/commercetools-sunrise-data/products/products/160219-sunrise-product-data.csv");
         }
 
     }

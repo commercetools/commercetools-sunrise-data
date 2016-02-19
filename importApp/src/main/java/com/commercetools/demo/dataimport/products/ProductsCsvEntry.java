@@ -9,6 +9,7 @@ public class ProductsCsvEntry {
     private String sku;
     private String prices;
     private String categories;
+    private String images;
     private LocalizedField name = new LocalizedField();
     private LocalizedField description = new LocalizedField();
     private LocalizedField slug = new LocalizedField();
@@ -86,5 +87,13 @@ public class ProductsCsvEntry {
 
     public void setVariantId(final String variantId) {
         this.variantId = variantId;
+    }
+
+    public String getImages() {
+        return images;
+    }
+
+    public void setImages(final String images) {
+        this.images = images;
     }
 }

@@ -49,7 +49,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         this.attributeDefinitionsCsvResource = attributeDefinitionsCsvResource;
         final DefaultLineMapper<FieldSet> fullLineMapper = new DefaultLineMapper<FieldSet>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
-                setNames(new String[]{"productType", "variantId", "id", "sku", "prices", "categories", "name.de", "description.de", "slug.de", "name.en", "description.en", "slug.en", "name.it", "description.it", "slug.it", "articleNumberManufacturer", "articleNumberMax", "matrixId", "baseId", "designer", "madeInItaly", "completeTheLook", "commonSize", "size", "color", "colorFreeDefinition.en", "colorFreeDefinition.de", "colorFreeDefinition.it", "details.en", "details.de", "details.it", "style", "gender", "season", "isOnStock", "isLook", "lookProducts", "seasonNew"});
+                setNames(new String[]{"productType","variantId","id","sku","prices","tax","categories","images","name.de","name.en","description.de","description.en","slug.de","slug.en","metaTitle.de","metaTitle.en","metaDescription.de","metaDescription.en","metaKeywords.de","metaKeywords.en","searchKeywords.de","searchKeywords.en","creationDate","articleNumberManufacturer","articleNumberMax","matrixId","baseId","designer","madeInItaly","completeTheLook","commonSize","size","color","colorFreeDefinition.de","colorFreeDefinition.en","details.de","details.en","style","gender","season","isOnStock","isLook","lookProducts","seasonNew"});
                 setStrict(false);
             }});
             setFieldSetMapper(new PassThroughFieldSetMapper());
@@ -90,7 +90,18 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         builder.sku(productsCsvEntry.getSku());
         builder.prices(parsePricesLine(productsCsvEntry.getPrices()));
         builder.attributes(parseAttributes(currentLine, productTypes, productTypeKey));
+        addImages(productsCsvEntry, builder);
         return builder;
+    }
+
+    private void addImages(final ProductsCsvEntry productsCsvEntry, final ProductVariantDraftBuilder builder) {
+        if (productsCsvEntry.getImages().contains(";") || productsCsvEntry.getImages().contains(",")) {
+            throw new RuntimeException("not prepared for multi images" + productsCsvEntry.getImages());
+        }
+        if (!isEmpty(productsCsvEntry.getImages())) {
+            final String url = productsCsvEntry.getImages();
+            builder.images(Image.of(url, null, null));
+        }
     }
 
     private List<AttributeDraft> parseAttributes(final FieldSet currentLine, final List<ProductType> productTypes, final String productTypeKey) {
@@ -154,9 +165,11 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
 
         final String pricesLine = productsCsvEntry.getPrices();
         final List<PriceDraft> prices = parsePricesLine(pricesLine);
-        final ProductVariantDraft masterVariant = ProductVariantDraftBuilder.of()
+        final ProductVariantDraftBuilder productVariantDraftBuilder = ProductVariantDraftBuilder.of()
                 .prices(prices)
-                .attributes(parseAttributes(currentLine, productTypes, productsCsvEntry.getProductType()))
+                .attributes(parseAttributes(currentLine, productTypes, productsCsvEntry.getProductType()));
+        addImages(productsCsvEntry, productVariantDraftBuilder);
+        final ProductVariantDraft masterVariant = productVariantDraftBuilder
                 .build();
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant);
         return entry;
