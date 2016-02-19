@@ -1,27 +1,23 @@
-# How to create the data (product types, products and categories)
+# How to create the data with the commercetools impex tool
 
 ## csv files encoding:
- - delimited by ";"
+ - delimited by ","
  - encoding / file origin: UTF-8
  - use text data format for ALL columns
  
-## creating product types
-1. Go to: https://impex.sphere.io/commands/product-type-generator
-Use sunrise-producttypes.csv and sunrise-producttype-attributes.csv for generate a JSON
+## import product types
+1. Go to https://impex.sphere.io/commands/product-type-generator
+Use product-types.csv and product-type-attribute-definitions.csv for generate a JSON
 
-2. Import it here: https://impex.sphere.io/playground
- - Project credentials: Project key / Client ID / Client secret
+2. Import it with https://impex.sphere.io/playground
  - Endpoint: Product Types
  - Method: Create
 
 ## import categories
-1. Use the category structure as in sunrise-categories.csv
+1. Use the category structure as in categories.csv
 
-2. Import it here:https://impex.sphere.io/commands/category-import
- - Project credentials: Project key / Client ID / Client secret
- 
-## import product data
-1. Use the product structure as in sunrise-product-data.csv
+2. Import it with https://impex.sphere.io/commands/category-import
 
-2. Import it here:https://impex.sphere.io/commands/product-import
- - Project credentials: Project key / Client ID / Client secret
+## import products
+1. Use the product structure as in products.csv
+2. Import it with https://impex.sphere.io/commands/product-import
