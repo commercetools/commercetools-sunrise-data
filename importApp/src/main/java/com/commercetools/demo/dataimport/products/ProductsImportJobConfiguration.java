@@ -20,8 +20,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.*;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -65,20 +64,13 @@ public class ProductsImportJobConfiguration {
         listener.setKeys(new String[]{b2bCustomerGroupStepContextKey});
         return stepBuilderFactory.get("getOrCreateCustomerGroup")
                 .tasklet(new Tasklet() {
-                    public StepExecution stepExecution;
-
                     @Override
                     public RepeatStatus execute(final StepContribution contribution, final ChunkContext chunkContext) throws Exception {
                         final String customerGroupName = "b2b";
                         final CustomerGroup customerGroup = sphereClient.executeBlocking(CustomerGroupQuery.of().byName(customerGroupName)).head()
                                 .orElseGet(() -> sphereClient.executeBlocking(CustomerGroupCreateCommand.of(customerGroupName)));
-                        stepExecution.getExecutionContext().put(b2bCustomerGroupStepContextKey, customerGroup.getId());
-                        return RepeatStatus.CONTINUABLE;
-                    }
-
-                    @BeforeStep//todo seems not to work in tasklet
-                    public void saveStepExecution(final StepExecution stepExecution) {
-                        this.stepExecution = stepExecution;
+                        chunkContext.getStepContext().getStepExecution().getExecutionContext().put(b2bCustomerGroupStepContextKey, customerGroup.getId());
+                        return RepeatStatus.FINISHED;
                     }
                 })
                 .listener(listener)

@@ -95,6 +95,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
 
         final List<PriceDraft> prices = asList(productsCsvEntry.getPrices().split(";"))
                 .stream()
+                .filter(s -> !StringUtils.isEmpty(s))
                 .map((String priceString) -> parsePriceString(priceString))
                 .collect(toList());
 
@@ -108,6 +109,9 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
 
     private PriceDraft parsePriceString(final String priceString) {
         final Matcher matcher = pricePattern.matcher(priceString);
+        if (!matcher.find()) {
+            throw new RuntimeException("can't parse price for " + priceString);
+        }
         final String currencyCode = matcher.group("currency");
         final String centAmount = matcher.group("centAmount");
         final String nullableCountryCode = matcher.group("country");
