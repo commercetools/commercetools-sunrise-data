@@ -31,6 +31,7 @@ import org.springframework.validation.BindException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -43,7 +44,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private ProductDraftBuilder prevEntry = null;
     private String b2bCustomerGroupId;
     private List<ProductType> productTypes;
-    private static final Pattern pricePattern = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d{1,})(?:[ ](?<customerGroup>\\p{Alnum}+))?");
+    private static final Pattern pricePattern = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d{1,})(?:[|]\\d{1,})?(?:[ ](?<customerGroup>\\w\\p{Alnum}+))?$");
 
     public ProductDraftReader(final Resource attributeDefinitionsCsvResource) {
         this.attributeDefinitionsCsvResource = attributeDefinitionsCsvResource;
@@ -115,8 +116,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                         final String value = properties.getProperty(name, null);
                         return isEmpty(value) ? null : AttributeDraft.of(name, value);
                     } else if(attributeType instanceof LocalizedStringAttributeType) {
-                        final LocalizedString localizedString = Arrays.asList(currentLine.getNames()).stream()
-                                .filter(columnName -> columnName.startsWith(name + "."))
+                        final LocalizedString localizedString = createStreamOfLocalizedStringNames(currentLine, name)
                                 .map(columnName -> {
                                     final String nullableValue = properties.getProperty(columnName);
                                     if (nullableValue == null) {
@@ -135,11 +135,16 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                         if (elementType instanceof StringAttributeType) {
                             final Set<String> values = Arrays.stream(properties.getProperty(name).split(";")).collect(toSet());
                             return AttributeDraft.of(name, values);
-                        } else if (elementType instanceof LocalizedEnumAttributeType) {
-                            final String value = properties.getProperty(name);
-                            if (!isEmpty(value)) {
-                                throw new RuntimeException("not prepared for sets of localized enums");
-                            }
+                        } else if (elementType instanceof LocalizedStringAttributeType) {
+                            createStreamOfLocalizedStringNames(currentLine, name)
+                                    .map(columnName -> {
+                                        final String nullableValue = properties.getProperty(columnName);
+                                        if (!isEmpty(nullableValue)) {
+                                            throw new RuntimeException("not prepared for LocalizedStringAttributeType in set");
+                                        } else {
+                                            return null;
+                                        }
+                                    }).forEach(s -> {});
                             return null;
                         } else {
                             throw new RuntimeException("unknown element type of attribute type " + attributeType);
@@ -155,6 +160,11 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                 .filter(x -> x.getValue() != null)
                 .collect(toList());
         return result;
+    }
+
+    private Stream<String> createStreamOfLocalizedStringNames(final FieldSet currentLine, final String name) {
+        return Arrays.asList(currentLine.getNames()).stream()
+                .filter(columnName -> columnName.startsWith(name + "."));
     }
 
     private ProductDraftBuilder createNewEntry(final FieldSet currentLine) throws BindException {
@@ -199,7 +209,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private PriceDraft parsePriceString(final String priceString) {
         final Matcher matcher = pricePattern.matcher(priceString);
         if (!matcher.find()) {
-            throw new RuntimeException("can't parse price for " + priceString);
+            throw new RuntimeException(String.format("can't parse price for '%s'", priceString));
         }
         final String currencyCode = matcher.group("currency");
         final String centAmount = matcher.group("centAmount");

@@ -208,23 +208,14 @@ public class ProductTypeCreateJobConfiguration {
                 typNameToCreatorMap.put("text", e -> StringAttributeType.of());
                 typNameToCreatorMap.put("ltext", e -> LocalizedStringAttributeType.of());
                 typNameToCreatorMap.put("enum", e -> {
-
-                    //TODO multi line processing?
-                    final List<EnumValue> values = Collections.emptyList();
+                    final List<EnumValue> values = e.getEnumValues();
                     return EnumAttributeType.of(values);
                 });
                 typNameToCreatorMap.put("lenum", e -> {
-
-                    //TODO multi line processing?
-                    final List<LocalizedEnumValue> values = Collections.emptyList();
+                    final List<LocalizedEnumValue> values = e.getLocalizedEnumValues();
                     return LocalizedEnumAttributeType.of(values);
                 });
-                typNameToCreatorMap.put("set:ltext", e -> {
-
-                    //TODO multi line processing?
-                    final List<LocalizedEnumValue> values = Collections.emptyList();
-                    return SetAttributeType.of(LocalizedEnumAttributeType.of(values));
-                });
+                typNameToCreatorMap.put("set:ltext", e -> SetAttributeType.of(LocalizedStringAttributeType.of()));
                 typNameToCreatorMap.put("set:text", e -> SetAttributeType.of(StringAttributeType.of()));
                 typNameToCreatorMap.put("boolean", e -> BooleanAttributeType.of());
             }

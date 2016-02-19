@@ -1,8 +1,9 @@
 package com.commercetools.demo.dataimport.producttypes;
 
 import com.commercetools.demo.dataimport.common.LocalizedField;
+import io.sphere.sdk.models.Base;
 
-public class AttributeDefinitionCsvLine {
+public class AttributeDefinitionCsvLine extends Base {
     private String name;
     private String type;
     private String attributeConstraint;

@@ -11,6 +11,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
+import static org.springframework.util.StringUtils.isEmpty;
+
 class AttributeDefinitionReader implements ItemStreamReader<AttributeDefinitionCsvEntry> {
     private FlatFileItemReader<AttributeDefinitionCsvLine> delegate;
     private final Resource attributeDefinitionsCsvResource;
@@ -47,18 +49,13 @@ class AttributeDefinitionReader implements ItemStreamReader<AttributeDefinitionC
                     } else {
                         prevEntry = createNewEntry(currentLine);
                     }
-                } else {
-                    final boolean isEnumDetailLine = !StringUtils.isEmpty(currentLine.getEnumLabel());
-                    if (isEnumDetailLine) {
-                        prevEntry.getEnumValues().add(EnumValue.of(currentLine.getEnumKey(), currentLine.getEnumLabel()));
-                    } else {
-                        final boolean isLocalizedEnumDetailLine = !StringUtils.isEmpty(currentLine.getLocalizedEnumLabel().getDe());
-                        if (isLocalizedEnumDetailLine) {
-                            prevEntry.getLocalizedEnumValues().add(LocalizedEnumValue.of(currentLine.getEnumKey(), currentLine.getLocalizedEnumLabel().toLocalizedString()));
-                        } else {
-                            throw new IllegalStateException("cannot map line " + currentLine + " for entry " + prevEntry);
-                        }
-                    }
+                }
+                final boolean isLocalizedEnumDetailLine = !isEmpty(currentLine.getLocalizedEnumLabel().getEn());
+                final boolean isEnumDetailLine = !isEmpty(currentLine.getEnumLabel()) && !isLocalizedEnumDetailLine;
+                if (isEnumDetailLine) {
+                    prevEntry.getEnumValues().add(EnumValue.of(currentLine.getEnumKey(), currentLine.getEnumLabel()));
+                } else if (isLocalizedEnumDetailLine) {
+                    prevEntry.getLocalizedEnumValues().add(LocalizedEnumValue.of(currentLine.getEnumKey(), currentLine.getLocalizedEnumLabel().toLocalizedString()));
                 }
             }
         } while (currentLine != null && entry == null);
@@ -72,7 +69,7 @@ class AttributeDefinitionReader implements ItemStreamReader<AttributeDefinitionC
     }
 
     private boolean isNewEntry(final AttributeDefinitionCsvLine currentLine) {
-        return !StringUtils.isEmpty(currentLine.getName());
+        return !isEmpty(currentLine.getName());
     }
 
     @Override

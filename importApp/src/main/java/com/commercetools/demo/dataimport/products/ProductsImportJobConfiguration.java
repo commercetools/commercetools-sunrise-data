@@ -2,6 +2,7 @@ package com.commercetools.demo.dataimport.products;
 
 import com.commercetools.demo.dataimport.commercetools.CommercetoolsConfig;
 import io.sphere.sdk.client.BlockingSphereClient;
+import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Configuration
@@ -140,7 +142,10 @@ public class ProductsImportJobConfiguration {
         return new ItemWriter<ProductDraft>() {
             @Override
             public void write(final List<? extends ProductDraft> items) throws Exception {
-                items.forEach(item -> sphereClient.executeBlocking(ProductCreateCommand.of(item)));
+                items.stream()
+                        .map(item -> sphereClient.execute(ProductCreateCommand.of(item)))
+                        .collect(toList())
+                        .forEach(stage -> SphereClientUtils.blockingWait(stage, 30, TimeUnit.SECONDS));
             }
         };
     }
