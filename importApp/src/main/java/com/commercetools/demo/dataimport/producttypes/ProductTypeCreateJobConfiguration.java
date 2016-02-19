@@ -32,13 +32,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
@@ -246,11 +249,11 @@ public class ProductTypeCreateJobConfiguration {
         }
 
         @Bean Resource attributeDefinitionsCsvResource() throws MalformedURLException {
-            return new UrlResource("file:///Users/mschleichardt/dev/commercetools-sunrise-data/products/product%20type/sunrise-producttype-attributes.csv");
+            return new FileSystemResource("../product-types/product-type-attribute-definitions.csv");
         }
 
         @Bean Resource productTypesCsvResource() throws MalformedURLException {
-            return new UrlResource("file:///Users/mschleichardt/dev/commercetools-sunrise-data/products/product%20type/sunrise-producttypes.csv");
+            return new FileSystemResource("../product-types/product-types.csv");
         }
 
     }

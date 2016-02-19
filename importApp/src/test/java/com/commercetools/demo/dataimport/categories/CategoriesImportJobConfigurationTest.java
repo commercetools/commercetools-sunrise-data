@@ -46,7 +46,7 @@ public class CategoriesImportJobConfigurationTest {
 
     @Bean
     Resource categoryCsvResource() {
-        return new FileSystemResource("../categories/sunrise-categories.csv");
+        return new FileSystemResource("../categories/categories.csv");
     }
 
     @Before

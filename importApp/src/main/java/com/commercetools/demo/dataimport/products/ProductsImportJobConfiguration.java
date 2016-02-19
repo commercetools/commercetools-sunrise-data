@@ -30,8 +30,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -157,7 +157,7 @@ public class ProductsImportJobConfiguration {
         }
 
         @Bean Resource productsCsvResource() throws MalformedURLException {
-            return new UrlResource("file:///Users/mschleichardt/dev/commercetools-sunrise-data/products/products/160219-sunrise-product-data.csv");
+            return new FileSystemResource("../products/products.csv");
         }
 
     }

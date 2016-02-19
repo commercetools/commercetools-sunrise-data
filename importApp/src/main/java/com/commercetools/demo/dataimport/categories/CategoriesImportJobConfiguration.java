@@ -30,6 +30,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
@@ -165,7 +166,7 @@ public class CategoriesImportJobConfiguration {
         }
 
         @Bean Resource categoryCsvResource() throws MalformedURLException {
-            return new UrlResource("https://raw.githubusercontent.com/sphereio/commercetools-sunrise-data/master/categories/sunrise-categories.csv");
+            return new FileSystemResource("../categories/categories.csv");
         }
 
     }
