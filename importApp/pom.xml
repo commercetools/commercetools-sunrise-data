@@ -21,6 +21,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
+        <jvm.sdk.version>1.0.0-RC2-SNAPSHOT</jvm.sdk.version>
     </properties>
 
     <dependencies>
@@ -32,17 +33,17 @@
         <dependency>
             <groupId>com.commercetools.sdk.jvm.core</groupId>
             <artifactId>commercetools-models</artifactId>
-            <version>1.0.0-RC1</version>
+            <version>${jvm.sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.commercetools.sdk.jvm.core</groupId>
             <artifactId>commercetools-java-client</artifactId>
-            <version>1.0.0-RC1</version>
+            <version>${jvm.sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.commercetools.sdk.jvm.core</groupId>
             <artifactId>commercetools-convenience</artifactId>
-            <version>1.0.0-RC1</version>
+            <version>${jvm.sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

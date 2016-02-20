@@ -16,6 +16,10 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.concurrent.TimeUnit;
+
+import static io.sphere.sdk.client.SphereClientUtils.blockingWaitForEachCollector;
+
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
@@ -29,14 +33,6 @@ public class CategoriesDeleteJobConfiguration extends CommercetoolsJobConfigurat
                 .build();
     }
 
-    protected Step deleteRemainingCategories() {
-        return stepBuilderFactory.get("deleteRemainingCategoriesStep")
-                .<Category, Category>chunk(1)
-                .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of()))
-                .writer(categoryDeleteWriter())
-                .build();
-    }
-
     protected Step deleteRootCategories() {
         return stepBuilderFactory.get("deleteRootCategoriesStep")
                 .<Category, Category>chunk(1)
@@ -45,9 +41,20 @@ public class CategoriesDeleteJobConfiguration extends CommercetoolsJobConfigurat
                 .build();
     }
 
+    protected Step deleteRemainingCategories() {
+        return stepBuilderFactory.get("deleteRemainingCategoriesStep")
+                .<Category, Category>chunk(1)
+                .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of()))
+                .writer(categoryDeleteWriter())
+                .build();
+    }
+
     private ItemWriter<Versioned<Category>> categoryDeleteWriter() {
-        return items -> items.forEach(item ->
-                sphereClient.executeBlocking(CategoryDeleteCommand.of(item)));
+        return items -> {
+            items.stream()
+                    .map(item -> sphereClient.execute(CategoryDeleteCommand.of(item)))
+                    .collect(blockingWaitForEachCollector(30, TimeUnit.SECONDS));
+        };
     }
 
     public static void main(String [] args) {
