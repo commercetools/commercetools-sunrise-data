@@ -1,8 +1,8 @@
 package com.commercetools.dataimport.products;
 
 import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
-import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.models.Versioned;
 import io.sphere.sdk.products.Product;
@@ -13,10 +13,7 @@ import io.sphere.sdk.products.queries.ProductQuery;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -31,16 +28,7 @@ import static java.util.stream.Collectors.toList;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class ProductDeleteJobConfiguration {
-    @Autowired
-    private JobBuilderFactory jobBuilderFactory;
-
-    @Autowired
-    private StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    private BlockingSphereClient sphereClient;
-
+public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration {
     @Bean
     public Job categoryDeleteJob() {
         return jobBuilderFactory.get("productsDeleteJob")

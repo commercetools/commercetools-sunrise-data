@@ -1,7 +1,7 @@
 package com.commercetools.dataimport.products;
 
 import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
-import io.sphere.sdk.client.BlockingSphereClient;
+import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
@@ -14,8 +14,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.listener.ExecutionContextPromotionListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
@@ -46,17 +44,9 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class ProductsImportJobConfiguration {
+public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguration {
     static final String b2bCustomerGroupStepContextKey = "b2bCustomerGroupId";
     static final String productTypesStepContextKey = "productTypes";
-    @Autowired
-    private JobBuilderFactory jobBuilderFactory;
-
-    @Autowired
-    private StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    private BlockingSphereClient sphereClient;
 
     @Autowired
     private Resource productsCsvResource;

@@ -1,20 +1,18 @@
 package com.commercetools.dataimport.categories;
 
 import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import com.commercetools.dataimport.common.LocalizedField;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
 import io.sphere.sdk.categories.commands.CategoryCreateCommand;
 import io.sphere.sdk.categories.queries.CategoryQuery;
-import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.models.Referenceable;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
@@ -39,7 +37,7 @@ import java.util.List;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class CategoriesImportJobConfiguration {
+public class CategoriesImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     public static class CategoryCsvLineValue {//should be serializable?
         private LocalizedField name = new LocalizedField();
@@ -82,15 +80,6 @@ public class CategoriesImportJobConfiguration {
             this.slug = slug;
         }
     }
-
-    @Autowired
-    private JobBuilderFactory jobBuilderFactory;
-
-    @Autowired
-    private StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    private BlockingSphereClient sphereClient;
 
     @Autowired
     private Resource categoryCsvResource;

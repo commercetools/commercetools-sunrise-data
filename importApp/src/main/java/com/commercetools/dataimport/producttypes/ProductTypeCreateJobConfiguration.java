@@ -1,7 +1,7 @@
 package com.commercetools.dataimport.producttypes;
 
 import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
-import io.sphere.sdk.client.BlockingSphereClient;
+import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import io.sphere.sdk.models.EnumValue;
 import io.sphere.sdk.models.LocalizedEnumValue;
 import io.sphere.sdk.models.LocalizedString;
@@ -15,8 +15,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.listener.ExecutionContextPromotionListener;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
@@ -49,16 +47,8 @@ import static java.util.stream.Collectors.toList;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class ProductTypeCreateJobConfiguration {
+public class ProductTypeCreateJobConfiguration extends CommercetoolsJobConfiguration {
     public static final String ATTRIBUTE_DEFINITIONS_LIST_KEY = "attributeDefinitionsList";
-    @Autowired
-    private JobBuilderFactory jobBuilderFactory;
-
-    @Autowired
-    private StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    private BlockingSphereClient sphereClient;
 
     @Autowired
     private Resource attributeDefinitionsCsvResource;
