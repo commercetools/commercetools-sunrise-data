@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
+import static io.sphere.sdk.client.SphereClientUtils.blockingWaitForEachCollector;
 import static java.util.stream.Collectors.toList;
 
 @Configuration
@@ -38,7 +39,7 @@ public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration
     }
 
     @Bean
-    public Step unpublishProducts() {
+    protected Step unpublishProducts() {
         final ProductQuery query = ProductQuery.of().withPredicates(m -> m.masterData().isPublished().is(true));
         return stepBuilderFactory.get("unpublishProductsStep")
                 .<Product, Product>chunk(20)
@@ -48,7 +49,7 @@ public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration
     }
 
     @Bean
-    public Step deleteProductsStep() {
+    protected Step deleteProductsStep() {
         return stepBuilderFactory.get("deleteProductsStep")
                 .<Product, Product>chunk(20)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, ProductQuery.of()))
@@ -66,12 +67,9 @@ public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration
     }
 
     private ItemWriter<Versioned<Product>> productDeleteWriter() {
-        return items -> {
-            final List<CompletionStage<Product>> completionStages = items.stream()
-                    .map(item -> sphereClient.execute(ProductDeleteCommand.of(item)))
-                    .collect(toList());
-            completionStages.forEach(stage -> SphereClientUtils.blockingWait(stage, 30, TimeUnit.SECONDS));
-        };
+        return items -> items.stream()
+                .map(item -> sphereClient.execute(ProductDeleteCommand.of(item)))
+                .collect(blockingWaitForEachCollector(30, TimeUnit.SECONDS));
     }
 
     public static void main(String [] args) {

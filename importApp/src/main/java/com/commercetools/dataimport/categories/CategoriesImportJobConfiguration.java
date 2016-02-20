@@ -38,6 +38,7 @@ import java.util.List;
 @EnableAutoConfiguration
 public class CategoriesImportJobConfiguration extends CommercetoolsJobConfiguration {
 
+    public static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId"};
     @Autowired
     private Resource categoryCsvResource;
 
@@ -49,31 +50,23 @@ public class CategoriesImportJobConfiguration extends CommercetoolsJobConfigurat
     }
 
     @Bean
-    public Step importStep(final ItemReader<CategoryCsvLineValue> categoryReader,
-                           final ItemProcessor<CategoryCsvLineValue, CategoryDraft> categoryProcessor,
-                           final ItemWriter<CategoryDraft> categoryWriter) {
-        final StepBuilder stepBuilder = stepBuilderFactory.get("importStep");
-        final SimpleStepBuilder<CategoryCsvLineValue, CategoryDraft> chunk = stepBuilder
-                .chunk(1);
-        return chunk
-                .reader(categoryReader)
-                .processor(categoryProcessor)
-                .writer(categoryWriter)
+    public Step importStep() {
+        final StepBuilder stepBuilder = stepBuilderFactory.get("categoriesImportStep");
+        return stepBuilder
+                .<CategoryCsvLineValue, CategoryDraft>chunk(1)
+                .reader(categoryReader())
+                .processor(categoryProcessor())
+                .writer(categoryWriter())
                 .build();
     }
 
     @Bean
-    public ItemWriter<CategoryDraft> categoryWriter() {
-        return new AbstractItemStreamItemWriter<CategoryDraft>() {
-            @Override
-            public void write(final List<? extends CategoryDraft> items) throws Exception {
-                items.forEach(draft -> sphereClient.executeBlocking(CategoryCreateCommand.of(draft)));
-            }
-        };
+    protected ItemWriter<CategoryDraft> categoryWriter() {
+        return items -> items.forEach(draft -> sphereClient.executeBlocking(CategoryCreateCommand.of(draft)));
     }
 
     @Bean
-    public ItemProcessor<CategoryCsvLineValue, CategoryDraft> categoryProcessor() {
+    protected ItemProcessor<CategoryCsvLineValue, CategoryDraft> categoryProcessor() {
         return item -> {
             final LocalizedString name = item.getName().toLocalizedString();
             final LocalizedString slug = item.getSlug().toLocalizedString();
@@ -87,12 +80,12 @@ public class CategoriesImportJobConfiguration extends CommercetoolsJobConfigurat
     }
 
     @Bean
-    public ItemReader<CategoryCsvLineValue> categoryReader() {
+    protected ItemReader<CategoryCsvLineValue> categoryReader() {
         FlatFileItemReader<CategoryCsvLineValue> reader = new FlatFileItemReader<>();
         reader.setResource(categoryCsvResource);
         reader.setLineMapper(new DefaultLineMapper<CategoryCsvLineValue>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
-                setNames(new String[] {"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId"});
+                setNames(CATEGORY_CSV_HEADER_NAMES);
             }});
             setFieldSetMapper(new BeanWrapperFieldSetMapper<CategoryCsvLineValue>() {{
                 setTargetType(CategoryCsvLineValue.class);

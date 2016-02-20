@@ -19,11 +19,13 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -51,6 +53,9 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     @Autowired
     private Resource productsCsvResource;
 
+    @Value("${productsImportStep.chunkSize}")
+    private int productsImportStepChunkSize = 20;
+
     @Bean
     public Job importProducts(final Step getOrCreateCustomerGroup, final Step importStep, final Step getProductTypesStep) {
         return jobBuilderFactory.get("productsImportJob")
@@ -65,16 +70,17 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
         final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
         listener.setKeys(new String[]{productTypesStepContextKey});
         return stepBuilderFactory.get("getProductTypesStep")
-                .tasklet(new Tasklet() {
-                    @Override
-                    public RepeatStatus execute(final StepContribution contribution, final ChunkContext chunkContext) throws Exception {
-                        final List<ProductType> productTypes = blockingWait(queryAll(sphereClient, ProductTypeQuery.of()), 30, TimeUnit.SECONDS);
-                        chunkContext.getStepContext().getStepExecution().getExecutionContext().put(productTypesStepContextKey, productTypes);
-                        return RepeatStatus.FINISHED;
-                    }
-                })
+                .tasklet(saveProductTypeTasklet())
                 .listener(listener)
                 .build();
+    }
+
+    private Tasklet saveProductTypeTasklet() {
+        return (contribution, chunkContext) -> {
+            final List<ProductType> productTypes = blockingWait(queryAll(sphereClient, ProductTypeQuery.of()), 30, TimeUnit.SECONDS);
+            chunkContext.getStepContext().getStepExecution().getExecutionContext().put(productTypesStepContextKey, productTypes);
+            return RepeatStatus.FINISHED;
+        };
     }
 
     @Bean
@@ -82,26 +88,30 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
         final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
         listener.setKeys(new String[]{b2bCustomerGroupStepContextKey});
         return stepBuilderFactory.get("getOrCreateCustomerGroupStep")
-                .tasklet(new Tasklet() {
-                    @Override
-                    public RepeatStatus execute(final StepContribution contribution, final ChunkContext chunkContext) throws Exception {
-                        final String customerGroupName = "b2b";
-                        final CustomerGroup customerGroup = sphereClient.executeBlocking(CustomerGroupQuery.of().byName(customerGroupName)).head()
-                                .orElseGet(() -> sphereClient.executeBlocking(CustomerGroupCreateCommand.of(customerGroupName)));
-                        chunkContext.getStepContext().getStepExecution().getExecutionContext().put(b2bCustomerGroupStepContextKey, customerGroup.getId());
-                        return RepeatStatus.FINISHED;
-                    }
-                })
+                .tasklet(saveCustomerGroupTasklet())
                 .listener(listener)
                 .build();
+    }
+
+    private Tasklet saveCustomerGroupTasklet() {
+        return (contribution, chunkContext) -> {
+            final String customerGroupName = "b2b";
+            final CustomerGroup customerGroup =
+                    sphereClient.executeBlocking(CustomerGroupQuery.of().byName(customerGroupName)).head()
+                    .orElseGet(() -> sphereClient.executeBlocking(CustomerGroupCreateCommand.of(customerGroupName)));
+            final ExecutionContext executionContext = chunkContext.getStepContext()
+                    .getStepExecution()
+                    .getExecutionContext();
+            executionContext.put(b2bCustomerGroupStepContextKey, customerGroup.getId());
+            return RepeatStatus.FINISHED;
+        };
     }
 
     @Bean
     public Step importStep() {
         final StepBuilder stepBuilder = stepBuilderFactory.get("productsImportStep");
-        final SimpleStepBuilder<ProductDraft, ProductDraft> chunk = stepBuilder
-                .chunk(20);
-        return chunk
+        return stepBuilder
+                .<ProductDraft, ProductDraft>chunk(productsImportStepChunkSize)
                 .reader(productsReader())
                 .processor(productsProcessor())
                 .writer(productsWriter())

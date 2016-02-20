@@ -43,18 +43,16 @@ public class CategoriesDeleteJobConfiguration extends CommercetoolsJobConfigurat
 
     protected Step deleteRemainingCategories() {
         return stepBuilderFactory.get("deleteRemainingCategoriesStep")
-                .<Category, Category>chunk(1)
+                .<Category, Category>chunk(1)//should always be 1 for commerctools platform
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of()))
                 .writer(categoryDeleteWriter())
                 .build();
     }
 
     private ItemWriter<Versioned<Category>> categoryDeleteWriter() {
-        return items -> {
-            items.stream()
-                    .map(item -> sphereClient.execute(CategoryDeleteCommand.of(item)))
-                    .collect(blockingWaitForEachCollector(30, TimeUnit.SECONDS));
-        };
+        return items -> items.stream()
+                .map(item -> sphereClient.execute(CategoryDeleteCommand.of(item)))
+                .collect(blockingWaitForEachCollector(30, TimeUnit.SECONDS));
     }
 
     public static void main(String [] args) {
