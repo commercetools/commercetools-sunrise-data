@@ -1,4 +1,4 @@
-package com.commercetools.demo.dataimport.producttypes;
+package com.commercetools.dataimport.producttypes;
 
 import io.sphere.sdk.models.EnumValue;
 import io.sphere.sdk.models.LocalizedEnumValue;
@@ -9,7 +9,6 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
-import org.springframework.util.StringUtils;
 
 import static org.springframework.util.StringUtils.isEmpty;
 

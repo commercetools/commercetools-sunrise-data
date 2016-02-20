@@ -1,6 +1,6 @@
-package com.commercetools.demo.dataimport.products;
+package com.commercetools.dataimport.products;
 
-import com.commercetools.demo.dataimport.common.LocalizedField;
+import com.commercetools.dataimport.common.LocalizedField;
 
 public class ProductsCsvEntry {
     private String productType;

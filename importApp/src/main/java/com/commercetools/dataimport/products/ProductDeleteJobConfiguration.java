@@ -1,6 +1,6 @@
-package com.commercetools.demo.dataimport.products;
+package com.commercetools.dataimport.products;
 
-import com.commercetools.demo.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClientUtils;

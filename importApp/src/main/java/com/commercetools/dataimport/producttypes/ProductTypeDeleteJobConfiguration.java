@@ -1,4 +1,4 @@
-package com.commercetools.demo.dataimport.producttypes;
+package com.commercetools.dataimport.producttypes;
 
 import io.sphere.sdk.client.BlockingSphereClient;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;

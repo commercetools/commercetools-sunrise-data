@@ -1,4 +1,4 @@
-package com.commercetools.demo.dataimport.producttypes;
+package com.commercetools.dataimport.producttypes;
 
 import java.util.LinkedList;
 import java.util.List;

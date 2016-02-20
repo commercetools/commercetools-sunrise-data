@@ -1,6 +1,6 @@
-package com.commercetools.demo.dataimport.categories;
+package com.commercetools.dataimport.categories;
 
-import com.commercetools.demo.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.commands.CategoryDeleteCommand;

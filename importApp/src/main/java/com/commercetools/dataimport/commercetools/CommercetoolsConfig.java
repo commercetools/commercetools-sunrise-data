@@ -1,4 +1,4 @@
-package com.commercetools.demo.dataimport.commercetools;
+package com.commercetools.dataimport.commercetools;
 
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClient;

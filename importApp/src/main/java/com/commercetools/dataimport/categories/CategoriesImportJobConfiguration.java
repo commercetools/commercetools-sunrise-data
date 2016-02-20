@@ -1,7 +1,7 @@
-package com.commercetools.demo.dataimport.categories;
+package com.commercetools.dataimport.categories;
 
-import com.commercetools.demo.dataimport.commercetools.CommercetoolsConfig;
-import com.commercetools.demo.dataimport.common.LocalizedField;
+import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.common.LocalizedField;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
@@ -32,11 +32,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.Locale;
 
 @Configuration
 @EnableBatchProcessing

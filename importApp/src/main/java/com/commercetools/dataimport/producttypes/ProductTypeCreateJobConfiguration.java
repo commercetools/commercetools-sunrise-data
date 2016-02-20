@@ -1,6 +1,6 @@
-package com.commercetools.demo.dataimport.producttypes;
+package com.commercetools.dataimport.producttypes;
 
-import com.commercetools.demo.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.models.EnumValue;
 import io.sphere.sdk.models.LocalizedEnumValue;

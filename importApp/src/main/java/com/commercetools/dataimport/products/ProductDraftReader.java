@@ -1,4 +1,4 @@
-package com.commercetools.demo.dataimport.products;
+package com.commercetools.dataimport.products;
 
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.customergroups.CustomerGroup;
@@ -9,7 +9,6 @@ import io.sphere.sdk.models.ResourceIdentifier;
 import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.attributes.*;
 import io.sphere.sdk.producttypes.ProductType;
-import io.sphere.sdk.producttypes.ProductTypeLocalRepository;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
