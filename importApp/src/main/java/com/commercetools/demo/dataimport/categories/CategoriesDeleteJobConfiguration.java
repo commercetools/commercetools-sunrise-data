@@ -34,15 +34,14 @@ public class CategoriesDeleteJobConfiguration {
     private BlockingSphereClient sphereClient;
 
     @Bean
-    public Job categoryDeleteJob() {
+    public Job categoriesDeleteJob() {
         return jobBuilderFactory.get("categoriesDeleteJob")
                 .start(deleteRootCategories())
                 .next(deleteRemainingCategories())
                 .build();
     }
 
-    @Bean
-    public Step deleteRemainingCategories() {
+    protected Step deleteRemainingCategories() {
         return stepBuilderFactory.get("deleteRemainingCategoriesStep")
                 .<Category, Category>chunk(1)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of()))
@@ -50,8 +49,7 @@ public class CategoriesDeleteJobConfiguration {
                 .build();
     }
 
-    @Bean
-    public Step deleteRootCategories() {
+    protected Step deleteRootCategories() {
         return stepBuilderFactory.get("deleteRootCategoriesStep")
                 .<Category, Category>chunk(1)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of().byIsRoot()))
