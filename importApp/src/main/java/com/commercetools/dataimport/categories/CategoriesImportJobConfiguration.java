@@ -2,7 +2,6 @@ package com.commercetools.dataimport.categories;
 
 import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
-import com.commercetools.dataimport.common.LocalizedField;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
@@ -38,48 +37,6 @@ import java.util.List;
 @EnableBatchProcessing
 @EnableAutoConfiguration
 public class CategoriesImportJobConfiguration extends CommercetoolsJobConfiguration {
-
-    public static class CategoryCsvLineValue {//should be serializable?
-        private LocalizedField name = new LocalizedField();
-        private LocalizedField slug = new LocalizedField();
-        private String parentId;
-        private String externalId;
-
-        public CategoryCsvLineValue() {
-        }
-
-        public String getExternalId() {
-            return externalId;
-        }
-
-        public void setExternalId(final String externalId) {
-            this.externalId = externalId;
-        }
-
-        public LocalizedField getName() {
-            return name;
-        }
-
-        public void setName(final LocalizedField name) {
-            this.name = name;
-        }
-
-        public String getParentId() {
-            return parentId;
-        }
-
-        public void setParentId(final String parentId) {
-            this.parentId = parentId;
-        }
-
-        public LocalizedField getSlug() {
-            return slug;
-        }
-
-        public void setSlug(final LocalizedField slug) {
-            this.slug = slug;
-        }
-    }
 
     @Autowired
     private Resource categoryCsvResource;
