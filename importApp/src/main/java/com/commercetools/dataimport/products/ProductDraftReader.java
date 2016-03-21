@@ -9,6 +9,7 @@ import io.sphere.sdk.models.ResourceIdentifier;
 import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.attributes.*;
 import io.sphere.sdk.producttypes.ProductType;
+import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
@@ -45,6 +46,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private ProductDraftBuilder prevEntry = null;
     private String b2bCustomerGroupId;
     private List<ProductType> productTypes;
+    private TaxCategory taxCategory;
     private static final Pattern pricePattern = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d{1,})(?:[|]\\d{1,})?(?:[ ](?<customerGroup>\\w\\p{Alnum}+))?$");
 
     public ProductDraftReader(final Resource attributeDefinitionsCsvResource, final int maxProducts) {
@@ -193,7 +195,8 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         addImages(productsCsvEntry, productVariantDraftBuilder);
         final ProductVariantDraft masterVariant = productVariantDraftBuilder
                 .build();
-        final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant);
+        final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant)
+                .taxCategory(taxCategory);
         return entry;
     }
 
@@ -267,5 +270,6 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         ExecutionContext jobContext = jobExecution.getExecutionContext();
         b2bCustomerGroupId = (String) jobContext.get(ProductsImportJobConfiguration.b2bCustomerGroupStepContextKey);
         productTypes = (List<ProductType>) jobContext.get(ProductsImportJobConfiguration.productTypesStepContextKey);
+        taxCategory = (TaxCategory) jobContext.get(ProductsImportJobConfiguration.taxCategoryKey);
     }
 }
