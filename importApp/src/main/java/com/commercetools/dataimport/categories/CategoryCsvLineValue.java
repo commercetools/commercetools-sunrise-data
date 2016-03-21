@@ -2,7 +2,7 @@ package com.commercetools.dataimport.categories;
 
 import com.commercetools.dataimport.common.LocalizedField;
 
-class CategoryCsvLineValue {
+public class CategoryCsvLineValue {
     private LocalizedField name = new LocalizedField();
     private LocalizedField slug = new LocalizedField();
     private String parentId;
