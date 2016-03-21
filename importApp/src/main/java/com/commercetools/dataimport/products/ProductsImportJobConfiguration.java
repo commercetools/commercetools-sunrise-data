@@ -4,7 +4,11 @@ import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.neovisionaries.i18n.CountryCode;
+import io.sphere.sdk.categories.Category;
+import io.sphere.sdk.categories.CategoryTree;
+import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.client.SphereClientUtils;
+import io.sphere.sdk.client.SphereRequestUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
@@ -13,6 +17,7 @@ import io.sphere.sdk.products.attributes.AttributeDraft;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
+import io.sphere.sdk.queries.QueryExecutionUtils;
 import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.taxcategories.TaxCategoryDraft;
 import io.sphere.sdk.taxcategories.TaxRate;
@@ -55,6 +60,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguration {
     static final String b2bCustomerGroupStepContextKey = "b2bCustomerGroupId";
     static final String taxCategoryKey = "taxCategory";
+    static final String categoryTreeKey = "categoryTreeKey";
     static final String productTypesStepContextKey = "productTypes";
 
     @Autowired
@@ -100,7 +106,7 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     @Bean
     public Step getOrCreateTaxCategoryStep() {
         final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
-        listener.setKeys(new String[]{taxCategoryKey});
+        listener.setKeys(new String[]{taxCategoryKey, categoryTreeKey});
         return stepBuilderFactory.get("getOrCreateTaxCategoryStep")
                 .tasklet(saveTaxCategoryTasklet())
                 .listener(listener)
@@ -132,10 +138,16 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
                         ));
                         return sphereClient.executeBlocking(TaxCategoryCreateCommand.of(body));
                     });
+
+
+            final List<Category> categories = blockingWait(queryAll(sphereClient, CategoryQuery.of()), 3, TimeUnit.MINUTES);
+            final CategoryTree categoryTree = CategoryTree.of(categories);
+
             final ExecutionContext executionContext = chunkContext.getStepContext()
                     .getStepExecution()
                     .getExecutionContext();
             executionContext.put(taxCategoryKey, taxCategory);
+            executionContext.put(categoryTreeKey, categoryTree);
             return RepeatStatus.FINISHED;
         };
     }
@@ -197,7 +209,7 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
                         })
                         .map(item -> sphereClient.execute(ProductCreateCommand.of(item)))
                         .collect(toList())
-                        .forEach(stage -> SphereClientUtils.blockingWait(stage, 30, TimeUnit.SECONDS));
+                        .forEach(stage -> blockingWait(stage, 30, TimeUnit.SECONDS));
             }
         };
     }

@@ -42,7 +42,7 @@ public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration
     protected Step unpublishProducts() {
         final ProductQuery query = ProductQuery.of().withPredicates(m -> m.masterData().isPublished().is(true));
         return stepBuilderFactory.get("unpublishProductsStep")
-                .<Product, Product>chunk(20)
+                .<Product, Product>chunk(50)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, query))
                 .writer(productUnpublishWriter())
                 .build();
@@ -62,14 +62,14 @@ public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration
             final List<CompletionStage<Product>> completionStages = items.stream()
                     .map(item -> sphereClient.execute(ProductUpdateCommand.of(item, Unpublish.of())))
                     .collect(toList());
-            completionStages.forEach(stage -> SphereClientUtils.blockingWait(stage, 30, TimeUnit.SECONDS));
+            completionStages.forEach(stage -> SphereClientUtils.blockingWait(stage, 60, TimeUnit.SECONDS));
         };
     }
 
     private ItemWriter<Versioned<Product>> productDeleteWriter() {
         return items -> items.stream()
                 .map(item -> sphereClient.execute(ProductDeleteCommand.of(item)))
-                .collect(blockingWaitForEachCollector(30, TimeUnit.SECONDS));
+                .collect(blockingWaitForEachCollector(60, TimeUnit.SECONDS));
     }
 
     public static void main(String [] args) {

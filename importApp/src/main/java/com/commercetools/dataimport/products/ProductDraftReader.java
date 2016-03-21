@@ -1,6 +1,8 @@
 package com.commercetools.dataimport.products;
 
 import com.neovisionaries.i18n.CountryCode;
+import io.sphere.sdk.categories.Category;
+import io.sphere.sdk.categories.CategoryTree;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.models.LocalizedStringEntry;
@@ -34,9 +36,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private FlatFileItemReader<FieldSet> delegate;
@@ -47,6 +51,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private String b2bCustomerGroupId;
     private List<ProductType> productTypes;
     private TaxCategory taxCategory;
+    private CategoryTree categoryTree;
     private static final Pattern pricePattern = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d{1,})(?:[|]\\d{1,})?(?:[ ](?<customerGroup>\\w\\p{Alnum}+))?$");
 
     public ProductDraftReader(final Resource attributeDefinitionsCsvResource, final int maxProducts) {
@@ -187,6 +192,37 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         final LocalizedString name = productsCsvEntry.getName().toLocalizedString();
         final LocalizedString slug = productsCsvEntry.getSlug().toLocalizedString();
 
+        final String categories = productsCsvEntry.getCategories();
+
+        final Set<Reference<Category>> categoriesSet;
+        if (isNotEmpty(categories)) {
+            final Stream<String> categoryPaths = Arrays.stream(categories.split(";"));//sth. like Women>Shoes>Loafers;Sale>Women>Shoes
+            categoriesSet = categoryPaths.map(path -> {
+                CategoryTree tree = categoryTree;
+                Category foundCat = null;
+                boolean continueFlag = true;
+                for (final String catname : path.split(">")) {
+                    //TODO handle category does not exist
+                    if (continueFlag) {
+                        foundCat = tree.getSubtreeRoots().stream()
+                                .filter(cat -> catname.equals(cat.getName().get(Locale.ENGLISH)))
+                                .findFirst()
+                                .orElse(null);
+                        continueFlag = foundCat != null;
+                        if (continueFlag) {
+                            tree = tree.getSubtree(tree.findChildren(foundCat));
+                        }
+                    }
+                }
+                return foundCat;
+            })
+            .filter(x -> x != null)
+            .map(c -> c.toReference())
+            .collect(toSet());
+        } else {
+            categoriesSet = Collections.emptySet();
+        }
+
         final String pricesLine = productsCsvEntry.getPrices();
         final List<PriceDraft> prices = parsePricesLine(pricesLine);
         final ProductVariantDraftBuilder productVariantDraftBuilder = ProductVariantDraftBuilder.of()
@@ -196,7 +232,8 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         final ProductVariantDraft masterVariant = productVariantDraftBuilder
                 .build();
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant)
-                .taxCategory(taxCategory);
+                .taxCategory(taxCategory)
+                .categories(categoriesSet);
         return entry;
     }
 
@@ -270,6 +307,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         ExecutionContext jobContext = jobExecution.getExecutionContext();
         b2bCustomerGroupId = (String) jobContext.get(ProductsImportJobConfiguration.b2bCustomerGroupStepContextKey);
         productTypes = (List<ProductType>) jobContext.get(ProductsImportJobConfiguration.productTypesStepContextKey);
+        categoryTree = (CategoryTree) jobContext.get(ProductsImportJobConfiguration.categoryTreeKey);
         taxCategory = (TaxCategory) jobContext.get(ProductsImportJobConfiguration.taxCategoryKey);
     }
 }
