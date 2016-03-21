@@ -2,27 +2,23 @@ package com.commercetools.dataimport.products;
 
 import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
+import com.fasterxml.jackson.databind.node.TextNode;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
 import io.sphere.sdk.products.ProductDraft;
+import io.sphere.sdk.products.attributes.AttributeDraft;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.listener.ExecutionContextPromotionListener;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.*;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,8 +49,11 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     @Autowired
     private Resource productsCsvResource;
 
-    @Value("${productsImportStep.chunkSize}")
-    private int productsImportStepChunkSize = 20;
+    @Value("${productsImportStep.maxProducts:1000}")
+    private int maxProducts;
+
+    @Value("${productsImportStep.chunkSize:20}")
+    private int productsImportStepChunkSize;
 
     @Bean
     public Job importProducts(final Step getOrCreateCustomerGroup, final Step importStep, final Step getProductTypesStep) {
@@ -134,7 +133,7 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
 
     @Bean
     protected ItemReader<ProductDraft> productsReader() {
-        return new ProductDraftReader(productsCsvResource);
+        return new ProductDraftReader(productsCsvResource, maxProducts);
     }
 
     @Bean
@@ -143,6 +142,11 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
             @Override
             public void write(final List<? extends ProductDraft> items) throws Exception {
                 items.stream()
+                        //!!!TODO some products are filtered out since the product type is incomplete
+                        .filter(item -> {
+                            final List<AttributeDraft> attributes = item.getMasterVariant().getAttributes();
+                            return !attributes.stream().anyMatch(a -> a.getName().equals("designer") && a.getValue().equals(new TextNode("juliat")));
+                        })
                         .map(item -> sphereClient.execute(ProductCreateCommand.of(item)))
                         .collect(toList())
                         .forEach(stage -> SphereClientUtils.blockingWait(stage, 30, TimeUnit.SECONDS));

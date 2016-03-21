@@ -51,7 +51,7 @@ public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration
     @Bean
     protected Step deleteProductsStep() {
         return stepBuilderFactory.get("deleteProductsStep")
-                .<Product, Product>chunk(20)
+                .<Product, Product>chunk(50)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, ProductQuery.of()))
                 .writer(productDeleteWriter())
                 .build();

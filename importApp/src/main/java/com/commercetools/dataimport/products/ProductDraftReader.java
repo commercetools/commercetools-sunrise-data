@@ -40,13 +40,16 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private FlatFileItemReader<FieldSet> delegate;
     private final Resource attributeDefinitionsCsvResource;
+    private final int maxProducts;
+    private int currentProducts = 0;
     private ProductDraftBuilder prevEntry = null;
     private String b2bCustomerGroupId;
     private List<ProductType> productTypes;
     private static final Pattern pricePattern = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d{1,})(?:[|]\\d{1,})?(?:[ ](?<customerGroup>\\w\\p{Alnum}+))?$");
 
-    public ProductDraftReader(final Resource attributeDefinitionsCsvResource) {
+    public ProductDraftReader(final Resource attributeDefinitionsCsvResource, final int maxProducts) {
         this.attributeDefinitionsCsvResource = attributeDefinitionsCsvResource;
+        this.maxProducts = maxProducts;
         final DefaultLineMapper<FieldSet> fullLineMapper = new DefaultLineMapper<FieldSet>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(new String[]{"productType","variantId","id","sku","prices","tax","categories","images","name.de","name.en","description.de","description.en","slug.de","slug.en","metaTitle.de","metaTitle.en","metaDescription.de","metaDescription.en","metaKeywords.de","metaKeywords.en","searchKeywords.de","searchKeywords.en","creationDate","articleNumberManufacturer","articleNumberMax","matrixId","baseId","designer","madeInItaly","completeTheLook","commonSize","size","color","colorFreeDefinition.de","colorFreeDefinition.en","details.de","details.en","style","gender","season","isOnStock","isLook","lookProducts","seasonNew"});
@@ -63,6 +66,14 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
 
     @Override
     public ProductDraft read() throws Exception {
+        if (currentProducts < maxProducts) {
+            currentProducts++;
+            return readDelegate();
+        }
+        return null;
+    }
+
+    private ProductDraft readDelegate() throws Exception {
         ProductDraftBuilder entry = null;
         FieldSet currentLine = null;
         do {
@@ -105,7 +116,10 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     }
 
     private List<AttributeDraft> parseAttributes(final FieldSet currentLine, final List<ProductType> productTypes, final String productTypeKey) {
-        final ProductType productType = productTypes.stream().filter(p -> p.getKey().equals(productTypeKey)).findFirst().get();
+        final ProductType productType = productTypes.stream()
+                .filter(p -> productTypeKey.equals(p.getKey()))
+                .findFirst()
+                .get();
         final Properties properties = currentLine.getProperties();
         final List<AttributeDraft> result = productType.getAttributes().stream()
                 .map(a -> {
