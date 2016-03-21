@@ -121,8 +121,7 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                                     if (nullableValue == null) {
                                         return null;
                                     } else {
-                                        final Locale locale = Locale.forLanguageTag(columnName.replace(name + ".", ""));
-                                        return LocalizedStringEntry.of(locale, nullableValue);
+                                        return LocalizedStringEntry.of(columnName.replace(name + ".", ""), nullableValue);
                                     }
                                 })
                                 .filter(x -> x != null)
