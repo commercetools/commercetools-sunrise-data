@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration
-public class CategoriesDeleteJobConfigurationTest {
+public class CategoriesDeleteJobConfigurationIntegrationTest {
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
 

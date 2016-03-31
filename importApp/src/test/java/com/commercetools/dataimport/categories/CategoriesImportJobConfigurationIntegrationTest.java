@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration
-public class CategoriesImportJobConfigurationTest {
+public class CategoriesImportJobConfigurationIntegrationTest {
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
 
