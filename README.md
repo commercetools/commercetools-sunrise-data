@@ -21,3 +21,7 @@ Use product-types.csv and product-type-attribute-definitions.csv for generate a 
 ## import products
 1. Use the product structure as in products.csv
 2. Import it with https://impex.sphere.io/commands/product-import
+
+# Import app
+
+[![Build Status](https://travis-ci.org/sphereio/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/sphereio/commercetools-sunrise-data)
