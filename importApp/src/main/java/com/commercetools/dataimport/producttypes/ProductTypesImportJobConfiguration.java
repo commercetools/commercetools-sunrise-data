@@ -1,6 +1,5 @@
 package com.commercetools.dataimport.producttypes;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -14,21 +13,20 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.List;
 
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
+@Lazy
 public class ProductTypesImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Autowired
@@ -63,20 +61,5 @@ public class ProductTypesImportJobConfiguration extends CommercetoolsJobConfigur
         final InputStream inputStream = productTypesArrayResource.getInputStream();
         final List<ProductTypeDraft> list = reader.readValue(inputStream);
         return new ListItemReader<>(list);
-    }
-
-    @Configuration
-    public static class MainConfiguration {//TODO improve
-        public MainConfiguration() {
-        }
-
-        @Bean Resource productTypesArrayResource() throws MalformedURLException {
-            return new FileSystemResource("../product-types/product-types.json");
-        }
-    }
-
-    public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, ProductTypesImportJobConfiguration.class, MainConfiguration.class};
-        System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }

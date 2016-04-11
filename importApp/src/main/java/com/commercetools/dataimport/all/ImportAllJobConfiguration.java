@@ -1,6 +1,5 @@
 package com.commercetools.dataimport.all;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -15,20 +14,19 @@ import org.springframework.context.annotation.Lazy;
 @EnableBatchProcessing
 @EnableAutoConfiguration
 @Lazy
-public class DeleteAllJobConfiguration {
+public class ImportAllJobConfiguration {
     @Autowired
     protected JobBuilderFactory jobBuilderFactory;
 
     @Autowired
     protected StepBuilderFactory stepBuilderFactory;
 
-
     @Bean
-    Job deleteAllJob(Job productsDeleteJob, Job productTypesDeleteJob, Job categoriesDeleteJob) {
-        return jobBuilderFactory.get("allDeleteJob")
-                .start(stepBuilderFactory.get("productsDeleteJob").job(productsDeleteJob).build())
-                .next(stepBuilderFactory.get("categoriesDeleteJob").job(categoriesDeleteJob).build())
-                .next(stepBuilderFactory.get("productTypesDeleteJob").job(productTypesDeleteJob).build())
+    Job allImportsJob(Job importProducts, Job importCategories, Job productTypeCreateJob) {
+        return jobBuilderFactory.get("allImportsJob")
+                .start(stepBuilderFactory.get("importCategoriesJob").job(importCategories).build())
+                .next(stepBuilderFactory.get("productTypeCreateJob").job(productTypeCreateJob).build())
+                .next(stepBuilderFactory.get("importProductsJob").job(importProducts).build())
                 .build();
     }
 }

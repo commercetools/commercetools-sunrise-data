@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.producttypes;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.producttypes.ProductType;
@@ -12,12 +12,15 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
+@Lazy
 public class ProductTypeDeleteJobConfiguration extends CommercetoolsJobConfiguration {
     @Bean
     public Job productTypesDeleteJob(final Step deleteProductTypes) {
@@ -41,7 +44,7 @@ public class ProductTypeDeleteJobConfiguration extends CommercetoolsJobConfigura
     }
 
     public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, ProductTypeDeleteJobConfiguration.class};
+        final Object[] sources = {CommercetoolsPayloadFileConfig.class, ProductTypeDeleteJobConfiguration.class};
         System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }

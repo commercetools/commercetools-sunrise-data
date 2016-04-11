@@ -1,6 +1,5 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
@@ -21,18 +20,16 @@ import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
-
-import java.net.MalformedURLException;
 
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
+@Lazy
 public class CategoriesImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     public static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId"};
@@ -92,21 +89,5 @@ public class CategoriesImportJobConfiguration extends CommercetoolsJobConfigurat
         }});
         reader.setLinesToSkip(1);
         return reader;
-    }
-
-    @Configuration
-    public static class MainConfiguration {//TODO improve
-        public MainConfiguration() {
-        }
-
-        @Bean Resource categoryCsvResource() throws MalformedURLException {
-            return new FileSystemResource("../categories/categories.csv");
-        }
-
-    }
-
-    public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, CategoriesImportJobConfiguration.class, MainConfiguration.class};
-        System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }

@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
 import io.sphere.sdk.categories.commands.CategoryCreateCommand;
@@ -23,7 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, CommercetoolsConfig.class, CategoriesDeleteJobConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, CommercetoolsPayloadFileConfig.class, CategoriesDeleteJobConfiguration.class})
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration

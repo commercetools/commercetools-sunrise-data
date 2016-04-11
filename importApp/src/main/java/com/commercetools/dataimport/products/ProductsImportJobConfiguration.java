@@ -1,14 +1,12 @@
 package com.commercetools.dataimport.products;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryTree;
 import io.sphere.sdk.categories.queries.CategoryQuery;
-import io.sphere.sdk.client.SphereClientUtils;
-import io.sphere.sdk.client.SphereRequestUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
@@ -17,7 +15,6 @@ import io.sphere.sdk.products.attributes.AttributeDraft;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
-import io.sphere.sdk.queries.QueryExecutionUtils;
 import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.taxcategories.TaxCategoryDraft;
 import io.sphere.sdk.taxcategories.TaxRate;
@@ -38,8 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -57,6 +56,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
+@Lazy
 public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguration {
     static final String b2bCustomerGroupStepContextKey = "b2bCustomerGroupId";
     static final String taxCategoryKey = "taxCategory";
@@ -75,13 +75,13 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     @Bean
     public Job importProducts(final Step getOrCreateCustomerGroup,
                               final Step getOrCreateTaxCategoryStep,
-                              final Step importStep,
+                              final Step productsImportStep,
                               final Step getProductTypesStep) {
         return jobBuilderFactory.get("productsImportJob")
                 .start(getOrCreateCustomerGroup)
                 .next(getOrCreateTaxCategoryStep)
                 .next(getProductTypesStep)
-                .next(importStep)
+                .next(productsImportStep)
                 .build();
     }
 
@@ -167,7 +167,7 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     }
 
     @Bean
-    public Step importStep() {
+    public Step productsImportStep() {
         final StepBuilder stepBuilder = stepBuilderFactory.get("productsImportStep");
         return stepBuilder
                 .<ProductDraft, ProductDraft>chunk(productsImportStepChunkSize)
@@ -212,22 +212,5 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
                         .forEach(stage -> blockingWait(stage, 30, TimeUnit.SECONDS));
             }
         };
-    }
-
-
-    @Configuration
-    public static class MainConfiguration {//TODO improve
-        public MainConfiguration() {
-        }
-
-        @Bean Resource productsCsvResource() throws MalformedURLException {
-            return new FileSystemResource("../products/products.csv");
-        }
-
-    }
-
-    public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, ProductsImportJobConfiguration.class, MainConfiguration.class};
-        System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }
