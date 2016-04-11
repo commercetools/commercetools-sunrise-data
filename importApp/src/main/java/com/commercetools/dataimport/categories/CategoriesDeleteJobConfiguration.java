@@ -25,7 +25,6 @@ import static io.sphere.sdk.client.SphereClientUtils.blockingWaitForEachCollecto
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-@Lazy
 public class CategoriesDeleteJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Bean

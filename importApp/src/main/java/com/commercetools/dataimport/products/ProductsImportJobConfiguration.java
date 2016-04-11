@@ -56,7 +56,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-@Lazy
 public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguration {
     static final String b2bCustomerGroupStepContextKey = "b2bCustomerGroupId";
     static final String taxCategoryKey = "taxCategory";

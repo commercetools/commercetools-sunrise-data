@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Lazy;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-@Lazy
 public class ProductTypeDeleteJobConfiguration extends CommercetoolsJobConfiguration {
     @Bean
     public Job productTypesDeleteJob(final Step deleteProductTypes) {

@@ -29,7 +29,6 @@ import org.springframework.core.io.Resource;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-@Lazy
 public class CategoriesImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     public static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId"};

@@ -31,7 +31,6 @@ import static java.util.stream.Collectors.toList;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-@Lazy
 public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Bean

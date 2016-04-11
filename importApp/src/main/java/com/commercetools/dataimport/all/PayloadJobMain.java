@@ -13,14 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -34,7 +32,6 @@ import java.util.Optional;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-@Lazy
 public class PayloadJobMain extends CommercetoolsJobConfiguration {
 
     public static void main(String [] args) throws Exception {
@@ -102,8 +99,7 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
                 ProductTypeDeleteJobConfiguration.class,
                 CategoriesDeleteJobConfiguration.class,
                 MainConfiguration.class,
-                DeleteAllJobConfiguration.class,
-                ImportAllJobConfiguration.class,
+                CombinedJobsConfiguration.class,
                 PayloadJobMain.class
         };
         return SpringApplication.run(sources, args);

@@ -26,7 +26,6 @@ import java.util.List;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-@Lazy
 public class ProductTypesImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Autowired
