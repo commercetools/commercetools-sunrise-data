@@ -50,7 +50,10 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
                     for(int i = 0; i < jobs.size(); i++) {
                         final JsonNode jobConfig = jobs.get(i);
                         final Job job = context.getBean(jobConfig.get("name").asText(), Job.class);
-                        jobLauncher.run(job, new JobParameters(Collections.singletonMap("payloadFile", new JobParameter(payloadFilePath))));
+                        final JobExecution jobExecution = jobLauncher.run(job, new JobParameters(Collections.singletonMap("payloadFile", new JobParameter(payloadFilePath))));
+                        while (jobExecution.isRunning()) {
+                            Thread.sleep(1000);//TODO improve
+                        }
                     }
                 } catch (final Exception e) {
                     throw new RuntimeException(e);
