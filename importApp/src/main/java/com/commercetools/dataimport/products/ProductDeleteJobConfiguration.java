@@ -31,10 +31,10 @@ import static java.util.stream.Collectors.toList;
 @EnableAutoConfiguration
 public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration {
     @Bean
-    public Job categoryDeleteJob() {
+    public Job productsDeleteJob(Step unpublishProducts, Step deleteProductsStep) {
         return jobBuilderFactory.get("productsDeleteJob")
-                .start(unpublishProducts())
-                .next(deleteProductsStep())
+                .start(unpublishProducts)
+                .next(deleteProductsStep)
                 .build();
     }
 

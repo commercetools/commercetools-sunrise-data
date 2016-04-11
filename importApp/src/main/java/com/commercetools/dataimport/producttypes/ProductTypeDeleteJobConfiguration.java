@@ -4,13 +4,11 @@ import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.producttypes.ProductType;
-import io.sphere.sdk.producttypes.ProductTypeDraft;
 import io.sphere.sdk.producttypes.commands.ProductTypeDeleteCommand;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -22,9 +20,9 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 public class ProductTypeDeleteJobConfiguration extends CommercetoolsJobConfiguration {
     @Bean
-    public Job productTypesDeleteJob(final Step deleteProductTypesStep) {
+    public Job productTypesDeleteJob(final Step deleteProductTypes) {
         return jobBuilderFactory.get("productTypeDeleteJob")
-                .start(deleteProductTypesStep)
+                .start(deleteProductTypes)
                 .build();
     }
 
