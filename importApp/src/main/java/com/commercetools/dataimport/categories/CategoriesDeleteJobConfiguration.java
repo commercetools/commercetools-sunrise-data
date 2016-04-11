@@ -15,14 +15,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.concurrent.TimeUnit;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWaitForEachCollector;
 
 @Configuration
-@EnableBatchProcessing
-@EnableAutoConfiguration
+//@EnableBatchProcessing
+//@EnableAutoConfiguration
 public class CategoriesDeleteJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Bean

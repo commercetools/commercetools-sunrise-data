@@ -12,7 +12,6 @@ import io.sphere.sdk.models.Referenceable;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -21,7 +20,6 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.support.AbstractItemStreamItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -31,7 +29,6 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 import java.net.MalformedURLException;
-import java.util.List;
 
 @Configuration
 @EnableBatchProcessing
@@ -43,14 +40,14 @@ public class CategoriesImportJobConfiguration extends CommercetoolsJobConfigurat
     private Resource categoryCsvResource;
 
     @Bean
-    public Job importCategories(final Step importStep) {
+    public Job importCategories(final Step categoriesImportStep) {
         return jobBuilderFactory.get("categoriesImportJob")
-                .start(importStep)
+                .start(categoriesImportStep)
                 .build();
     }
 
     @Bean
-    public Step importStep() {
+    public Step categoriesImportStep() {
         final StepBuilder stepBuilder = stepBuilderFactory.get("categoriesImportStep");
         return stepBuilder
                 .<CategoryCsvLineValue, CategoryDraft>chunk(1)

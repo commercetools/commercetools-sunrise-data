@@ -29,7 +29,7 @@ import java.util.List;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class ProductTypeCreateJobConfiguration extends CommercetoolsJobConfiguration {
+public class ProductTypesImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Autowired
     private Resource productTypesArrayResource;
@@ -76,7 +76,7 @@ public class ProductTypeCreateJobConfiguration extends CommercetoolsJobConfigura
     }
 
     public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, ProductTypeCreateJobConfiguration.class, MainConfiguration.class};
+        final Object[] sources = {CommercetoolsConfig.class, ProductTypesImportJobConfiguration.class, MainConfiguration.class};
         System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }
