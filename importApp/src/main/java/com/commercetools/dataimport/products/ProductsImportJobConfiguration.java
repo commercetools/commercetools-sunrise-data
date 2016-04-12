@@ -2,17 +2,25 @@ package com.commercetools.dataimport.products;
 
 import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
+import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryTree;
 import io.sphere.sdk.categories.queries.CategoryQuery;
+import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
+import io.sphere.sdk.models.Versioned;
+import io.sphere.sdk.products.Product;
 import io.sphere.sdk.products.ProductDraft;
 import io.sphere.sdk.products.attributes.AttributeDraft;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
+import io.sphere.sdk.products.commands.ProductUpdateCommand;
+import io.sphere.sdk.products.commands.updateactions.Publish;
+import io.sphere.sdk.products.commands.updateactions.Unpublish;
+import io.sphere.sdk.products.queries.ProductQuery;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
 import io.sphere.sdk.taxcategories.TaxCategory;
@@ -45,6 +53,7 @@ import org.springframework.core.io.Resource;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
@@ -75,12 +84,14 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     public Job importProducts(final Step getOrCreateCustomerGroup,
                               final Step getOrCreateTaxCategoryStep,
                               final Step productsImportStep,
-                              final Step getProductTypesStep) {
+                              final Step getProductTypesStep,
+                              final Step publishProductsStep) {
         return jobBuilderFactory.get("productsImportJob")
                 .start(getOrCreateCustomerGroup)
                 .next(getOrCreateTaxCategoryStep)
                 .next(getProductTypesStep)
                 .next(productsImportStep)
+                .next(publishProductsStep)
                 .build();
     }
 
@@ -92,6 +103,24 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
                 .tasklet(saveProductTypeTasklet())
                 .listener(listener)
                 .build();
+    }
+
+    @Bean
+    public Step publishProductsStep() {
+        return stepBuilderFactory.get("publishProductsStep")
+                .<Product, Product>chunk(20)
+                .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, ProductQuery.of()))
+                .writer(productPublishWriter())
+                .build();
+    }
+
+    private ItemWriter<Versioned<Product>> productPublishWriter() {
+        return items -> {
+            final List<CompletionStage<Product>> completionStages = items.stream()
+                    .map(item -> sphereClient.execute(ProductUpdateCommand.of(item, Publish.of())))
+                    .collect(toList());
+            completionStages.forEach(stage -> SphereClientUtils.blockingWait(stage, 60, TimeUnit.SECONDS));
+        };
     }
 
     private Tasklet saveProductTypeTasklet() {
