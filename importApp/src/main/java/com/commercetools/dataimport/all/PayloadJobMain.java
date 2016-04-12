@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,22 +76,24 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
 
     @Configuration
     public static class MainConfiguration {
+        private String prefix = "https://raw.githubusercontent.com/sphereio/commercetools-sunrise-data/master/";
+
         public MainConfiguration() {
         }
 
         @Bean
         Resource categoryCsvResource() throws MalformedURLException {
-            return new FileSystemResource("../categories/categories.csv");
+            return new UrlResource(prefix + "categories/categories.csv");
         }
 
         @Bean
         Resource productsCsvResource() throws MalformedURLException {
-            return new FileSystemResource("../products/products.csv");
+            return new UrlResource(prefix + "products/products.csv");
         }
 
         @Bean
         Resource productTypesArrayResource() throws MalformedURLException {
-            return new FileSystemResource("../product-types/product-types.json");
+            return new UrlResource(prefix + "product-types/product-types.json");
         }
 
     }
