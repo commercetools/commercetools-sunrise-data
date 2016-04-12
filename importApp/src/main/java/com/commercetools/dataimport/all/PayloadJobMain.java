@@ -34,17 +34,26 @@ import java.util.Optional;
 @EnableBatchProcessing
 @EnableAutoConfiguration
 public class PayloadJobMain extends CommercetoolsJobConfiguration {
-
+    private static final String parameterStart = "--payloadFile=";
     public static void main(String [] args) throws Exception {
-        final String parameterStart = "--payloadFile=";
-        final Optional<String> payloadFileOptional = Arrays.stream(args)
+        final Optional<String> payloadFileFromArgsOptional =
+                Arrays.stream(args)
                 .filter(arg -> arg.startsWith(parameterStart))
                 .map(s -> s.replace(parameterStart, ""))
                 .findFirst();
+
+        final String envPayloadFile = System.getenv("PAYLOAD_FILE");
+        String[] workaroundArgs = !payloadFileFromArgsOptional.isPresent() && envPayloadFile != null
+                ? addPayloadToArgs(args, envPayloadFile)
+                : args;
+
+        final Optional<String> payloadFileOptional = payloadFileFromArgsOptional.map(Optional::of)
+                .orElseGet(() -> Optional.ofNullable(System.getenv("PAYLOAD_FILE")));
+
         if (payloadFileOptional.isPresent()) {
             final String payloadFilePath = payloadFileOptional.get();
             final JsonNode payload = parsePayloadFile(payloadFilePath);
-            try(final ConfigurableApplicationContext context = initializeContext(args, payload)) {
+            try(final ConfigurableApplicationContext context = initializeContext(workaroundArgs, payload)) {
                 final JobLauncher jobLauncher = context.getBean(JobLauncher.class);
                 try {
                     final ArrayNode jobs = (ArrayNode) payload.get("jobs");
@@ -65,8 +74,17 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
                 System.exit(SpringApplication.exit(context));
             }
         } else {
-            throw new RuntimeException("missing payload file path");
+            System.err.println("missing payload file path");
+            System.exit(1);
         }
+    }
+
+    private static String[] addPayloadToArgs(final String[] args, final String envPayloadFile) {
+        final String[] result = new String[args.length + 1];
+        System.arraycopy(args, 0, result, 0, args.length);
+        result[result.length - 1] = parameterStart + envPayloadFile;
+        return result;
+
     }
 
     public static JsonNode parsePayloadFile(final String payloadFilePath) throws IOException {
