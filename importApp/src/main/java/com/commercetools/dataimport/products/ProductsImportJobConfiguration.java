@@ -74,11 +74,11 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     @Autowired
     private Resource productsCsvResource;
 
-    @Value("${productsImportStep.maxProducts:1000}")
-    private int maxProducts;
+//    @Value("${productsImportStep.maxProducts:1000}")//TODO
+    private int maxProducts = 1000;
 
-    @Value("${productsImportStep.chunkSize:20}")
-    private int productsImportStepChunkSize;
+//    @Value("${productsImportStep.chunkSize:20}")//TODO
+    private int productsImportStepChunkSize = 20;
 
     @Bean
     public Job importProducts(final Step getOrCreateCustomerGroup,

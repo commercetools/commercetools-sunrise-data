@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -21,7 +22,12 @@ public class CommercetoolsPayloadFileConfig {
 
     @Bean(destroyMethod = "close")
     public BlockingSphereClient client() throws IOException {
-        final JsonNode payloadJson = PayloadJobMain.parsePayloadFile(payloadFile);
+        //TODO another workaround to fix
+        final String payloadFileWithEnvFallback = Optional.ofNullable(payloadFile)
+                .filter(s -> !s.startsWith("$"))
+                .orElseGet(() -> System.getenv("PAYLOAD_FILE"));
+        System.err.println("payloadFileWithEnvFallback " + payloadFileWithEnvFallback);
+        final JsonNode payloadJson = PayloadJobMain.parsePayloadFile(payloadFileWithEnvFallback);
         final ObjectNode commercetools = (ObjectNode) payloadJson.get("commercetools");
         final String projectKey = commercetools.get("projectKey").asText();
         final String clientId = commercetools.get("clientId").asText();

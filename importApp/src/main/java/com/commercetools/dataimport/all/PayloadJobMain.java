@@ -47,8 +47,12 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
                 ? addPayloadToArgs(args, envPayloadFile)
                 : args;
 
+
+        System.err.println(Arrays.toString(workaroundArgs));
+
+
         final Optional<String> payloadFileOptional = payloadFileFromArgsOptional.map(Optional::of)
-                .orElseGet(() -> Optional.ofNullable(System.getenv("PAYLOAD_FILE")));
+                .orElseGet(() -> Optional.ofNullable(envPayloadFile));
 
         if (payloadFileOptional.isPresent()) {
             final String payloadFilePath = payloadFileOptional.get();
