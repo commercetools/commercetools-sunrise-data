@@ -1,13 +1,10 @@
 package com.commercetools.dataimport.products;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.neovisionaries.i18n.CountryCode;
-import io.sphere.sdk.categories.Category;
-import io.sphere.sdk.categories.CategoryTree;
-import io.sphere.sdk.categories.queries.CategoryQuery;
+import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
@@ -19,10 +16,7 @@ import io.sphere.sdk.products.attributes.AttributeDraft;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.products.commands.ProductUpdateCommand;
 import io.sphere.sdk.products.commands.updateactions.Publish;
-import io.sphere.sdk.products.commands.updateactions.Unpublish;
 import io.sphere.sdk.products.queries.ProductQuery;
-import io.sphere.sdk.producttypes.ProductType;
-import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
 import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.taxcategories.TaxCategoryDraft;
 import io.sphere.sdk.taxcategories.TaxRate;
@@ -31,33 +25,24 @@ import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.listener.ExecutionContextPromotionListener;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
-import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -66,10 +51,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @EnableBatchProcessing
 @EnableAutoConfiguration
 public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguration {
-    static final String b2bCustomerGroupStepContextKey = "b2bCustomerGroupId";
-    static final String taxCategoryKey = "taxCategory";
-    static final String categoryTreeKey = "categoryTreeKey";
-    static final String productTypesStepContextKey = "productTypes";
 
     @Autowired
     private Resource productsCsvResource;
@@ -78,30 +59,18 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     private int maxProducts = 1000;
 
 //    @Value("${productsImportStep.chunkSize:20}")//TODO
-    private int productsImportStepChunkSize = 20;
+    private int productsImportStepChunkSize = 1;
 
     @Bean
     public Job importProducts(final Step getOrCreateCustomerGroup,
                               final Step getOrCreateTaxCategoryStep,
                               final Step productsImportStep,
-                              final Step getProductTypesStep,
                               final Step publishProductsStep) {
         return jobBuilderFactory.get("productsImportJob")
                 .start(getOrCreateCustomerGroup)
                 .next(getOrCreateTaxCategoryStep)
-                .next(getProductTypesStep)
                 .next(productsImportStep)
                 .next(publishProductsStep)
-                .build();
-    }
-
-    @Bean
-    public Step getProductTypesStep() {
-        final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
-        listener.setKeys(new String[]{productTypesStepContextKey});
-        return stepBuilderFactory.get("getProductTypesStep")
-                .tasklet(saveProductTypeTasklet())
-                .listener(listener)
                 .build();
     }
 
@@ -123,31 +92,17 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
         };
     }
 
-    private Tasklet saveProductTypeTasklet() {
-        return (contribution, chunkContext) -> {
-            final List<ProductType> productTypes = blockingWait(queryAll(sphereClient, ProductTypeQuery.of()), 30, TimeUnit.SECONDS);
-            chunkContext.getStepContext().getStepExecution().getExecutionContext().put(productTypesStepContextKey, productTypes);
-            return RepeatStatus.FINISHED;
-        };
-    }
-
     @Bean
     public Step getOrCreateTaxCategoryStep() {
-        final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
-        listener.setKeys(new String[]{taxCategoryKey, categoryTreeKey});
         return stepBuilderFactory.get("getOrCreateTaxCategoryStep")
                 .tasklet(saveTaxCategoryTasklet())
-                .listener(listener)
                 .build();
     }
 
     @Bean
     public Step getOrCreateCustomerGroup() {
-        final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
-        listener.setKeys(new String[]{b2bCustomerGroupStepContextKey});
         return stepBuilderFactory.get("getOrCreateCustomerGroupStep")
                 .tasklet(saveCustomerGroupTasklet())
-                .listener(listener)
                 .build();
     }
 
@@ -166,16 +121,6 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
                         ));
                         return sphereClient.executeBlocking(TaxCategoryCreateCommand.of(body));
                     });
-
-
-            final List<Category> categories = blockingWait(queryAll(sphereClient, CategoryQuery.of()), 3, TimeUnit.MINUTES);
-            final CategoryTree categoryTree = CategoryTree.of(categories);
-
-            final ExecutionContext executionContext = chunkContext.getStepContext()
-                    .getStepExecution()
-                    .getExecutionContext();
-            executionContext.put(taxCategoryKey, taxCategory);
-            executionContext.put(categoryTreeKey, categoryTree);
             return RepeatStatus.FINISHED;
         };
     }
@@ -186,20 +131,16 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
             final CustomerGroup customerGroup =
                     sphereClient.executeBlocking(CustomerGroupQuery.of().byName(customerGroupName)).head()
                     .orElseGet(() -> sphereClient.executeBlocking(CustomerGroupCreateCommand.of(customerGroupName)));
-            final ExecutionContext executionContext = chunkContext.getStepContext()
-                    .getStepExecution()
-                    .getExecutionContext();
-            executionContext.put(b2bCustomerGroupStepContextKey, customerGroup.getId());
             return RepeatStatus.FINISHED;
         };
     }
 
     @Bean
-    public Step productsImportStep() {
+    public Step productsImportStep(final ItemReader<ProductDraft> productsReader) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("productsImportStep");
         return stepBuilder
                 .<ProductDraft, ProductDraft>chunk(productsImportStepChunkSize)
-                .reader(productsReader())
+                .reader(productsReader)
                 .processor(productsProcessor())
                 .writer(productsWriter())
                 .build();
@@ -220,8 +161,8 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     }
 
     @Bean
-    protected ItemReader<ProductDraft> productsReader() {
-        return new ProductDraftReader(productsCsvResource, maxProducts);
+    protected ItemReader<ProductDraft> productsReader(final BlockingSphereClient blockingSphereClient) {
+        return new ProductDraftReader(productsCsvResource, maxProducts, blockingSphereClient);
     }
 
     @Bean
