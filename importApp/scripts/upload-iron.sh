@@ -1,1 +1,1 @@
-mvn assembly:assembly -DskipTests && zip -r code.zip ./target && iron worker upload --name sunriseDataImport --zip code.zip iron/java java -cp target/commercetools-demo-data-import-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.commercetools.dataimport.all.PayloadJobMain
+mvn assembly:assembly -DskipTests && zip -r code.zip ./target && iron worker upload --name sunriseDataImport --zip code.zip iron/java java -Xmx200m -cp target/commercetools-demo-data-import-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.commercetools.dataimport.all.PayloadJobMain
