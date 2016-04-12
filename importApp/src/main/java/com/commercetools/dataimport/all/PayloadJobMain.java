@@ -63,13 +63,18 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
                     final ArrayNode jobs = (ArrayNode) payload.get("jobs");
                     for(int i = 0; i < jobs.size(); i++) {
                         final JsonNode jobConfig = jobs.get(i);
-                        final Job job = context.getBean(jobConfig.get("name").asText(), Job.class);
+                        final String jobName = jobConfig.get("name").asText();
+                        final Job job = context.getBean(jobName, Job.class);
                         //todo parse to map, to properties, to jobparameter
                         //DefaultJobParametersConverter
 
                         final JobExecution jobExecution = jobLauncher.run(job, new JobParameters(Collections.singletonMap("payloadFile", new JobParameter(payloadFilePath))));
                         while (jobExecution.isRunning()) {
                             Thread.sleep(1000);//TODO improve
+                        }
+                        if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
+                            System.err.println("job " + jobName + " failed");
+                            System.exit(1);
                         }
                     }
                 } catch (final Exception e) {
