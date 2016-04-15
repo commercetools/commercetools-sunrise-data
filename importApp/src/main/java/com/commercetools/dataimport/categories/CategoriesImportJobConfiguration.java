@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
+import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
@@ -10,7 +10,7 @@ import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.models.Referenceable;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -19,35 +19,31 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
-@Configuration
-@EnableBatchProcessing
-@EnableAutoConfiguration
-public class CategoriesImportJobConfiguration extends CommercetoolsJobConfiguration {
+@Component
+@Lazy
+public class CategoriesImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
 
     public static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId"};
-    @Autowired
-    private Resource categoryCsvResource;
 
     @Bean
-    public Job importCategories(final Step categoriesImportStep) {
+    public Job categoriesCreateJob(final Step categoriesImportStep) {
         return jobBuilderFactory.get("categoriesImportJob")
                 .start(categoriesImportStep)
                 .build();
     }
 
     @Bean
-    public Step categoriesImportStep() {
+    public Step categoriesImportStep(final ItemReader<CategoryCsvLineValue> categoryReader) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("categoriesImportStep");
         return stepBuilder
                 .<CategoryCsvLineValue, CategoryDraft>chunk(1)
-                .reader(categoryReader())
+                .reader(categoryReader)
                 .processor(categoryProcessor())
                 .writer(categoryWriter())
                 .build();
@@ -73,7 +69,8 @@ public class CategoriesImportJobConfiguration extends CommercetoolsJobConfigurat
     }
 
     @Bean
-    protected ItemReader<CategoryCsvLineValue> categoryReader() {
+    @StepScope
+    protected FlatFileItemReader<CategoryCsvLineValue> categoryReader(@Value("#{jobParameters['resource']}") final Resource categoryCsvResource) {
         FlatFileItemReader<CategoryCsvLineValue> reader = new FlatFileItemReader<>();
         reader.setResource(categoryCsvResource);
         reader.setLineMapper(new DefaultLineMapper<CategoryCsvLineValue>() {{

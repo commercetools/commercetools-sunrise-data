@@ -1,142 +1,115 @@
 package com.commercetools.dataimport.all;
 
-import com.commercetools.dataimport.categories.CategoriesDeleteJobConfiguration;
-import com.commercetools.dataimport.categories.CategoriesImportJobConfiguration;
-import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
-import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
-import com.commercetools.dataimport.products.ProductDeleteJobConfiguration;
-import com.commercetools.dataimport.products.ProductsImportJobConfiguration;
-import com.commercetools.dataimport.producttypes.ProductTypeDeleteJobConfiguration;
-import com.commercetools.dataimport.producttypes.ProductTypesImportJobConfiguration;
+import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
+import com.commercetools.dataimport.common.JobExecutionUnsuccessfullException;
+import com.commercetools.dataimport.common.JobLaunchingData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.LongNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeoutException;
 
-@Configuration
+@ComponentScan(basePackages = {
+        "com.commercetools.dataimport.categories",
+        "com.commercetools.dataimport.commercetools",
+        "com.commercetools.dataimport.common",
+        "com.commercetools.dataimport.products",
+        "com.commercetools.dataimport.producttypes"
+})
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class PayloadJobMain extends CommercetoolsJobConfiguration {
-    private static final String parameterStart = "--payloadFile=";
+public class PayloadJobMain extends DefaultCommercetoolsJobConfiguration {
+    public static final String PAYLOAD_FILE_ENV_NAME = "PAYLOAD_FILE";
+
     public static void main(String [] args) throws Exception {
-        final Optional<String> payloadFileFromArgsOptional =
-                Arrays.stream(args)
-                .filter(arg -> arg.startsWith(parameterStart))
-                .map(s -> s.replace(parameterStart, ""))
-                .findFirst();
-
-        final String envPayloadFile = System.getenv("PAYLOAD_FILE");
-        String[] workaroundArgs = !payloadFileFromArgsOptional.isPresent() && envPayloadFile != null
-                ? addPayloadToArgs(args, envPayloadFile)
-                : args;
-
-
-        System.err.println(Arrays.toString(workaroundArgs));
-
-
-        final Optional<String> payloadFileOptional = payloadFileFromArgsOptional.map(Optional::of)
-                .orElseGet(() -> Optional.ofNullable(envPayloadFile));
-
-        if (payloadFileOptional.isPresent()) {
-            final String payloadFilePath = payloadFileOptional.get();
-            final JsonNode payload = parsePayloadFile(payloadFilePath);
-            try(final ConfigurableApplicationContext context = initializeContext(workaroundArgs, payload)) {
-                final JobLauncher jobLauncher = context.getBean(JobLauncher.class);
-                try {
-                    final ArrayNode jobs = (ArrayNode) payload.get("jobs");
-                    for(int i = 0; i < jobs.size(); i++) {
-                        final JsonNode jobConfig = jobs.get(i);
-                        final String jobName = jobConfig.get("name").asText();
-                        final Job job = context.getBean(jobName, Job.class);
-                        //todo parse to map, to properties, to jobparameter
-                        //DefaultJobParametersConverter
-
-                        final JobExecution jobExecution = jobLauncher.run(job, new JobParameters(Collections.singletonMap("payloadFile", new JobParameter(payloadFilePath))));
-                        while (jobExecution.isRunning()) {
-                            Thread.sleep(1000);//TODO improve
-                        }
-                        if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
-                            System.err.println("job " + jobName + " failed");
-                            System.exit(1);
-                        }
-                    }
-                } catch (final Exception e) {
-                    throw new RuntimeException(e);
-                }
-                System.exit(SpringApplication.exit(context));
-            }
+        final String payloadFilePath = System.getenv(PAYLOAD_FILE_ENV_NAME);
+        if (StringUtils.isNotEmpty(payloadFilePath)) {
+            System.out.println(String.format("The payload file is located at %s.", payloadFilePath));
+            run(args, payloadFilePath);
         } else {
-            System.err.println("missing payload file path");
+            System.err.println("missing payload file path environment variable " + PAYLOAD_FILE_ENV_NAME);
             System.exit(1);
         }
     }
 
-    private static String[] addPayloadToArgs(final String[] args, final String envPayloadFile) {
-        final String[] result = new String[args.length + 1];
-        System.arraycopy(args, 0, result, 0, args.length);
-        result[result.length - 1] = parameterStart + envPayloadFile;
-        return result;
-
+    private static void run(final String[] args, final String payloadFilePath) throws Exception {
+        try(final ConfigurableApplicationContext context = SpringApplication.run(PayloadJobMain.class, args)) {
+            final List<JobLaunchingData> jobLaunchingDataList = parseJobParameters(payloadFilePath);
+            final JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+            for(final JobLaunchingData jobLaunchingData : jobLaunchingDataList) {
+                final String jobName = jobLaunchingData.getJobName();
+                final JobParameters jobParameters = jobLaunchingData.getJobParameters();
+                final Job job = context.getBean(jobName, Job.class);
+                final JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+                awaitTermination(jobExecution, Duration.ofMinutes(30));
+                if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
+                    throw new JobExecutionUnsuccessfullException(String.format("Job %s was unsuccessful with status %s.", jobName, jobExecution.getExitStatus()));
+                }
+            }
+        }
     }
 
-    public static JsonNode parsePayloadFile(final String payloadFilePath) throws IOException {
+    private static void awaitTermination(final JobExecution jobExecution, final Duration duration) throws TimeoutException {
+        final ZonedDateTime start = ZonedDateTime.now();
+        final ZonedDateTime latestEnd = start.plus(duration);
+        while (jobExecution.isRunning()) {
+            if (ZonedDateTime.now().isAfter(latestEnd)) {
+                throw new TimeoutException("timeout after " + duration);
+            }
+            try {
+                Thread.sleep(1000);//TODO improve
+            } catch (InterruptedException e) {
+                throw new CompletionException(e);
+            }
+        }
+    }
+
+    private static List<JobLaunchingData> parseJobParameters(final String payloadFilePath) throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
-        return mapper.readTree(new File(payloadFilePath));
+        final JsonNode payload = mapper.readTree(new File(payloadFilePath));
+        final ArrayNode jobs = (ArrayNode) payload.get("jobs");
+        final List<JobLaunchingData> result = new ArrayList<>(jobs.size());
+        for(int i = 0; i < jobs.size(); i++) {
+            final JsonNode jobJsonNode = jobs.get(i);
+            final JobLaunchingData e = getJobLaunchingData(payload, jobJsonNode);
+            result.add(e);
+        }
+        return result;
     }
 
-    @Configuration
-    public static class MainConfiguration {
-        private String prefix = "https://raw.githubusercontent.com/sphereio/commercetools-sunrise-data/master/";
-
-        public MainConfiguration() {
-        }
-
-        @Bean
-        Resource categoryCsvResource() throws MalformedURLException {
-            return new UrlResource(prefix + "categories/categories.csv");
-        }
-
-        @Bean
-        Resource productsCsvResource() throws MalformedURLException {
-            return new UrlResource(prefix + "products/products.csv");
-        }
-
-        @Bean
-        Resource productTypesArrayResource() throws MalformedURLException {
-            return new UrlResource(prefix + "product-types/product-types.json");
-        }
-
-    }
-
-    private static ConfigurableApplicationContext initializeContext(final String[] args, final JsonNode payload) {
-        final Object[] sources = {
-                CommercetoolsPayloadFileConfig.class,
-                ProductTypesImportJobConfiguration.class,
-                CategoriesImportJobConfiguration.class,
-                ProductsImportJobConfiguration.class,
-                ProductDeleteJobConfiguration.class,
-                ProductTypeDeleteJobConfiguration.class,
-                CategoriesDeleteJobConfiguration.class,
-                MainConfiguration.class,
-                PayloadJobMain.class
-        };
-        return SpringApplication.run(sources, args);
+    private static JobLaunchingData getJobLaunchingData(final JsonNode payload, final JsonNode jobJsonNode) {
+        final String jobName = jobJsonNode.get("name").asText();
+        final JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
+        final JsonNode commercetools = payload.get("commercetools");
+        commercetools.fields().forEachRemaining(stringJsonNodeEntry -> {
+            jobParametersBuilder.addString("commercetools." + stringJsonNodeEntry.getKey(), stringJsonNodeEntry.getValue().asText());
+        });
+        jobJsonNode.fields().forEachRemaining(jobField -> {
+            //TODO prepare for other classes
+            if (jobField.getValue() instanceof TextNode) {
+                jobParametersBuilder.addString(jobField.getKey(), jobField.getValue().asText());
+            } else if (jobField.getValue() instanceof IntNode || jobField.getValue() instanceof LongNode) {
+                jobParametersBuilder.addLong(jobField.getKey(), jobField.getValue().asLong());
+            }
+        });
+        return new JobLaunchingData(jobName, jobParametersBuilder.toJobParameters());
     }
 }

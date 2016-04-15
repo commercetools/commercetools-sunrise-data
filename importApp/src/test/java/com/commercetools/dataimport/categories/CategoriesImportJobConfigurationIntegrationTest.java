@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, CommercetoolsPayloadFileConfig.class, CategoriesImportJobConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, CategoriesImportJobConfiguration.class})
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration

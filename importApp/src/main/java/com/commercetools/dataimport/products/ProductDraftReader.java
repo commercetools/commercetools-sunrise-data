@@ -48,7 +48,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-class ProductDraftReader implements ItemStreamReader<ProductDraft> {
+public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private FlatFileItemReader<FieldSet> delegate;
     private final Resource attributeDefinitionsCsvResource;
     private final int maxProducts;
@@ -207,6 +207,9 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         if (isNotEmpty(categories)) {
             final Stream<String> categoryPaths = Arrays.stream(categories.split(";"));//sth. like Women>Shoes>Loafers;Sale>Women>Shoes
             categoriesSet = categoryPaths.map(path -> {
+                if (categories == null) {
+                    fillCache();
+                }
                 CategoryTree tree = categoryTree;
                 Category foundCat = null;
                 boolean continueFlag = true;
@@ -312,6 +315,10 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
 
     @BeforeStep
     public void retrieveInterStepData(final StepExecution stepExecution) {
+        fillCache();
+    }
+
+    private void fillCache() {
         b2bCustomerGroupId = sphereClient.executeBlocking(CustomerGroupQuery.of().byName("b2b")).head().get().getId();
         productTypes = blockingWait(queryAll(sphereClient, ProductTypeQuery.of()), 30, TimeUnit.SECONDS);
         final List<Category> categories = blockingWait(queryAll(sphereClient, CategoryQuery.of()), 3, TimeUnit.MINUTES);

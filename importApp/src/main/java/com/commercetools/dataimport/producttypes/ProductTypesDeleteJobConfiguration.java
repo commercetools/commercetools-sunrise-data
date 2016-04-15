@@ -1,7 +1,7 @@
 package com.commercetools.dataimport.producttypes;
 
 import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
-import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
+import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.commands.ProductTypeDeleteCommand;
@@ -12,15 +12,13 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class ProductTypeDeleteJobConfiguration extends CommercetoolsJobConfiguration {
+public class ProductTypesDeleteJobConfiguration extends DefaultCommercetoolsJobConfiguration {
     @Bean
     public Job productTypesDeleteJob(final Step deleteProductTypes) {
         return jobBuilderFactory.get("productTypeDeleteJob")
@@ -40,10 +38,5 @@ public class ProductTypeDeleteJobConfiguration extends CommercetoolsJobConfigura
     @Bean
     public ItemWriter<ProductType> productTypeDeleteItemWriter() {
         return items -> items.forEach(item -> sphereClient.executeBlocking(ProductTypeDeleteCommand.of(item)));
-    }
-
-    public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsPayloadFileConfig.class, ProductTypeDeleteJobConfiguration.class};
-        System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }

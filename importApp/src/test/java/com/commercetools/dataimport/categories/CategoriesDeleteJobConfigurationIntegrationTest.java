@@ -23,7 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, CommercetoolsPayloadFileConfig.class, CategoriesDeleteJobConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, CategoriesDeleteJobConfiguration.class})
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration
