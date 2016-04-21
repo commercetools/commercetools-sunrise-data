@@ -4,7 +4,6 @@ import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfigu
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.neovisionaries.i18n.CountryCode;
-import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
@@ -22,6 +21,8 @@ import io.sphere.sdk.taxcategories.TaxCategoryDraft;
 import io.sphere.sdk.taxcategories.TaxRate;
 import io.sphere.sdk.taxcategories.commands.TaxCategoryCreateCommand;
 import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -29,7 +30,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +51,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Component
 @Lazy
 public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(ProductsImportJobConfiguration.class);
     private int productsImportStepChunkSize = 2;
 
     @Bean
@@ -161,19 +162,15 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
 
     @Bean
     protected ItemWriter<ProductDraft> productsWriter() {
-        return new ItemWriter<ProductDraft>() {
-            @Override
-            public void write(final List<? extends ProductDraft> items) throws Exception {
-                items.stream()
-                        //!!!TODO some products are filtered out since the product type is incomplete
-                        .filter(item -> {
-                            final List<AttributeDraft> attributes = item.getMasterVariant().getAttributes();
-                            return !attributes.stream().anyMatch(a -> a.getName().equals("designer") && a.getValue().equals(new TextNode("juliat")));
-                        })
-                        .map(item -> sphereClient.execute(ProductCreateCommand.of(item)))
-                        .collect(toList())
-                        .forEach(stage -> blockingWait(stage, 30, TimeUnit.SECONDS));
-            }
-        };
+        return items -> items.stream()
+                //!!!TODO some products are filtered out since the product type is incomplete
+                .filter(item -> {
+                    final List<AttributeDraft> attributes = item.getMasterVariant().getAttributes();
+                    return !attributes.stream().anyMatch(a -> a.getName().equals("designer") && a.getValue().equals(new TextNode("juliat")));
+                })
+                .peek(draft -> logger.info("attempting to create product {}", draft.getSlug()))
+                .map(item -> sphereClient.execute(ProductCreateCommand.of(item)))
+                .collect(toList())
+                .forEach(stage -> blockingWait(stage, 30, TimeUnit.SECONDS));
     }
 }
