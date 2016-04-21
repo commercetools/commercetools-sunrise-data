@@ -52,7 +52,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Lazy
 public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(ProductsImportJobConfiguration.class);
-    private int productsImportStepChunkSize = 2;
+    private int productsImportStepChunkSize = 1;
 
     @Bean
     public Job productsCreateJob(final Step getOrCreateCustomerGroup,
@@ -169,6 +169,11 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
                     return !attributes.stream().anyMatch(a -> a.getName().equals("designer") && a.getValue().equals(new TextNode("juliat")));
                 })
                 .peek(draft -> logger.info("attempting to create product {}", draft.getSlug()))
+                .peek(x -> {
+                    final Runtime runtime = Runtime.getRuntime();
+                    final long memory = runtime.totalMemory() - runtime.freeMemory();
+                    System.out.println("Used memory is megabytes: " + (memory / (1024L * 1024L)));
+                })
                 .map(item -> sphereClient.execute(ProductCreateCommand.of(item)))
                 .collect(toList())
                 .forEach(stage -> blockingWait(stage, 30, TimeUnit.SECONDS));
