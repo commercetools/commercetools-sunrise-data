@@ -19,16 +19,16 @@ cat > "importApp/travis-payload.json" << EOF
     },
     {
       "name": "productTypeCreateJob",
-      "resource": "../product-types/product-types.json"
+      "resource": "$ROOT_PROJ/product-types/product-types.json"
     },
     {
       "name": "categoriesCreateJob",
-      "resource": "../categories/categories.csv"
+      "resource": "$ROOT_PROJ/categories/categories.csv"
     },
     {
       "name": "productsCreateJob",
       "maxProducts": 4000,
-      "resource": "../products/products.csv"
+      "resource": "$ROOT_PROJ/products/products.csv"
     }
   ]
 }

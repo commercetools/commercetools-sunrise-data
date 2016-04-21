@@ -2,6 +2,7 @@ language: java
 jdk: oraclejdk8
 before_script: bash importApp/scripts/travis-sphere-credentials.sh
 script:
+  - export ROOT_PROJ="$(pwd)"
   - cd importApp
   - export PAYLOAD_FILE="$(pwd)/travis-payload.json"
   - mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
