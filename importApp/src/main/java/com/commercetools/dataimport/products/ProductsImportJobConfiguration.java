@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -129,13 +131,22 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
     }
 
     @Bean
-    public Step productsImportStep(final ItemReader<ProductDraft> productsReader) {
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setMaxPoolSize(10);
+        taskExecutor.afterPropertiesSet();
+        return taskExecutor;
+    }
+
+    @Bean
+    public Step productsImportStep(final ItemReader<ProductDraft> productsReader, final TaskExecutor taskExecutor) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("productsImportStep");
         return stepBuilder
                 .<ProductDraft, ProductDraft>chunk(productsImportStepChunkSize)
                 .reader(productsReader)
                 .processor(productsProcessor())
                 .writer(productsWriter())
+                .taskExecutor(taskExecutor)
                 .build();
     }
 
