@@ -6,7 +6,8 @@ before_script:
 script:
   - cd importApp
   - export PAYLOAD_FILE="$(pwd)/travis-payload.json"
-  - travis_wait mvn spring-boot:run -Xmx1024m -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+  - export MAVEN_OPTS="-Xmx1024m"
+  - travis_wait mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
 cache:
   directories:
     - $HOME/.m2
