@@ -51,7 +51,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Component
 @Lazy
 public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
-    private int productsImportStepChunkSize = 1;
+    private int productsImportStepChunkSize = 2;
 
     @Bean
     public Job productsCreateJob(final Step getOrCreateCustomerGroup,
