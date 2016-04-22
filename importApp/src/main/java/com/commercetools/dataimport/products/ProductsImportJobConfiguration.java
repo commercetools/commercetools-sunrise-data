@@ -131,7 +131,7 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
         };
     }
 
-    @JobScope
+    @StepScope
     @Bean
     public TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
