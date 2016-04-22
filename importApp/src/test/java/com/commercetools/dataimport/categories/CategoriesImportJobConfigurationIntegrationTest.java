@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
+import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.commands.CategoryDeleteCommand;
 import io.sphere.sdk.categories.queries.CategoryQuery;
@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, CommercetoolsConfig.class, CategoriesImportJobConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, CategoriesImportJobConfiguration.class})
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration

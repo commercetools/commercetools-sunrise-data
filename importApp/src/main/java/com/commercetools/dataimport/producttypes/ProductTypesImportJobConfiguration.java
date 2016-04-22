@@ -1,7 +1,6 @@
 package com.commercetools.dataimport.producttypes;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
-import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
+import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.sphere.sdk.json.SphereJsonUtils;
@@ -9,30 +8,23 @@ import io.sphere.sdk.producttypes.ProductTypeDraft;
 import io.sphere.sdk.producttypes.commands.ProductTypeCreateCommand;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.List;
 
-@Configuration
-@EnableBatchProcessing
-@EnableAutoConfiguration
-public class ProductTypeCreateJobConfiguration extends CommercetoolsJobConfiguration {
-
-    @Autowired
-    private Resource productTypesArrayResource;
+@Component
+@Lazy
+public class ProductTypesImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
 
     @Bean
     public Job productTypeCreateJob(final Step createProductTypes) {
@@ -57,26 +49,12 @@ public class ProductTypeCreateJobConfiguration extends CommercetoolsJobConfigura
     }
 
     @Bean
-    public ItemReader<ProductTypeDraft> productTypeReader() throws IOException {
+    @StepScope
+    public ItemReader<ProductTypeDraft> productTypeReader(@Value("#{jobParameters['resource']}") final Resource productTypesArrayResource) throws IOException {
         final ObjectReader reader = SphereJsonUtils.newObjectMapper().readerFor(new TypeReference<List<ProductTypeDraft>>() {
         });
         final InputStream inputStream = productTypesArrayResource.getInputStream();
         final List<ProductTypeDraft> list = reader.readValue(inputStream);
         return new ListItemReader<>(list);
-    }
-
-    @Configuration
-    public static class MainConfiguration {//TODO improve
-        public MainConfiguration() {
-        }
-
-        @Bean Resource productTypesArrayResource() throws MalformedURLException {
-            return new FileSystemResource("../product-types/product-types.json");
-        }
-    }
-
-    public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, ProductTypeCreateJobConfiguration.class, MainConfiguration.class};
-        System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }

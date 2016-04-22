@@ -1,7 +1,7 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
-import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
+import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
+import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.commands.CategoryDeleteCommand;
@@ -23,7 +23,7 @@ import static io.sphere.sdk.client.SphereClientUtils.blockingWaitForEachCollecto
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class CategoriesDeleteJobConfiguration extends CommercetoolsJobConfiguration {
+public class CategoriesDeleteJobConfiguration extends DefaultCommercetoolsJobConfiguration {
 
     @Bean
     public Job categoriesDeleteJob() {
@@ -53,10 +53,5 @@ public class CategoriesDeleteJobConfiguration extends CommercetoolsJobConfigurat
         return items -> items.stream()
                 .map(item -> sphereClient.execute(CategoryDeleteCommand.of(item)))
                 .collect(blockingWaitForEachCollector(30, TimeUnit.SECONDS));
-    }
-
-    public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, CategoriesDeleteJobConfiguration.class};
-        System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }

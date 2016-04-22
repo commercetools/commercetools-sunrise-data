@@ -3,7 +3,10 @@ package com.commercetools.dataimport.products;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryTree;
+import io.sphere.sdk.categories.queries.CategoryQuery;
+import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.customergroups.CustomerGroup;
+import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.models.LocalizedStringEntry;
 import io.sphere.sdk.models.Reference;
@@ -11,9 +14,10 @@ import io.sphere.sdk.models.ResourceIdentifier;
 import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.attributes.*;
 import io.sphere.sdk.producttypes.ProductType;
+import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
 import io.sphere.sdk.taxcategories.TaxCategory;
+import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
 import io.sphere.sdk.utils.MoneyImpl;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.ExecutionContext;
@@ -31,21 +35,24 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
+import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-class ProductDraftReader implements ItemStreamReader<ProductDraft> {
+public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private FlatFileItemReader<FieldSet> delegate;
     private final Resource attributeDefinitionsCsvResource;
     private final int maxProducts;
+    private final BlockingSphereClient sphereClient;
     private int currentProducts = 0;
     private ProductDraftBuilder prevEntry = null;
     private String b2bCustomerGroupId;
@@ -54,9 +61,10 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
     private CategoryTree categoryTree;
     private static final Pattern pricePattern = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d{1,})(?:[|]\\d{1,})?(?:[ ](?<customerGroup>\\w\\p{Alnum}+))?$");
 
-    public ProductDraftReader(final Resource attributeDefinitionsCsvResource, final int maxProducts) {
+    public ProductDraftReader(final Resource attributeDefinitionsCsvResource, final int maxProducts, final BlockingSphereClient sphereClient) {
         this.attributeDefinitionsCsvResource = attributeDefinitionsCsvResource;
         this.maxProducts = maxProducts;
+        this.sphereClient = sphereClient;
         final DefaultLineMapper<FieldSet> fullLineMapper = new DefaultLineMapper<FieldSet>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(new String[]{"productType","variantId","id","sku","prices","tax","categories","images","name.de","name.en","description.de","description.en","slug.de","slug.en","metaTitle.de","metaTitle.en","metaDescription.de","metaDescription.en","metaKeywords.de","metaKeywords.en","searchKeywords.de","searchKeywords.en","creationDate","articleNumberManufacturer","articleNumberMax","matrixId","baseId","designer","madeInItaly","completeTheLook","commonSize","size","color","colorFreeDefinition.de","colorFreeDefinition.en","details.de","details.en","style","gender","season","isOnStock","isLook","lookProducts","seasonNew"});
@@ -69,7 +77,8 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         reader.setLineMapper(fullLineMapper);
         reader.setLinesToSkip(1);
         this.delegate = reader;
-    }
+
+       }
 
     @Override
     public ProductDraft read() throws Exception {
@@ -198,6 +207,9 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         if (isNotEmpty(categories)) {
             final Stream<String> categoryPaths = Arrays.stream(categories.split(";"));//sth. like Women>Shoes>Loafers;Sale>Women>Shoes
             categoriesSet = categoryPaths.map(path -> {
+                if (categories == null) {
+                    fillCache();
+                }
                 CategoryTree tree = categoryTree;
                 Category foundCat = null;
                 boolean continueFlag = true;
@@ -303,11 +315,14 @@ class ProductDraftReader implements ItemStreamReader<ProductDraft> {
 
     @BeforeStep
     public void retrieveInterStepData(final StepExecution stepExecution) {
-        JobExecution jobExecution = stepExecution.getJobExecution();
-        ExecutionContext jobContext = jobExecution.getExecutionContext();
-        b2bCustomerGroupId = (String) jobContext.get(ProductsImportJobConfiguration.b2bCustomerGroupStepContextKey);
-        productTypes = (List<ProductType>) jobContext.get(ProductsImportJobConfiguration.productTypesStepContextKey);
-        categoryTree = (CategoryTree) jobContext.get(ProductsImportJobConfiguration.categoryTreeKey);
-        taxCategory = (TaxCategory) jobContext.get(ProductsImportJobConfiguration.taxCategoryKey);
+        fillCache();
+    }
+
+    private void fillCache() {
+        b2bCustomerGroupId = sphereClient.executeBlocking(CustomerGroupQuery.of().byName("b2b")).head().get().getId();
+        productTypes = blockingWait(queryAll(sphereClient, ProductTypeQuery.of()), 30, TimeUnit.SECONDS);
+        final List<Category> categories = blockingWait(queryAll(sphereClient, CategoryQuery.of()), 3, TimeUnit.MINUTES);
+        categoryTree = CategoryTree.of(categories);
+        taxCategory = sphereClient.executeBlocking(TaxCategoryQuery.of().byName("standard")).head().get();
     }
 }

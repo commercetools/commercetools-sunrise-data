@@ -1,125 +1,104 @@
 package com.commercetools.dataimport.products;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
-import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
+import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
+import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.neovisionaries.i18n.CountryCode;
-import io.sphere.sdk.categories.Category;
-import io.sphere.sdk.categories.CategoryTree;
-import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.client.SphereClientUtils;
-import io.sphere.sdk.client.SphereRequestUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
+import io.sphere.sdk.models.Versioned;
+import io.sphere.sdk.products.Product;
 import io.sphere.sdk.products.ProductDraft;
 import io.sphere.sdk.products.attributes.AttributeDraft;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
-import io.sphere.sdk.producttypes.ProductType;
-import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
-import io.sphere.sdk.queries.QueryExecutionUtils;
+import io.sphere.sdk.products.commands.ProductUpdateCommand;
+import io.sphere.sdk.products.commands.updateactions.Publish;
+import io.sphere.sdk.products.queries.ProductQuery;
 import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.taxcategories.TaxCategoryDraft;
 import io.sphere.sdk.taxcategories.TaxRate;
 import io.sphere.sdk.taxcategories.commands.TaxCategoryCreateCommand;
 import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.listener.ExecutionContextPromotionListener;
+import org.springframework.batch.core.configuration.annotation.JobScope;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Component;
 
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
-import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-@Configuration
-@EnableBatchProcessing
-@EnableAutoConfiguration
-public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguration {
-    static final String b2bCustomerGroupStepContextKey = "b2bCustomerGroupId";
-    static final String taxCategoryKey = "taxCategory";
-    static final String categoryTreeKey = "categoryTreeKey";
-    static final String productTypesStepContextKey = "productTypes";
-
-    @Autowired
-    private Resource productsCsvResource;
-
-    @Value("${productsImportStep.maxProducts:1000}")
-    private int maxProducts;
-
-    @Value("${productsImportStep.chunkSize:20}")
-    private int productsImportStepChunkSize;
+@Component
+@Lazy
+public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(ProductsImportJobConfiguration.class);
+    private int productsImportStepChunkSize = 1;
 
     @Bean
-    public Job importProducts(final Step getOrCreateCustomerGroup,
+    public Job productsCreateJob(final Step getOrCreateCustomerGroup,
                               final Step getOrCreateTaxCategoryStep,
-                              final Step importStep,
-                              final Step getProductTypesStep) {
+                              final Step productsImportStep,
+                              final Step publishProductsStep) {
         return jobBuilderFactory.get("productsImportJob")
                 .start(getOrCreateCustomerGroup)
                 .next(getOrCreateTaxCategoryStep)
-                .next(getProductTypesStep)
-                .next(importStep)
+                .next(productsImportStep)
+                .next(publishProductsStep)
                 .build();
     }
 
     @Bean
-    public Step getProductTypesStep() {
-        final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
-        listener.setKeys(new String[]{productTypesStepContextKey});
-        return stepBuilderFactory.get("getProductTypesStep")
-                .tasklet(saveProductTypeTasklet())
-                .listener(listener)
+    public Step publishProductsStep() {
+        return stepBuilderFactory.get("publishProductsStep")
+                .<Product, Product>chunk(20)
+                .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, ProductQuery.of()))
+                .writer(productPublishWriter())
                 .build();
     }
 
-    private Tasklet saveProductTypeTasklet() {
-        return (contribution, chunkContext) -> {
-            final List<ProductType> productTypes = blockingWait(queryAll(sphereClient, ProductTypeQuery.of()), 30, TimeUnit.SECONDS);
-            chunkContext.getStepContext().getStepExecution().getExecutionContext().put(productTypesStepContextKey, productTypes);
-            return RepeatStatus.FINISHED;
+    private ItemWriter<Versioned<Product>> productPublishWriter() {
+        return items -> {
+            final List<CompletionStage<Product>> completionStages = items.stream()
+                    .map(item -> sphereClient.execute(ProductUpdateCommand.of(item, Publish.of())))
+                    .collect(toList());
+            completionStages.forEach(stage -> SphereClientUtils.blockingWait(stage, 60, TimeUnit.SECONDS));
         };
     }
 
     @Bean
     public Step getOrCreateTaxCategoryStep() {
-        final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
-        listener.setKeys(new String[]{taxCategoryKey, categoryTreeKey});
         return stepBuilderFactory.get("getOrCreateTaxCategoryStep")
                 .tasklet(saveTaxCategoryTasklet())
-                .listener(listener)
                 .build();
     }
 
     @Bean
     public Step getOrCreateCustomerGroup() {
-        final ExecutionContextPromotionListener listener = new ExecutionContextPromotionListener();
-        listener.setKeys(new String[]{b2bCustomerGroupStepContextKey});
         return stepBuilderFactory.get("getOrCreateCustomerGroupStep")
                 .tasklet(saveCustomerGroupTasklet())
-                .listener(listener)
                 .build();
     }
 
@@ -138,16 +117,6 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
                         ));
                         return sphereClient.executeBlocking(TaxCategoryCreateCommand.of(body));
                     });
-
-
-            final List<Category> categories = blockingWait(queryAll(sphereClient, CategoryQuery.of()), 3, TimeUnit.MINUTES);
-            final CategoryTree categoryTree = CategoryTree.of(categories);
-
-            final ExecutionContext executionContext = chunkContext.getStepContext()
-                    .getStepExecution()
-                    .getExecutionContext();
-            executionContext.put(taxCategoryKey, taxCategory);
-            executionContext.put(categoryTreeKey, categoryTree);
             return RepeatStatus.FINISHED;
         };
     }
@@ -158,20 +127,16 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
             final CustomerGroup customerGroup =
                     sphereClient.executeBlocking(CustomerGroupQuery.of().byName(customerGroupName)).head()
                     .orElseGet(() -> sphereClient.executeBlocking(CustomerGroupCreateCommand.of(customerGroupName)));
-            final ExecutionContext executionContext = chunkContext.getStepContext()
-                    .getStepExecution()
-                    .getExecutionContext();
-            executionContext.put(b2bCustomerGroupStepContextKey, customerGroup.getId());
             return RepeatStatus.FINISHED;
         };
     }
 
     @Bean
-    public Step importStep() {
+    public Step productsImportStep(final ItemReader<ProductDraft> productsReader) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("productsImportStep");
         return stepBuilder
                 .<ProductDraft, ProductDraft>chunk(productsImportStepChunkSize)
-                .reader(productsReader())
+                .reader(productsReader)
                 .processor(productsProcessor())
                 .writer(productsWriter())
                 .build();
@@ -192,42 +157,28 @@ public class ProductsImportJobConfiguration extends CommercetoolsJobConfiguratio
     }
 
     @Bean
-    protected ItemReader<ProductDraft> productsReader() {
-        return new ProductDraftReader(productsCsvResource, maxProducts);
+    @StepScope
+    protected ProductDraftReader productsReader(@Value("#{jobParameters['resource']}") final Resource productsCsvResource,
+                                                            @Value("#{jobParameters['maxProducts']}") final Integer maxProducts) {
+        return new ProductDraftReader(productsCsvResource, maxProducts != null ? maxProducts : 2, sphereClient);
     }
 
     @Bean
     protected ItemWriter<ProductDraft> productsWriter() {
-        return new ItemWriter<ProductDraft>() {
-            @Override
-            public void write(final List<? extends ProductDraft> items) throws Exception {
-                items.stream()
-                        //!!!TODO some products are filtered out since the product type is incomplete
-                        .filter(item -> {
-                            final List<AttributeDraft> attributes = item.getMasterVariant().getAttributes();
-                            return !attributes.stream().anyMatch(a -> a.getName().equals("designer") && a.getValue().equals(new TextNode("juliat")));
-                        })
-                        .map(item -> sphereClient.execute(ProductCreateCommand.of(item)))
-                        .collect(toList())
-                        .forEach(stage -> blockingWait(stage, 30, TimeUnit.SECONDS));
-            }
-        };
-    }
-
-
-    @Configuration
-    public static class MainConfiguration {//TODO improve
-        public MainConfiguration() {
-        }
-
-        @Bean Resource productsCsvResource() throws MalformedURLException {
-            return new FileSystemResource("../products/products.csv");
-        }
-
-    }
-
-    public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, ProductsImportJobConfiguration.class, MainConfiguration.class};
-        System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
+        return items -> items.stream()
+                //!!!TODO some products are filtered out since the product type is incomplete
+                .filter(item -> {
+                    final List<AttributeDraft> attributes = item.getMasterVariant().getAttributes();
+                    return !attributes.stream().anyMatch(a -> a.getName().equals("designer") && a.getValue().equals(new TextNode("juliat")));
+                })
+                .peek(draft -> logger.info("attempting to create product {}", draft.getSlug()))
+                .peek(x -> {
+                    final Runtime runtime = Runtime.getRuntime();
+                    final long memory = runtime.totalMemory() - runtime.freeMemory();
+                    System.out.println("Used memory is megabytes: " + (memory / (1024L * 1024L)));
+                })
+                .map(item -> sphereClient.execute(ProductCreateCommand.of(item)))
+                .collect(toList())
+                .forEach(stage -> blockingWait(stage, 30, TimeUnit.SECONDS));
     }
 }

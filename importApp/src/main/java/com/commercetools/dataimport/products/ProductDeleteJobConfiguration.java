@@ -1,7 +1,7 @@
 package com.commercetools.dataimport.products;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsConfig;
-import com.commercetools.dataimport.commercetools.CommercetoolsJobConfiguration;
+import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
+import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.models.Versioned;
@@ -29,12 +29,13 @@ import static java.util.stream.Collectors.toList;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration {
+public class ProductDeleteJobConfiguration extends DefaultCommercetoolsJobConfiguration {
+
     @Bean
-    public Job categoryDeleteJob() {
+    public Job productsDeleteJob(Step unpublishProducts, Step deleteProductsStep) {
         return jobBuilderFactory.get("productsDeleteJob")
-                .start(unpublishProducts())
-                .next(deleteProductsStep())
+                .start(unpublishProducts)
+                .next(deleteProductsStep)
                 .build();
     }
 
@@ -70,10 +71,5 @@ public class ProductDeleteJobConfiguration extends CommercetoolsJobConfiguration
         return items -> items.stream()
                 .map(item -> sphereClient.execute(ProductDeleteCommand.of(item)))
                 .collect(blockingWaitForEachCollector(60, TimeUnit.SECONDS));
-    }
-
-    public static void main(String [] args) {
-        final Object[] sources = {CommercetoolsConfig.class, ProductDeleteJobConfiguration.class};
-        System.exit(SpringApplication.exit(SpringApplication.run(sources, args)));
     }
 }

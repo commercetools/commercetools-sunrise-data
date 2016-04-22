@@ -1,9 +1,13 @@
 language: java
 jdk: oraclejdk8
-before_script: bash importApp/scripts/travis-sphere-credentials.sh
+before_script:
+- export ROOT_PROJ="$(pwd)"
+- bash importApp/scripts/travis-sphere-credentials.sh
 script:
   - cd importApp
-  - mvn test pre-integration-test integration-test post-integration-test
+  - export PAYLOAD_FILE="$(pwd)/travis-payload.json"
+  - export MAVEN_OPTS="-Xmx1024m"
+  - travis_wait 40 mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
 cache:
   directories:
     - $HOME/.m2
