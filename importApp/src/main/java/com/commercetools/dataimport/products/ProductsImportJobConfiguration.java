@@ -131,24 +131,14 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
         };
     }
 
-    @StepScope
     @Bean
-    public TaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setMaxPoolSize(10);
-        taskExecutor.afterPropertiesSet();
-        return taskExecutor;
-    }
-
-    @Bean
-    public Step productsImportStep(final ItemReader<ProductDraft> productsReader, final TaskExecutor taskExecutor) {
+    public Step productsImportStep(final ItemReader<ProductDraft> productsReader) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("productsImportStep");
         return stepBuilder
                 .<ProductDraft, ProductDraft>chunk(productsImportStepChunkSize)
                 .reader(productsReader)
                 .processor(productsProcessor())
                 .writer(productsWriter())
-                .taskExecutor(taskExecutor)
                 .build();
     }
 
