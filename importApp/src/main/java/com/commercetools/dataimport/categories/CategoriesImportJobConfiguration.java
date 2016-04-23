@@ -6,6 +6,7 @@ import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
 import io.sphere.sdk.categories.commands.CategoryCreateCommand;
 import io.sphere.sdk.categories.queries.CategoryQuery;
+import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.models.Referenceable;
 import org.springframework.batch.core.Job;
@@ -39,23 +40,25 @@ public class CategoriesImportJobConfiguration extends DefaultCommercetoolsJobCon
     }
 
     @Bean
-    public Step categoriesImportStep(final ItemReader<CategoryCsvLineValue> categoryReader) {
+    public Step categoriesImportStep(final ItemReader<CategoryCsvLineValue> categoryReader,
+                                     final ItemWriter<CategoryDraft> categoryWriter,
+                                     final ItemProcessor<CategoryCsvLineValue, CategoryDraft> categoryProcessor) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("categoriesImportStep");
         return stepBuilder
                 .<CategoryCsvLineValue, CategoryDraft>chunk(1)
                 .reader(categoryReader)
-                .processor(categoryProcessor())
-                .writer(categoryWriter())
+                .processor(categoryProcessor)
+                .writer(categoryWriter)
                 .build();
     }
 
     @Bean
-    protected ItemWriter<CategoryDraft> categoryWriter() {
+    protected ItemWriter<CategoryDraft> categoryWriter(final BlockingSphereClient sphereClient) {
         return items -> items.forEach(draft -> sphereClient.executeBlocking(CategoryCreateCommand.of(draft)));
     }
 
     @Bean
-    protected ItemProcessor<CategoryCsvLineValue, CategoryDraft> categoryProcessor() {
+    protected ItemProcessor<CategoryCsvLineValue, CategoryDraft> categoryProcessor(final BlockingSphereClient sphereClient) {
         return item -> {
             final LocalizedString name = item.getName().toLocalizedString();
             final LocalizedString slug = item.getSlug().toLocalizedString();

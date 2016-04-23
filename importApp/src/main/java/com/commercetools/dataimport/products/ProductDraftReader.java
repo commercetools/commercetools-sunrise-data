@@ -207,7 +207,7 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         if (isNotEmpty(categories)) {
             final Stream<String> categoryPaths = Arrays.stream(categories.split(";"));//sth. like Women>Shoes>Loafers;Sale>Women>Shoes
             categoriesSet = categoryPaths.map(path -> {
-                if (categories == null) {
+                if (categoryTree == null) {
                     fillCache();
                 }
                 CategoryTree tree = categoryTree;

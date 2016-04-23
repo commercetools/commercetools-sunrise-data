@@ -1,8 +1,8 @@
 package com.commercetools.dataimport.products;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
+import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.models.Versioned;
 import io.sphere.sdk.products.Product;
@@ -14,7 +14,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,25 +39,28 @@ public class ProductDeleteJobConfiguration extends DefaultCommercetoolsJobConfig
     }
 
     @Bean
-    protected Step unpublishProducts() {
+    protected Step unpublishProducts(final BlockingSphereClient sphereClient,
+                                     final ItemWriter<Versioned<Product>> productUnpublishWriter) {
         final ProductQuery query = ProductQuery.of().withPredicates(m -> m.masterData().isPublished().is(true));
         return stepBuilderFactory.get("unpublishProductsStep")
                 .<Product, Product>chunk(50)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, query))
-                .writer(productUnpublishWriter())
+                .writer(productUnpublishWriter)
                 .build();
     }
 
     @Bean
-    protected Step deleteProductsStep() {
+    protected Step deleteProductsStep(final BlockingSphereClient sphereClient,
+                                      final ItemWriter<Versioned<Product>> productDeleteWriter) {
         return stepBuilderFactory.get("deleteProductsStep")
                 .<Product, Product>chunk(50)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, ProductQuery.of()))
-                .writer(productDeleteWriter())
+                .writer(productDeleteWriter)
                 .build();
     }
 
-    private ItemWriter<Versioned<Product>> productUnpublishWriter() {
+    @Bean
+    public ItemWriter<Versioned<Product>> productUnpublishWriter(final BlockingSphereClient sphereClient) {
         return items -> {
             final List<CompletionStage<Product>> completionStages = items.stream()
                     .map(item -> sphereClient.execute(ProductUpdateCommand.of(item, Unpublish.of())))
@@ -67,7 +69,8 @@ public class ProductDeleteJobConfiguration extends DefaultCommercetoolsJobConfig
         };
     }
 
-    private ItemWriter<Versioned<Product>> productDeleteWriter() {
+    @Bean
+    public ItemWriter<Versioned<Product>> productDeleteWriter(final BlockingSphereClient sphereClient) {
         return items -> items.stream()
                 .map(item -> sphereClient.execute(ProductDeleteCommand.of(item)))
                 .collect(blockingWaitForEachCollector(60, TimeUnit.SECONDS));

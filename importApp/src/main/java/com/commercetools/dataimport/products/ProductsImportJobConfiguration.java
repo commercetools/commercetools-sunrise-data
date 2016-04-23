@@ -1,9 +1,9 @@
 package com.commercetools.dataimport.products;
 
 import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
-import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.neovisionaries.i18n.CountryCode;
+import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
@@ -15,7 +15,6 @@ import io.sphere.sdk.products.attributes.AttributeDraft;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.products.commands.ProductUpdateCommand;
 import io.sphere.sdk.products.commands.updateactions.Publish;
-import io.sphere.sdk.products.queries.ProductQuery;
 import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.taxcategories.TaxCategoryDraft;
 import io.sphere.sdk.taxcategories.TaxRate;
@@ -24,21 +23,23 @@ import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.scope.context.JobSynchronizationManager;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -68,7 +69,7 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
                 .build();
     }
 
-    private ItemWriter<Versioned<Product>> productPublishWriter() {
+    private ItemWriter<Versioned<Product>> productPublishWriter(final BlockingSphereClient sphereClient) {
         return items -> {
             final List<CompletionStage<Product>> completionStages = items.stream()
                     .map(item -> sphereClient.execute(ProductUpdateCommand.of(item, Publish.of())))
@@ -78,20 +79,21 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
     }
 
     @Bean
-    public Step getOrCreateTaxCategoryStep() {
+    public Step getOrCreateTaxCategoryStep(Tasklet saveTaxCategoryTasklet) {
         return stepBuilderFactory.get("getOrCreateTaxCategoryStep")
-                .tasklet(saveTaxCategoryTasklet())
+                .tasklet(saveTaxCategoryTasklet)
                 .build();
     }
 
     @Bean
-    public Step getOrCreateCustomerGroup() {
+    public Step getOrCreateCustomerGroup(final BlockingSphereClient sphereClient) {
         return stepBuilderFactory.get("getOrCreateCustomerGroupStep")
-                .tasklet(saveCustomerGroupTasklet())
+                .tasklet(saveCustomerGroupTasklet(sphereClient))
                 .build();
     }
 
-    private Tasklet saveTaxCategoryTasklet() {
+    @Bean
+    public Tasklet saveTaxCategoryTasklet(final BlockingSphereClient sphereClient) {
         return (contribution, chunkContext) -> {
             final String name = "standard";
             final TaxCategory taxCategory =
@@ -110,7 +112,7 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
         };
     }
 
-    private Tasklet saveCustomerGroupTasklet() {
+    private Tasklet saveCustomerGroupTasklet(final BlockingSphereClient sphereClient) {
         return (contribution, chunkContext) -> {
             final String customerGroupName = "b2b";
             final CustomerGroup customerGroup =
@@ -121,14 +123,39 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
     }
 
     @Bean
-    public Step productsImportStep(final ItemReader<ProductDraft> productsReader) {
+    public Step productsImportStep(final ItemReader<ProductDraft> productsReader,
+                                   final ItemWriter<ProductDraft> productsWriter) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("productsImportStep");
         return stepBuilder
                 .<ProductDraft, ProductDraft>chunk(productsImportStepChunkSize)
                 .reader(productsReader)
                 .processor(productsProcessor())
-                .writer(productsWriter())
+                .writer(productsWriter)
+                .taskExecutor(taskExecutor())
                 .build();
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor() {
+        //https://jira.spring.io/browse/BATCH-2269
+        final SimpleAsyncTaskExecutor simpleAsyncTaskExecutor = new SimpleAsyncTaskExecutor() {
+            @Override
+            protected void doExecute(Runnable task) {
+                //gets the jobExecution of the configuration thread
+                final JobExecution jobExecution = JobSynchronizationManager.getContext().getJobExecution();
+                super.doExecute(() -> {
+                    JobSynchronizationManager.register(jobExecution);
+                    try {
+                        task.run();
+                    } finally {
+//                        JobSynchronizationManager.release();
+                        JobSynchronizationManager.close();
+                    }
+                });
+            }
+        };
+        simpleAsyncTaskExecutor.setConcurrencyLimit(20);
+        return simpleAsyncTaskExecutor;
     }
 
     @Bean
@@ -147,13 +174,17 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
 
     @Bean
     @StepScope
-    protected ProductDraftReader productsReader(@Value("#{jobParameters['resource']}") final Resource productsCsvResource,
-                                                            @Value("#{jobParameters['maxProducts']}") final Integer maxProducts) {
-        return new ProductDraftReader(productsCsvResource, maxProducts != null ? maxProducts : 2, sphereClient);
+    protected SynchronizedItemStreamReader<ProductDraft> productsReader(@Value("#{jobParameters['resource']}") final Resource productsCsvResource,
+                                                                        @Value("#{jobParameters['maxProducts']}") final Integer maxProducts,
+                                                                        final BlockingSphereClient sphereClient) {
+        final ProductDraftReader productDraftReader = new ProductDraftReader(productsCsvResource, maxProducts != null ? maxProducts : 2, sphereClient);
+        final SynchronizedItemStreamReader<ProductDraft> objectSynchronizedItemStreamReader = new SynchronizedItemStreamReader<>();
+        objectSynchronizedItemStreamReader.setDelegate(productDraftReader);
+        return objectSynchronizedItemStreamReader;
     }
 
     @Bean
-    protected ItemWriter<ProductDraft> productsWriter() {
+    protected ItemWriter<ProductDraft> productsWriter(final BlockingSphereClient sphereClient) {
         return items -> items.stream()
                 //!!!TODO some products are filtered out since the product type is incomplete
                 .filter(item -> {
