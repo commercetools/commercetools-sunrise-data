@@ -8,7 +8,7 @@ script:
   - cd importApp
   - export PAYLOAD_FILE="$(pwd)/travis-payload.json"
   - export MAVEN_OPTS="-Xmx1024m"
-  - travis_wait 40 docker run -it -v $PWD:/wd msct/jdk8 /bin/sh -c "cd /wd && export PAYLOAD_FILE=$PAYLOAD_FILE && export MAVEN_OPTS=$MAVEN_OPTS && ./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain"
+  - travis_wait 40 docker run -v $PWD:/wd msct/jdk8 /bin/sh -c "cd /wd && export PAYLOAD_FILE=$PAYLOAD_FILE && export MAVEN_OPTS=$MAVEN_OPTS && ./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain"
 notifications:
   email:
     on_success: change
