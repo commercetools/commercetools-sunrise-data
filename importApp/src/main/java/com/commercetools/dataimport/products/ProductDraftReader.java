@@ -245,6 +245,7 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                 .build();
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant)
                 .taxCategory(taxCategory)
+                .publish(true)
                 .categories(categoriesSet);
         return entry;
     }

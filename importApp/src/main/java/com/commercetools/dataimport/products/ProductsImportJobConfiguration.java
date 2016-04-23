@@ -60,22 +60,11 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
     @Bean
     public Job productsCreateJob(final Step getOrCreateCustomerGroup,
                               final Step getOrCreateTaxCategoryStep,
-                              final Step productsImportStep,
-                              final Step publishProductsStep) {
+                              final Step productsImportStep) {
         return jobBuilderFactory.get("productsImportJob")
                 .start(getOrCreateCustomerGroup)
                 .next(getOrCreateTaxCategoryStep)
                 .next(productsImportStep)
-                .next(publishProductsStep)
-                .build();
-    }
-
-    @Bean
-    public Step publishProductsStep() {
-        return stepBuilderFactory.get("publishProductsStep")
-                .<Product, Product>chunk(20)
-                .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, ProductQuery.of()))
-                .writer(productPublishWriter())
                 .build();
     }
 
