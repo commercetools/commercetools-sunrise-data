@@ -1,16 +1,11 @@
-language: java
-jdk: oraclejdk8
+sudo: required
+services:
+- docker
 before_script:
-- export ROOT_PROJ="$(pwd)"
+- export ROOT_PROJ='/wd'
 - bash importApp/scripts/travis-sphere-credentials.sh
 script:
-  - cd importApp
-  - export PAYLOAD_FILE="$(pwd)/travis-payload.json"
-  - export MAVEN_OPTS="-Xmx1024m"
-  - travis_wait 40 mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
-cache:
-  directories:
-    - $HOME/.m2
+  - docker run -v $PWD:/wd msct/jdk8 /bin/sh -c "cd /wd/importApp && export PAYLOAD_FILE=/wd/importApp/travis-payload.json && export MAVEN_OPTS='-Xmx1024m' && ./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain"
 notifications:
   email:
     on_success: change

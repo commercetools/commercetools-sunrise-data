@@ -1,8 +1,8 @@
 package com.commercetools.dataimport.producttypes;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
+import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.commands.ProductTypeDeleteCommand;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
@@ -10,7 +10,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +26,8 @@ public class ProductTypesDeleteJobConfiguration extends DefaultCommercetoolsJobC
     }
 
     @Bean
-    public Step deleteProductTypes(final ItemWriter<ProductType> productTypeDeleteItemWriter) {
+    public Step deleteProductTypes(final ItemWriter<ProductType> productTypeDeleteItemWriter,
+                                   final BlockingSphereClient sphereClient) {
         return stepBuilderFactory.get("deleteProductTypesInCommercetoolsPlatform")
                 .<ProductType, ProductType>chunk(1)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, ProductTypeQuery.of()))
@@ -36,7 +36,7 @@ public class ProductTypesDeleteJobConfiguration extends DefaultCommercetoolsJobC
     }
 
     @Bean
-    public ItemWriter<ProductType> productTypeDeleteItemWriter() {
+    public ItemWriter<ProductType> productTypeDeleteItemWriter(final BlockingSphereClient sphereClient) {
         return items -> items.forEach(item -> sphereClient.executeBlocking(ProductTypeDeleteCommand.of(item)));
     }
 }

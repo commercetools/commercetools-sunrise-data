@@ -1,17 +1,16 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
 import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.commands.CategoryDeleteCommand;
 import io.sphere.sdk.categories.queries.CategoryQuery;
+import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.models.Versioned;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,30 +25,34 @@ import static io.sphere.sdk.client.SphereClientUtils.blockingWaitForEachCollecto
 public class CategoriesDeleteJobConfiguration extends DefaultCommercetoolsJobConfiguration {
 
     @Bean
-    public Job categoriesDeleteJob() {
+    public Job categoriesDeleteJob(Step deleteRootCategories, Step deleteRemainingCategories) {
         return jobBuilderFactory.get("categoriesDeleteJob")
-                .start(deleteRootCategories())
-                .next(deleteRemainingCategories())
+                .start(deleteRootCategories)
+                .next(deleteRemainingCategories)
                 .build();
     }
 
-    protected Step deleteRootCategories() {
+    @Bean
+    public Step deleteRootCategories(final BlockingSphereClient sphereClient,
+                                        final ItemWriter<Versioned<Category>> categoryDeleteWriter) {
         return stepBuilderFactory.get("deleteRootCategoriesStep")
                 .<Category, Category>chunk(1)
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of().byIsRoot()))
-                .writer(categoryDeleteWriter())
+                .writer(categoryDeleteWriter)
                 .build();
     }
 
-    protected Step deleteRemainingCategories() {
+    @Bean
+    public Step deleteRemainingCategories(final BlockingSphereClient sphereClient, final ItemWriter<Versioned<Category>> categoryDeleteWriter) {
         return stepBuilderFactory.get("deleteRemainingCategoriesStep")
                 .<Category, Category>chunk(1)//should always be 1 for commerctools platform
                 .reader(ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of()))
-                .writer(categoryDeleteWriter())
+                .writer(categoryDeleteWriter)
                 .build();
     }
 
-    private ItemWriter<Versioned<Category>> categoryDeleteWriter() {
+    @Bean
+    public ItemWriter<Versioned<Category>> categoryDeleteWriter(final BlockingSphereClient sphereClient) {
         return items -> items.stream()
                 .map(item -> sphereClient.execute(CategoryDeleteCommand.of(item)))
                 .collect(blockingWaitForEachCollector(30, TimeUnit.SECONDS));

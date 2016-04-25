@@ -3,6 +3,7 @@ package com.commercetools.dataimport.producttypes;
 import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectReader;
+import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.json.SphereJsonUtils;
 import io.sphere.sdk.producttypes.ProductTypeDraft;
 import io.sphere.sdk.producttypes.commands.ProductTypeCreateCommand;
@@ -44,7 +45,7 @@ public class ProductTypesImportJobConfiguration extends DefaultCommercetoolsJobC
     }
 
     @Bean
-    public ItemWriter<ProductTypeDraft> productTypeDraftItemWriter() {
+    public ItemWriter<ProductTypeDraft> productTypeDraftItemWriter(final BlockingSphereClient sphereClient) {
         return items -> items.forEach(draft -> sphereClient.executeBlocking(ProductTypeCreateCommand.of(draft)));
     }
 

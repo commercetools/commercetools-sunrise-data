@@ -26,13 +26,9 @@ public abstract class DefaultCommercetoolsJobConfiguration {
             @Value("#{jobParameters['commercetools.apiUrl']}") final String apiUrl
     ) throws IOException  {
         final SphereClientConfig config = SphereClientConfig.of(projectKey, clientId, clientSecret, authUrl, apiUrl);
-        final SphereClient asyncClient = SphereClientFactory.of()
-                .createClient(config);
+        final SphereClient asyncClient = SphereClientFactory.of().createClient(config);
         return BlockingSphereClient.of(asyncClient, 20, TimeUnit.SECONDS);
     }
-
-    @Autowired
-    protected BlockingSphereClient sphereClient;
 
     @Autowired
     protected JobBuilderFactory jobBuilderFactory;

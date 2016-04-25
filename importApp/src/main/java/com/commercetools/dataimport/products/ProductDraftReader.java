@@ -207,7 +207,7 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         if (isNotEmpty(categories)) {
             final Stream<String> categoryPaths = Arrays.stream(categories.split(";"));//sth. like Women>Shoes>Loafers;Sale>Women>Shoes
             categoriesSet = categoryPaths.map(path -> {
-                if (categories == null) {
+                if (categoryTree == null) {
                     fillCache();
                 }
                 CategoryTree tree = categoryTree;
@@ -245,6 +245,7 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                 .build();
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant)
                 .taxCategory(taxCategory)
+                .publish(true)
                 .categories(categoriesSet);
         return entry;
     }
