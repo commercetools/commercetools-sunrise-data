@@ -238,6 +238,7 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         final String pricesLine = productsCsvEntry.getPrices();
         final List<PriceDraft> prices = parsePricesLine(pricesLine);
         final ProductVariantDraftBuilder productVariantDraftBuilder = ProductVariantDraftBuilder.of()
+                .sku(productsCsvEntry.getSku())
                 .prices(prices)
                 .attributes(parseAttributes(currentLine, productTypes, productsCsvEntry.getProductType()));
         addImages(productsCsvEntry, productVariantDraftBuilder);
