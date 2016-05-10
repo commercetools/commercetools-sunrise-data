@@ -63,6 +63,7 @@ public class ProductDeleteJobConfiguration extends DefaultCommercetoolsJobConfig
     public ItemWriter<Versioned<Product>> productUnpublishWriter(final BlockingSphereClient sphereClient) {
         return items -> {
             final List<CompletionStage<Product>> completionStages = items.stream()
+                    .peek(element -> System.err.println("attempting to delete product " + element.getId()))
                     .map(item -> sphereClient.execute(ProductUpdateCommand.of(item, Unpublish.of())))
                     .collect(toList());
             completionStages.forEach(stage -> SphereClientUtils.blockingWait(stage, 60, TimeUnit.SECONDS));

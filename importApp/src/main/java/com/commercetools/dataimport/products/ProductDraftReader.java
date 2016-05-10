@@ -1,5 +1,6 @@
 package com.commercetools.dataimport.products;
 
+import com.commercetools.dataimport.common.LocalizedField;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryTree;
@@ -199,6 +200,8 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         final ProductsCsvEntry productsCsvEntry = mapLineToEntry(currentLine);
         final ResourceIdentifier<ProductType> productType = ResourceIdentifier.ofKey(productsCsvEntry.getProductType());
         final LocalizedString name = productsCsvEntry.getName().toLocalizedString();
+        final LocalizedString description = Optional.ofNullable(productsCsvEntry.getDescription())
+                .map(LocalizedField::toLocalizedString).orElse(null);
         final LocalizedString slug = productsCsvEntry.getSlug().toLocalizedString();
 
         final String categories = productsCsvEntry.getCategories();
@@ -245,6 +248,7 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         final ProductVariantDraft masterVariant = productVariantDraftBuilder
                 .build();
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant)
+                .description(description)
                 .taxCategory(taxCategory)
                 .publish(true)
                 .categories(categoriesSet);
