@@ -260,7 +260,7 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         return entry;
     }
 
-    private SearchKeywords searchKeywordsFromName(final LocalizedString name) {
+    public static SearchKeywords searchKeywordsFromName(final LocalizedString name) {
         final Map<Locale, List<SearchKeyword>> content = name.stream()
                 .collect(toMap(entry -> entry.getLocale(),
                         entr -> Collections.singletonList(SearchKeyword.of(entr.getValue()))));
