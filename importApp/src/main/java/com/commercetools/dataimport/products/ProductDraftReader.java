@@ -16,6 +16,8 @@ import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.attributes.*;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
+import io.sphere.sdk.search.SearchKeyword;
+import io.sphere.sdk.search.SearchKeywords;
 import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
 import io.sphere.sdk.utils.MoneyImpl;
@@ -45,6 +47,7 @@ import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -247,12 +250,21 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
         addImages(productsCsvEntry, productVariantDraftBuilder);
         final ProductVariantDraft masterVariant = productVariantDraftBuilder
                 .build();
+        final SearchKeywords searchKeywords = searchKeywordsFromName(name);
         final ProductDraftBuilder entry = ProductDraftBuilder.of(productType, name, slug, masterVariant)
                 .description(description)
                 .taxCategory(taxCategory)
                 .publish(true)
+                .searchKeywords(searchKeywords)
                 .categories(categoriesSet);
         return entry;
+    }
+
+    public static SearchKeywords searchKeywordsFromName(final LocalizedString name) {
+        final Map<Locale, List<SearchKeyword>> content = name.stream()
+                .collect(toMap(entry -> entry.getLocale(),
+                        entr -> Collections.singletonList(SearchKeyword.of(entr.getValue()))));
+        return SearchKeywords.of(content);
     }
 
     private List<PriceDraft> parsePricesLine(final String pricesLine) {
