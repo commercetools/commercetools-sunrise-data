@@ -255,7 +255,7 @@ public class ProductDraftReader implements ItemStreamReader<ProductDraft> {
                 .description(description)
                 .taxCategory(taxCategory)
                 .publish(true)
-                .searchKeywords(searchKeywords)
+//                .searchKeywords(searchKeywords)
                 .categories(categoriesSet);
         return entry;
     }

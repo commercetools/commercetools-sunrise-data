@@ -27,16 +27,16 @@ Add your commercetools credentials and may remove jobs you don't need.
     },
     {
       "name": "productTypeCreateJob",
-      "resource": "https://raw.githubusercontent.com/sphereio/commercetools-sunrise-data/master/product-types/product-types.json"
+      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/product-types/product-types.json"
     },
     {
       "name": "categoriesCreateJob",
-      "resource": "https://raw.githubusercontent.com/sphereio/commercetools-sunrise-data/master/categories/categories.csv"
+      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/categories/categories.csv"
     },
     {
       "name": "productsCreateJob",
       "maxProducts": 4000,
-      "resource": "https://raw.githubusercontent.com/sphereio/commercetools-sunrise-data/master/products/products.csv"
+      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/products/products.csv"
     }
   ]
 }

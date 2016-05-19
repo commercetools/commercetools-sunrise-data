@@ -22,4 +22,4 @@
 
 # Import app
 
-[![Build Status](https://travis-ci.org/sphereio/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/sphereio/commercetools-sunrise-data)
+[![Build Status](https://travis-ci.org/commercetools/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/commercetools/commercetools-sunrise-data)
