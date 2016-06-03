@@ -1,4 +1,5 @@
-{
+[
+ {
     "name": "main",
     "key": "main",
     "description": "all products of max",
@@ -1577,4 +1578,5 @@
         "displayGroup": "Other"
       }
     ]
-}
+ }
+]
