@@ -1,11 +1,8 @@
 [
-  {
-    "id": "b94f2e6f-74c8-43ac-b37e-8ad7ce28ef8b",
-    "version": 116,
+ {
     "name": "main",
     "key": "main",
     "description": "all products of max",
-    "classifier": "Complex",
     "attributes": [
       {
         "name": "creationDate",
@@ -1580,8 +1577,6 @@
         "inputHint": "SingleLine",
         "displayGroup": "Other"
       }
-    ],
-    "createdAt": "2014-08-14T09:58:07.342Z",
-    "lastModifiedAt": "2015-11-30T08:50:20.590Z"
-  }
+    ]
+ }
 ]

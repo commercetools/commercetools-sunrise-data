@@ -9,7 +9,8 @@
 1. Import it with https://impex.sphere.io/playground
  - Endpoint: Product Types
  - Method: Create
- - use product-types/product-types.json as body
+ - use product-types/product-types.json as body, **but remove the surrounding square brackets before**
+
 
 ## import categories
 1. Use the category structure as in categories.csv
