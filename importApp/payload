@@ -10,7 +10,8 @@
       {
         "name": "productsSuggestionsCopyJob",
         "resource": "https://gist.githubusercontent.com/lauraluiz/9f406986fa748d18acbe7d585b46cb06/raw/bf2c43535784eb446ebe0c900d97173ca9ddc993/channels.json",
-        "resource_types": "https://gist.githubusercontent.com/lauraluiz/9f406986fa748d18acbe7d585b46cb06/raw/bf2c43535784eb446ebe0c900d97173ca9ddc993/types.json"
+        "resource_types": "https://gist.githubusercontent.com/lauraluiz/9f406986fa748d18acbe7d585b46cb06/raw/bf2c43535784eb446ebe0c900d97173ca9ddc993/types.json",
+        "maxProducts": 1
       }
   ]
 }
