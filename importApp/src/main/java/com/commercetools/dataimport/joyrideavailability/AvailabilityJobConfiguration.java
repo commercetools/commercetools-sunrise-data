@@ -59,7 +59,7 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
     private static final Logger logger = LoggerFactory.getLogger(AvailabilityJobConfiguration.class);
     private int productsImportStepChunkSize = 1;
     private final List<String> channelsIds = new ArrayList<>();
-    private final List<String> channelsToAddPrice = new ArrayList<>();
+    private final List<Channel> channelsToAddPrice = new ArrayList<>();
 
     @Bean
     public Job productsSuggestionsCopyJob(final Step channelImportStep,
@@ -181,9 +181,8 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
             final MonetaryAmount newAmount = priceProduct.getValue().subtract(MoneyImpl.ofCents(60, EUR));
             getChannelsByCountry(sphereClient);
             final List<AddPrice> productAndPricesList= new ArrayList<>();
-            for (String channelId : channelsToAddPrice) {
-                final Reference<Channel> channelReference = Channel.referenceOfId(channelId);
-                final PriceDraft pricePerChannel = PriceDraft.of(newAmount).withChannel(channelReference).withCountry(CountryCode.DE);
+            for (Channel channel : channelsToAddPrice) {
+                final PriceDraft pricePerChannel = PriceDraft.of(newAmount).withChannel(channel).withCountry(channel.getAddress().getCountry());
                 for ( ProductVariant productVariant : item.getMasterData().getCurrent().getAllVariants()) {
                     productAndPricesList.add(AddPrice.of(productVariant.getId(), pricePerChannel));
                 }
@@ -224,9 +223,14 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
         if ( channelsToAddPrice.isEmpty() ){
             final ChannelQuery query = ChannelQuery.of();
             final List<Channel> results = sphereClient.executeBlocking(query).getResults();
+            boolean addedNotGermanChannel = false;
             for (Channel result: results) {
-                if ( result.getAddress().getCountry().equals(CountryCode.DE) && channelsToAddPrice.size() < 5 ){
-                    channelsToAddPrice.add(result.getId());
+                if( !result.getAddress().getCountry().equals(CountryCode.DE) && !addedNotGermanChannel ){
+                    addedNotGermanChannel = true;
+                    channelsToAddPrice.add(result);
+                }
+                else if ( result.getAddress().getCountry().equals(CountryCode.DE) && channelsToAddPrice.size() < 5 ){
+                    channelsToAddPrice.add(result);
                 }
             }
         }
