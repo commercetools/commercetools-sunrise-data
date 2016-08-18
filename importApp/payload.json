@@ -1,0 +1,17 @@
+{
+  "commercetools": {
+    "projectKey": "",
+    "clientId": "",
+    "clientSecret": "",
+    "authUrl": "",
+    "apiUrl": ""
+  },
+  "jobs": [
+      {
+        "name": "productsSuggestionsCopyJob",
+        "resourceChannels": "https://gist.githubusercontent.com/lauraluiz/9f406986fa748d18acbe7d585b46cb06/raw/bf2c43535784eb446ebe0c900d97173ca9ddc993/channels.json",
+        "resourceTypes": "https://gist.githubusercontent.com/lauraluiz/9f406986fa748d18acbe7d585b46cb06/raw/bf2c43535784eb446ebe0c900d97173ca9ddc993/types.json",
+        "maxProducts": 1
+      }
+  ]
+}
