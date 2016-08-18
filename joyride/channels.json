@@ -1,0 +1,498 @@
+[
+  {
+    "key": "sunrise-store-sanfrancisco",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store San Francisco",
+      "de": "SUNRISE Store San Francisco"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_sanfrancisco.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Townsend Street",
+      "streetNumber": "650",
+      "postalCode": "CA 94103",
+      "city": "San Francisco",
+      "country": "US"
+    }
+  },
+  {
+    "key": "sunrise-store-chicago",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Chicago",
+      "de": "SUNRISE Store Chicago"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_chicago.jpg"
+      }
+    },
+    "address": {
+      "streetName": "West Congress Parkway",
+      "streetNumber": "18-30",
+      "postalCode": "IL 60605",
+      "city": "Chicago",
+      "country": "US"
+    }
+  },
+  {
+    "key": "sunrise-store-newyork",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store New York",
+      "de": "SUNRISE Store New York"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_newyork.jpg"
+      }
+    },
+    "address": {
+      "streetName": "West 37th Street",
+      "streetNumber": "260",
+      "postalCode": "NY 10018",
+      "city": "New York",
+      "country": "US"
+    }
+  },
+  {
+    "key": "sunrise-store-stockholm",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Stockholm",
+      "de": "SUNRISE Store Stockholm"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_stockholm.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Hantverkargatan",
+      "streetNumber": "2A",
+      "postalCode": "112 21",
+      "city": "Stockholm",
+      "country": "SE"
+    }
+  },
+  {
+    "key": "sunrise-store-brussels",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Brussels",
+      "de": "SUNRISE Store Brussels"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_brussels.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Rue du Chêne",
+      "streetNumber": "7",
+      "postalCode": "1000",
+      "city": "Brussels",
+      "country": "BE"
+    }
+  },
+  {
+    "key": "sunrise-store-cologne",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Cologne",
+      "de": "SUNRISE Store Cologne"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_cologne.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Zeughausstraße",
+      "streetNumber": "6",
+      "postalCode": "50667",
+      "city": "Cologne",
+      "country": "DE"
+    }
+  },
+  {
+    "key": "sunrise-store-barcelona",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Barcelona",
+      "de": "SUNRISE Store Barcelona"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_barcelona.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Avinguda Diagonal",
+      "streetNumber": "522",
+      "postalCode": "08006",
+      "city": "Barcelona",
+      "country": "ES"
+    }
+  },
+  {
+    "key": "sunrise-store-amsterdam",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Amsterdam",
+      "de": "SUNRISE Store Amsterdam"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_amsterdam.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Jodenbreestraat",
+      "streetNumber": "4",
+      "postalCode": "1011 NK",
+      "city": "Amsterdam",
+      "country": "NL"
+    }
+  },
+  {
+    "key": "sunrise-store-london",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store London",
+      "de": "SUNRISE Store London"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_london.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Oxford Street",
+      "streetNumber": "5",
+      "postalCode": "W1A 1AB",
+      "city": "London",
+      "country": "GB"
+    }
+  },
+  {
+    "key": "sunrise-store-madrid",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Madrid",
+      "de": "SUNRISE Store Madrid"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_madrid.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Calle Gran Vía",
+      "streetNumber": "41",
+      "postalCode": "28013",
+      "city": "Madrid",
+      "country": "ES"
+    }
+  },
+  {
+    "key": "sunrise-store-vienna",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Vienna",
+      "de": "SUNRISE Store Vienna"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_vienna.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Opernring",
+      "streetNumber": "6",
+      "postalCode": "1010",
+      "city": "Vienna",
+      "country": "AT"
+    }
+  },
+  {
+    "key": "sunrise-store-zurich",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Zurich",
+      "de": "SUNRISE Store Zurich"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_zurich.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Hofwiesenstrasse",
+      "streetNumber": "139-141",
+      "postalCode": "8057",
+      "city": "Zurich",
+      "country": "CH"
+    }
+  },
+  {
+    "key": "sunrise-store-paris",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Paris",
+      "de": "SUNRISE Store Paris"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_paris.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Rue Quentin-Bauchart",
+      "streetNumber": "27",
+      "postalCode": "75008",
+      "city": "Paris",
+      "country": "FR"
+    }
+  },
+  {
+    "key": "sunrise-store-hamburg",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Hamburg",
+      "de": "SUNRISE Store Hamburg"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_hamburg.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Mönckebergstraße",
+      "streetNumber": "5",
+      "postalCode": "20095",
+      "city": "Hamburg",
+      "country": "DE"
+    }
+  },
+  {
+    "key": "sunrise-store-munich",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Munich",
+      "de": "SUNRISE Store Munich"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_munich.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Dachauer Str.",
+      "streetNumber": "128",
+      "postalCode": "80637",
+      "city": "Munich",
+      "country": "DE"
+    }
+  },
+  {
+    "key": "sunrise-store-berlin",
+    "version": 1,
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Berlin",
+      "de": "SUNRISE Store Berlin"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Sa. 9:00AM - 6:00PM\nMo-Fr. 10:00AM - 8:00PM",
+          "de": "Sa. 9:00 - 18:00\nMo-Fr. 10:00 - 20:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_berlin.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Unter den Linden",
+      "streetNumber": "21",
+      "postalCode": "10117",
+      "city": "Berlin",
+      "country": "DE"
+    }
+  }
+]

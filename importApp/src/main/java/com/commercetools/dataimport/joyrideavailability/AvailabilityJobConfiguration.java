@@ -10,11 +10,9 @@ import io.sphere.sdk.channels.ChannelDraftDsl;
 import io.sphere.sdk.channels.commands.ChannelCreateCommand;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
-import io.sphere.sdk.commands.UpdateAction;
 import io.sphere.sdk.inventory.InventoryEntryDraft;
 import io.sphere.sdk.inventory.commands.InventoryEntryCreateCommand;
 import io.sphere.sdk.json.SphereJsonUtils;
-import io.sphere.sdk.models.Reference;
 import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.commands.ProductUpdateCommand;
 import io.sphere.sdk.products.commands.updateactions.AddPrice;
@@ -44,10 +42,7 @@ import org.springframework.stereotype.Component;
 import javax.money.MonetaryAmount;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.client.SphereClientUtils.blockingWaitForEachCollector;
@@ -58,8 +53,8 @@ import static io.sphere.sdk.models.DefaultCurrencyUnits.EUR;
 public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(AvailabilityJobConfiguration.class);
     private int productsImportStepChunkSize = 1;
-    private final List<String> channelsIds = new ArrayList<>();
-    private final List<Channel> channelsToAddPrice = new ArrayList<>();
+    private final List<Channel> channelsToAddPrice = new LinkedList<>();
+    private final List<Channel> channelsWithInventory = new LinkedList<>();
 
     @Bean
     public Job productsSuggestionsCopyJob(final Step channelImportStep,
@@ -101,8 +96,7 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
     @Bean
     public Step createInventoryEntryStep(final BlockingSphereClient sphereClient,
                                          final ItemProcessor<Product, List<InventoryEntryDraft>> inventoryEntryProcessor,
-                                         final ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter
-    ) {
+                                         final ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("createInventoryEntryStep");
         return stepBuilder
                 .<Product, List<InventoryEntryDraft>>chunk(productsImportStepChunkSize)
@@ -114,8 +108,7 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
 
     @Bean
     public Step setPricesStep(final BlockingSphereClient sphereClient,
-                              final ItemWriter<ProductUpdateCommand> setPriceWriter
-    ) {
+                              final ItemWriter<ProductUpdateCommand> setPriceWriter) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("createInventoryEntryStep");
         return stepBuilder
                 .<Product, ProductUpdateCommand>chunk(productsImportStepChunkSize)
@@ -127,7 +120,7 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
 
     @Bean
     @StepScope
-    private ItemReader<TypeDraft> customTypeReader(@Value("#{jobParameters['resourceTypes']}") final Resource typesJsonResource) throws IOException {
+    private ItemReader<TypeDraft> customTypeReader(@Value("#{jobParameters['typesResource']}") final Resource typesJsonResource) throws IOException {
         logger.info("URL_Types: " + typesJsonResource);
         final ObjectReader reader = SphereJsonUtils.newObjectMapper().readerFor(new TypeReference<List<TypeDraft>>() { });
         final InputStream inputStream = typesJsonResource.getInputStream();
@@ -142,7 +135,7 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
 
     @Bean
     @StepScope
-    private ItemReader<ChannelDraftDsl> channelsDraftReader(@Value("#{jobParameters['resourceChannels']}") final Resource channelsJsonResource) throws IOException {
+    private ItemReader<ChannelDraftDsl> channelsDraftReader(@Value("#{jobParameters['channelsResource']}") final Resource channelsJsonResource) throws IOException {
         logger.info("URL_Channels: " + channelsJsonResource);
         final ObjectReader reader = SphereJsonUtils.newObjectMapper().readerFor(new TypeReference<List<ChannelDraftDsl>>() {
         });
@@ -159,7 +152,7 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
     @Bean
     protected ItemProcessor<Product, List<InventoryEntryDraft>> inventoryEntryProcessor(final BlockingSphereClient sphereClient) {
         return item -> {
-            getChannelsIds(sphereClient);
+            getChannelsWithInventory(sphereClient);
             return inventoryEntryListByChannel(item);
         };
     }
@@ -197,29 +190,39 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
     }
 
     private List<InventoryEntryDraft> inventoryEntryListByChannel(final Product item) {
-        final List<InventoryEntryDraft> listInvetoryEntryDraft = new ArrayList<>();
-        for (String channelId : channelsIds ) {
-            final Reference<Channel> channelReference = Channel.referenceOfId(channelId);
-            final long quantityOnStock = 1L;
-            final String sku = item.getMasterData().getCurrent().getMasterVariant().getSku();
-            final InventoryEntryDraft inventoryEntryDraft = InventoryEntryDraft.of(sku, quantityOnStock)
-                    .withSupplyChannel(channelReference);
-            listInvetoryEntryDraft.add(inventoryEntryDraft);
+        final List<InventoryEntryDraft> listInventoryEntryDraft = new LinkedList<>();
+        for (final Channel channel : channelsWithInventory ) {
+            for ( ProductVariant productVariant : item.getMasterData().getCurrent().getAllVariants()) {
+                final Random random = new Random(productVariant.getSku().hashCode() + channel.getKey().hashCode());
+                final int bucket = randInt(random, 0, 99);
+                final long quantityOnStock;
+                if (bucket > 70) {
+                    quantityOnStock = randInt(random, 11, 1000);
+                } else if (bucket > 10) {
+                    quantityOnStock = randInt(random, 1, 10);
+                } else {
+                    quantityOnStock = 0;
+                }
+                final String sku = productVariant.getSku();
+                final InventoryEntryDraft inventoryEntryDraft = InventoryEntryDraft.of(sku, quantityOnStock)
+                        .withSupplyChannel(channel);
+                listInventoryEntryDraft.add(inventoryEntryDraft);
+            }
         }
-        return listInvetoryEntryDraft;
+        return listInventoryEntryDraft;
     }
 
-    private void getChannelsIds(final BlockingSphereClient sphereClient) {
-        if ( channelsIds.isEmpty() ){
+    private void getChannelsWithInventory(final BlockingSphereClient sphereClient) {
+        if ( channelsWithInventory.isEmpty() ){
             final ChannelQuery query = ChannelQuery.of();
             final List<Channel> results = sphereClient.executeBlocking(query).getResults();
             for (Channel result: results) {
-                channelsIds.add(result.getId());
+                channelsWithInventory.add(result);
             }
         }
     }
 
-    private void getChannelsByCountry(final BlockingSphereClient sphereClient){
+    private void getChannelsByCountry(final BlockingSphereClient sphereClient) {
         if ( channelsToAddPrice.isEmpty() ){
             final ChannelQuery query = ChannelQuery.of();
             final List<Channel> results = sphereClient.executeBlocking(query).getResults();
@@ -234,6 +237,10 @@ public class AvailabilityJobConfiguration extends DefaultCommercetoolsJobConfigu
                 }
             }
         }
+    }
+
+    public int randInt(final Random random, final int min, final int max) {
+        return random.nextInt((max - min) + 1) + min;
     }
 
 }
