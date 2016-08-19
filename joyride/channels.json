@@ -1,7 +1,6 @@
 [
   {
     "key": "sunrise-store-sanfrancisco",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -32,7 +31,6 @@
   },
   {
     "key": "sunrise-store-chicago",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -63,7 +61,6 @@
   },
   {
     "key": "sunrise-store-newyork",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -94,7 +91,6 @@
   },
   {
     "key": "sunrise-store-stockholm",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -125,7 +121,6 @@
   },
   {
     "key": "sunrise-store-brussels",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -156,7 +151,6 @@
   },
   {
     "key": "sunrise-store-cologne",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -187,7 +181,6 @@
   },
   {
     "key": "sunrise-store-barcelona",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -218,7 +211,6 @@
   },
   {
     "key": "sunrise-store-amsterdam",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -249,7 +241,6 @@
   },
   {
     "key": "sunrise-store-london",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -280,7 +271,6 @@
   },
   {
     "key": "sunrise-store-madrid",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -311,7 +301,6 @@
   },
   {
     "key": "sunrise-store-vienna",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -342,7 +331,6 @@
   },
   {
     "key": "sunrise-store-zurich",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -373,7 +361,6 @@
   },
   {
     "key": "sunrise-store-paris",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -404,7 +391,6 @@
   },
   {
     "key": "sunrise-store-hamburg",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -435,7 +421,6 @@
   },
   {
     "key": "sunrise-store-munich",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
@@ -466,7 +451,6 @@
   },
   {
     "key": "sunrise-store-berlin",
-    "version": 1,
     "roles": [
       "InventorySupply",
       "ProductDistribution"
