@@ -10,7 +10,7 @@
     ],
     "fieldDefinitions": [
       {
-        "name": "reservation",
+        "name": "isReservation",
         "label": {
           "en": "Reservation",
           "de": "Reservierung"
