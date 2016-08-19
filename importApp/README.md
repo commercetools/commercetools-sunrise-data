@@ -63,12 +63,15 @@ mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMai
     },
     "jobs": [
         {
-         "name": "importJoyrideChannelsJob",
-         "channelsResource": "file:///Users/yourusername/dev/commercetools-sunrise-data/joyride/channels.json",
-         "typesResource": "file:///Users/yourusername/dev/commercetools-sunrise-data/joyride/types.json"
+            "name": "importJoyrideChannelsJob",
+            "channelsResource": "file:///Users/yourusername/dev/commercetools-sunrise-data/joyride/channels.json",
+            "typesResource": "file:///Users/yourusername/dev/commercetools-sunrise-data/joyride/types.json"
         },
         {
-         "name": "inventoryEntryCreationJob"
+            "name": "inventoryEntryCreationJob"
+        },
+        {
+            "name": "availabilityPricesImportJob"
         }
     ]
 }
