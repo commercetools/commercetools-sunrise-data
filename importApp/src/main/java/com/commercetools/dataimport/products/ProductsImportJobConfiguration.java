@@ -18,6 +18,7 @@ import io.sphere.sdk.products.commands.updateactions.Publish;
 import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.taxcategories.TaxCategoryDraft;
 import io.sphere.sdk.taxcategories.TaxRate;
+import io.sphere.sdk.taxcategories.TaxRateDraft;
 import io.sphere.sdk.taxcategories.commands.TaxCategoryCreateCommand;
 import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
 import org.slf4j.Logger;
@@ -100,11 +101,11 @@ public class ProductsImportJobConfiguration extends DefaultCommercetoolsJobConfi
                     sphereClient.executeBlocking(TaxCategoryQuery.of().byName(name)).head()
                     .orElseGet(() -> {
                         final TaxCategoryDraft body = TaxCategoryDraft.of(name, asList(
-                                TaxRate.of(name, 0.19, true, CountryCode.DE),
-                                TaxRate.of(name, 0.08, true, CountryCode.CH),
-                                TaxRate.of(name, 0.21, true, CountryCode.CZ),
-                                TaxRate.of(name, 0.22, true, CountryCode.IT),
-                                TaxRate.of(name, 0.20, true, CountryCode.AU)
+                                TaxRateDraft.of(name, 0.19, true, CountryCode.DE),
+                                TaxRateDraft.of(name, 0.08, true, CountryCode.CH),
+                                TaxRateDraft.of(name, 0.21, true, CountryCode.CZ),
+                                TaxRateDraft.of(name, 0.22, true, CountryCode.IT),
+                                TaxRateDraft.of(name, 0.20, true, CountryCode.AU)
                         ));
                         return sphereClient.executeBlocking(TaxCategoryCreateCommand.of(body));
                     });

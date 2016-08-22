@@ -48,3 +48,31 @@ Add your commercetools credentials and may remove jobs you don't need.
 export PAYLOAD_FILE=path/to/payload/file
 mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
 ```
+
+## joyride
+
+
+```
+{
+    "commercetools": {
+    "projectKey": "",
+    "clientId": "",
+    "clientSecret": "",
+    "authUrl": "",
+    "apiUrl": ""
+    },
+    "jobs": [
+        {
+            "name": "importJoyrideChannelsJob",
+            "channelsResource": "file:///Users/yourusername/dev/commercetools-sunrise-data/joyride/channels.json",
+            "typesResource": "file:///Users/yourusername/dev/commercetools-sunrise-data/joyride/types.json"
+        },
+        {
+            "name": "inventoryEntryCreationJob"
+        },
+        {
+            "name": "availabilityPricesImportJob"
+        }
+    ]
+}
+```

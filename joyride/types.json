@@ -1,0 +1,62 @@
+[
+  {
+    "key": "reservationOrder",
+    "name": {
+      "en": "Reserved Products",
+      "de": "Reservierte Produkte"
+    },
+    "resourceTypeIds": [
+      "order"
+    ],
+    "fieldDefinitions": [
+      {
+        "name": "isReservation",
+        "label": {
+          "en": "Reservation",
+          "de": "Reservierung"
+        },
+        "required": false,
+        "type": {
+          "name": "Boolean"
+        },
+        "inputHint": "SingleLine"
+      }
+    ]
+  },
+  {
+    "key": "physicalStore",
+    "name": {
+      "de": "Ladengeschäft",
+      "en": "Physical Store"
+    },
+    "resourceTypeIds": [
+      "channel"
+    ],
+    "fieldDefinitions": [
+      {
+        "name": "imageUrl",
+        "label": {
+          "de": "Image URL",
+          "en": "Bild URL"
+        },
+        "required": true,
+        "type": {
+          "name": "String"
+        },
+        "inputHint": "SingleLine"
+      },
+      {
+        "name": "openingTimes",
+        "label": {
+          "de": "Opening Times",
+          "en": "Öffnungszeiten"
+        },
+        "required": true,
+        "type": {
+          "name": "LocalizedString"
+        },
+        "inputHint": "MultiLine"
+      }
+    ]
+  }
+]

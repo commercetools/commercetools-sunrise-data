@@ -6,3 +6,4 @@ test.properties
 /dev-payload*.json
 *.zip
 iron.json
+payload.json
