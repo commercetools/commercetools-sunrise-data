@@ -36,8 +36,8 @@
       {
         "name": "imageUrl",
         "label": {
-          "de": "Image URL",
-          "en": "Bild URL"
+          "en": "Image URL",
+          "de": "Bild URL"
         },
         "required": true,
         "type": {
@@ -48,8 +48,8 @@
       {
         "name": "openingTimes",
         "label": {
-          "de": "Opening Times",
-          "en": "Öffnungszeiten"
+          "de": "Öffnungszeiten",
+          "en": "Opening Times"
         },
         "required": true,
         "type": {
@@ -60,8 +60,8 @@
       {
         "name": "longitude",
         "label": {
-          "de": "Longitude",
-          "en": "Länge"
+          "de": "Längengrad",
+          "en": "Longitude"
         },
         "required": true,
         "type": {
@@ -72,8 +72,8 @@
       {
         "name": "latitude",
         "label": {
-          "de": "Latitude",
-          "en": "Breite"
+          "de": "Breitengrad",
+          "en": "Latitude"
         },
         "required": true,
         "type": {
