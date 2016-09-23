@@ -2,7 +2,7 @@
  {
     "name": "main",
     "key": "main",
-    "description": "all products of max",
+    "description": "Sunrise Product Data Set Structure",
     "attributes": [
       {
         "name": "creationDate",
@@ -1573,6 +1573,22 @@
           "name": "text"
         },
         "attributeConstraint": "SameForAll",
+        "isSearchable": true,
+        "inputHint": "SingleLine",
+        "displayGroup": "Other"
+      },
+      {
+        "name": "sapExternalId",
+        "label": {
+          "de": "SAP External ID",
+          "it": "SAP External ID",
+          "en": "SAP External ID"
+        },
+        "isRequired": false,
+        "type": {
+          "name": "text"
+        },
+        "attributeConstraint": "Unique",
         "isSearchable": true,
         "inputHint": "SingleLine",
         "displayGroup": "Other"
