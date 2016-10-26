@@ -6,11 +6,14 @@ import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClientUtils;
+import io.sphere.sdk.inventory.InventoryEntry;
 import io.sphere.sdk.inventory.InventoryEntryDraft;
 import io.sphere.sdk.inventory.commands.InventoryEntryCreateCommand;
+import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
 import io.sphere.sdk.products.ProductProjection;
 import io.sphere.sdk.products.ProductVariant;
 import io.sphere.sdk.products.queries.ProductProjectionQuery;
+import io.sphere.sdk.queries.PagedQueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,6 +59,11 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
                 .processor(inventoryEntryProcessor)
                 .writer(inventoryEntryWriter)
                 .build();
+    }
+
+    private void findLastInventoryEntry(final BlockingSphereClient sphereClient){
+        final InventoryEntryQuery inventoryEntryQuery = InventoryEntryQuery.of().withSort(m -> m.lastModifiedAt().sort().desc()).withLimit(1L);
+        final CompletionStage<PagedQueryResult<InventoryEntry>> execute = sphereClient.execute(inventoryEntryQuery);
     }
 
     @Bean
