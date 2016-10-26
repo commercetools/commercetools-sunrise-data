@@ -12,7 +12,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-@Configuration
 public class CommercetoolsConfiguration {
 
     @Bean(destroyMethod = "close")
