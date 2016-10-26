@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -61,9 +62,9 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
                 .build();
     }
 
-    private void findLastInventoryEntry(final BlockingSphereClient sphereClient){
+    public static Optional<InventoryEntry> findLastInventoryEntry(final BlockingSphereClient sphereClient) {
         final InventoryEntryQuery inventoryEntryQuery = InventoryEntryQuery.of().withSort(m -> m.lastModifiedAt().sort().desc()).withLimit(1L);
-        final CompletionStage<PagedQueryResult<InventoryEntry>> execute = sphereClient.execute(inventoryEntryQuery);
+        return sphereClient.execute(inventoryEntryQuery).toCompletableFuture().join().head();
     }
 
     @Bean
@@ -81,7 +82,8 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
         };
     }
 
-    @Bean @JobScope
+    @Bean
+    @JobScope
     public ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
         final ChannelQuery channelQuery = ChannelQuery.of()
                 .withPredicates(m -> m.key().isIn(PreferredChannels.CHANNEL_KEYS));
@@ -93,7 +95,7 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
         return channels.stream()
                 .flatMap(channel -> product.getAllVariants().stream()
                         .map(productVariant -> createInventoryEntryDraftForProductVariant(channel, productVariant)))
-        .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     private InventoryEntryDraft createInventoryEntryDraftForProductVariant(final Channel channel, final ProductVariant productVariant) {
