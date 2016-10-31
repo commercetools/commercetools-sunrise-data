@@ -5,6 +5,7 @@ import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
+import io.sphere.sdk.client.ErrorResponseException;
 import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.inventory.InventoryEntry;
 import io.sphere.sdk.inventory.InventoryEntryDraft;
@@ -57,10 +58,13 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
                                          final ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("createInventoryEntryStep");
         return stepBuilder
-                .<ProductProjection, List<InventoryEntryDraft>>chunk(20)
+                .<ProductProjection, List<InventoryEntryDraft>>chunk(1)
                 .reader(inventoryEntryReader)
                 .processor(inventoryEntryProcessor)
                 .writer(inventoryEntryWriter)
+                .faultTolerant()
+                .skip(ErrorResponseException.class)
+                .skipLimit(1)
                 .build();
     }
 
@@ -73,7 +77,7 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
                 lastInventoryEntry
                         .map(inventoryEntry -> {
                             final PagedQueryResult<ProductProjection> queryResult = sphereClient.executeBlocking(ProductProjectionQuery.ofStaged().plusPredicates(product -> product.allVariants().where(m -> m.sku().is(inventoryEntry.getSku()))));
-                            return queryResult.head().map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThan(product.getId()))).orElse(baseQuery);
+                            return queryResult.head().map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThanOrEqualTo(product.getId()))).orElse(baseQuery);
                         })
                         .orElse(baseQuery);
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, productProjection -> productProjection.getId());
@@ -88,7 +92,8 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
     public ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter(final BlockingSphereClient sphereClient) {
         return entries -> {
             final Stream<InventoryEntryDraft> inventoryEntryDraftStream = entries.stream().flatMap(list -> list.stream());
-            inventoryEntryDraftStream
+            final List<InventoryEntry> collect = inventoryEntryDraftStream
+                    .peek(draft -> logger.info("attempting to create inventory entry sku {}, channel {}", draft.getSku(), draft.getSupplyChannel().getId()))
                     .map(draft -> sphereClient.execute(InventoryEntryCreateCommand.of(draft)))
                     .collect(SphereClientUtils.blockingWaitForEachCollector(5, TimeUnit.MINUTES));
         };
@@ -105,6 +110,7 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
 
     private List<InventoryEntryDraft> inventoryEntryListByChannel(final ProductProjection product, final List<Channel> channels) {
         return channels.stream()
+                .peek(draft -> logger.info("Processing product {}", product.getId()))
                 .flatMap(channel -> product.getAllVariants().stream()
                         .map(productVariant -> createInventoryEntryDraftForProductVariant(channel, productVariant)))
                 .collect(Collectors.toList());
