@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
+import com.commercetools.CommercetoolsTestConfiguration;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
 import io.sphere.sdk.categories.commands.CategoryCreateCommand;
@@ -14,7 +14,9 @@ import org.junit.runner.RunWith;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.IntegrationTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -23,7 +25,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, CategoriesDeleteJobConfiguration.class})
+@IntegrationTest
+@ContextConfiguration(classes = {TestConfiguration.class, CategoriesDeleteJobConfiguration.class, CommercetoolsTestConfiguration.class})
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration
@@ -32,6 +35,7 @@ public class CategoriesDeleteJobConfigurationIntegrationTest {
     private JobLauncherTestUtils jobLauncherTestUtils;
 
     @Autowired
+    @Qualifier("test")
     private BlockingSphereClient sphereClient;
 
     @Before
