@@ -1,16 +1,16 @@
-package com.commercetools.dataimport.categories;
+package com.commercetools.dataimport.joyrideavailability;
 
 import com.commercetools.CommercetoolsTestConfiguration;
-import com.commercetools.dataimport.joyrideavailability.InventoryEntryCreationJobConfiguration;
+import com.commercetools.dataimport.categories.TestConfiguration;
 import io.sphere.sdk.client.BlockingSphereClient;
-import io.sphere.sdk.inventory.InventoryEntry;
-import io.sphere.sdk.inventory.InventoryEntryDraft;
-import io.sphere.sdk.inventory.commands.InventoryEntryCreateCommand;
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.products.Product;
 import io.sphere.sdk.products.ProductDraftBuilder;
+import io.sphere.sdk.products.ProductProjection;
 import io.sphere.sdk.products.ProductVariantDraftBuilder;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
+import io.sphere.sdk.products.commands.ProductUpdateCommand;
+import io.sphere.sdk.products.commands.updateactions.Publish;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.ProductTypeDraft;
 import io.sphere.sdk.producttypes.commands.ProductTypeCreateCommand;
@@ -35,11 +35,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @IntegrationTest
-@ContextConfiguration(classes = {TestConfiguration.class, InventoryEntryCreationJobConfiguration.class, CommercetoolsTestConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, AvailabilityPricesImportJobConfiguration.class, CommercetoolsTestConfiguration.class})
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration
-public class JoyrideIntegrationTest {
+public class AvailabilityPricesImportJobIntegrationTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
@@ -49,12 +49,12 @@ public class JoyrideIntegrationTest {
     private BlockingSphereClient sphereClient;
 
     @Test
-    public void findLastInventoryEntryTest() throws Exception {
+    public void findLastModifiedProductTest() throws Exception {
         final String sku = RandomStringUtils.randomAlphabetic(10);
-        createInventoryEntry(sku);
-        final Optional<InventoryEntry> lastInventoryEntry = InventoryEntryCreationJobConfiguration.findLastInventoryEntry(sphereClient);
-        assertThat(lastInventoryEntry).isPresent();
-        assertThat(lastInventoryEntry.get().getSku()).isEqualTo(sku);
+        createProduct(createProductType(), sku);
+        final Optional<ProductProjection> lastModifiedProduct = AvailabilityPricesImportJobConfiguration.findLastModifiedProduct(sphereClient);
+        assertThat(lastModifiedProduct).isPresent();
+        assertThat(lastModifiedProduct.get().getAllVariants().get(0).getSku()).isEqualTo(sku);
     }
 
     private ProductType createProductType() {
@@ -68,14 +68,9 @@ public class JoyrideIntegrationTest {
         final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "prodcut-name"),
                 LocalizedString.of(Locale.ENGLISH, RandomStringUtils.randomAlphabetic(10)), ProductVariantDraftBuilder.of().sku(sku).build());
         final Product product = sphereClient.executeBlocking(ProductCreateCommand.of(productDraftBuilder.build()));
-        return product;
-    }
-
-    private void createInventoryEntry (final String sku) {
-        createProduct(createProductType(), sku);
-        final Long quantityOnStock = 50L;
-        final InventoryEntryDraft inventoryEntryDraft = InventoryEntryDraft.of(sku, quantityOnStock);
-        sphereClient.executeBlocking(InventoryEntryCreateCommand.of(inventoryEntryDraft));
+        final Product publishedProduct = sphereClient.executeBlocking(ProductUpdateCommand.of(product, Publish.of()));
+        assertThat(publishedProduct.getMasterData().isPublished()).isTrue();
+        return publishedProduct;
     }
 
 }
