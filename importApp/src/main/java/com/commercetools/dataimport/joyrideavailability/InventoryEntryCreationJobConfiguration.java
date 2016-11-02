@@ -19,15 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,8 +40,9 @@ import java.util.stream.Stream;
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 
-@Component
-@Lazy
+@Configuration
+@EnableBatchProcessing
+@EnableAutoConfiguration
 public class InventoryEntryCreationJobConfiguration extends DefaultCommercetoolsJobConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(InventoryEntryCreationJobConfiguration.class);
 
@@ -70,7 +72,7 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
 
     @Bean
     @StepScope
-    private ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
+    public ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
         final Optional<InventoryEntry> lastInventoryEntry = findLastInventoryEntry(sphereClient);
         final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofStaged();
         final ProductProjectionQuery productProjectionQuery =
