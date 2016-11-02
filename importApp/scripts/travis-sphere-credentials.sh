@@ -34,7 +34,7 @@ cat > "importApp/travis-payload.json" << EOF
 }
 EOF
 
-cat > "/src/test/resources/test.properties" << EOF
+cat > "importApp/src/test/resources/test.properties" << EOF
 commercetools.projectKey=$PROJECT_KEY
 commercetools.clientId=$CLIENT_ID
 commercetools.clientSecret=$CLIENT_SECRET
