@@ -17,6 +17,7 @@ import io.sphere.sdk.producttypes.commands.ProductTypeCreateCommand;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -57,6 +58,11 @@ public class InventoryEntryCreationJobIntegrationTest {
         assertThat(lastInventoryEntry.get().getSku()).isEqualTo(sku);
     }
 
+    @Test
+    public void jobDeletesCategories() throws Exception {
+        final JobExecution jobExecution = jobLauncherTestUtils.launchJob();
+    }
+
     private ProductType createProductType() {
         final ProductTypeDraft productTypeDraft =
                 ProductTypeDraft.of(RandomStringUtils.randomAlphabetic(10), "name", "a 'T' shaped cloth", Collections.emptyList());
@@ -65,7 +71,7 @@ public class InventoryEntryCreationJobIntegrationTest {
     }
 
     private Product createProduct(final ProductType productType, final String sku) {
-        final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "prodcut-name"),
+        final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "product-name"),
                 LocalizedString.of(Locale.ENGLISH, RandomStringUtils.randomAlphabetic(10)), ProductVariantDraftBuilder.of().sku(sku).build());
         final Product product = sphereClient.executeBlocking(ProductCreateCommand.of(productDraftBuilder.build()));
         return product;

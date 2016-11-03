@@ -65,7 +65,7 @@ public class AvailabilityPricesImportJobIntegrationTest {
     }
 
     private Product createProduct(final ProductType productType, final String sku) {
-        final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "prodcut-name"),
+        final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "product-name"),
                 LocalizedString.of(Locale.ENGLISH, RandomStringUtils.randomAlphabetic(10)), ProductVariantDraftBuilder.of().sku(sku).build());
         final Product product = sphereClient.executeBlocking(ProductCreateCommand.of(productDraftBuilder.build()));
         final Product publishedProduct = sphereClient.executeBlocking(ProductUpdateCommand.of(product, Publish.of()));
