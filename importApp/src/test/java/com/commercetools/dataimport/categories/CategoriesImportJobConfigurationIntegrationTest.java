@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.commercetools.CommercetoolsPayloadFileConfig;
+import com.commercetools.CommercetoolsTestConfiguration;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.commands.CategoryDeleteCommand;
 import io.sphere.sdk.categories.queries.CategoryQuery;
@@ -14,26 +14,30 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameter;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.io.File;
+import java.util.*;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, CategoriesImportJobConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, CategoriesImportJobConfiguration.class, CommercetoolsTestConfiguration.class})
 @TestPropertySource("/test.properties")
 @EnableAutoConfiguration
 @Configuration
@@ -42,7 +46,11 @@ public class CategoriesImportJobConfigurationIntegrationTest {
     private JobLauncherTestUtils jobLauncherTestUtils;
 
     @Autowired
+    @Qualifier("test")
     private BlockingSphereClient sphereClient;
+
+    @Autowired
+    private Environment env;
 
     @Bean
     Resource categoryCsvResource() {
@@ -67,7 +75,11 @@ public class CategoriesImportJobConfigurationIntegrationTest {
 
     @Test
     public void jobCreatesCategories() throws Exception {
-        final JobExecution jobExecution = jobLauncherTestUtils.launchJob();
+        final Map<String, JobParameter> jobParametersMap = new HashMap<>();
+        jobParametersMap.put("resource", new JobParameter("file://" + new File(".", "../categories/categories.csv").getAbsolutePath()));
+        addCommercetoolsCredentialValues(jobParametersMap);
+        final JobParameters jobParameters = new JobParameters(jobParametersMap);
+        final JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
         final CategoryQuery categoryQuery = CategoryQuery.of().withLimit(0);
         final PagedQueryResult<Category> categoryPagedQueryResult = sphereClient.executeBlocking(categoryQuery);
         assertThat(categoryPagedQueryResult.getTotal()).isEqualTo(131);
@@ -84,5 +96,13 @@ public class CategoriesImportJobConfigurationIntegrationTest {
                 .collect(toList());
         soft.assertThat(ancestorExternalIds).containsExactly("2", "10");
         soft.assertAll();
+    }
+
+    private void addCommercetoolsCredentialValues(final Map<String, JobParameter> jobParametersMap) {
+        final List<String> keys = asList("commercetools.projectKey", "commercetools.clientId", "commercetools.clientSecret", "commercetools.authUrl", "commercetools.apiUrl");
+        for (final String key : keys) {
+            final String value = env.getProperty(key);
+            jobParametersMap.put(key, new JobParameter(value));
+        }
     }
 }

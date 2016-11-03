@@ -7,3 +7,4 @@ test.properties
 *.zip
 iron.json
 payload.json
+integrationtest.properties
