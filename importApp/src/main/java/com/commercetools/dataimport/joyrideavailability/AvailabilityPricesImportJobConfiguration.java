@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Nullable;
 import javax.money.CurrencyUnit;
 import javax.money.Monetary;
 import javax.money.MonetaryAmount;
@@ -64,7 +65,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
                                              final ChannelListHolder channelListHolder) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("availabilityPricesImportStep");
         return stepBuilder
-                .<ProductProjection, ProductUpdateCommand>chunk(1)
+                .<ProductProjection, ProductUpdateCommand>chunk(50)
                 .reader(productReader)
                 .processor(priceCreationProcessor(sphereClient, channelListHolder))
                 .listener(CustomItemProcessorListener.class)
@@ -155,61 +156,59 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
         return random.nextInt((max - min) + 1) + min;
     }
 
-    public Optional<ProductProjection> findLastProductWithJoyrideChannel(final BlockingSphereClient sphereClient, final Long start, final Long end) {
-        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent().withSort(m -> m.id().sort().asc());
-        final ProductProjectionQuery firstProductQuery = baseQuery.withOffset(start).withLimit(1L);
-        final Optional<ProductProjection> optionalFirstProduct = sphereClient.executeBlocking(firstProductQuery).head();
-        final ProductProjectionQuery lastProductQuery = baseQuery.withOffset(end).withLimit(1L);
-        final Optional<ProductProjection> optionalLastProduct = sphereClient.executeBlocking(lastProductQuery).head();
-        final boolean firstProductIsProcessed = containsJoyrideChannel(sphereClient, optionalFirstProduct);
-        final boolean lastProductIsProcessed = containsJoyrideChannel(sphereClient, optionalLastProduct);
-        if ( !firstProductIsProcessed && !lastProductIsProcessed ) {
+    public static boolean productIsProcessed(final BlockingSphereClient sphereClient, final Long productIndex) {
+        final ProductProjection product = searchProductByIndex(sphereClient, productIndex);
+        return productContainJoyridePrice(product);
+    }
+
+    private static ProductProjection searchProductByIndex(final BlockingSphereClient sphereClient, final Long index) {
+        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent()
+                .withSort(m -> m.id().sort().asc())
+                .withExpansionPaths(m -> m.allVariants().prices().channel());
+        final ProductProjectionQuery productQuery = baseQuery.withOffset(index).withLimit(1L);
+        return sphereClient.executeBlocking(productQuery).head().get();
+    }
+
+    public static Optional<ProductProjection> findLastProductWithJoyrideChannel(final BlockingSphereClient sphereClient, final Long start, final Long end) {
+        final boolean firstProductIsProcessed = productIsProcessed(sphereClient, start);
+        final boolean lastProductIsProcessed = productIsProcessed(sphereClient, end);
+        if (!firstProductIsProcessed && !lastProductIsProcessed) {
             return Optional.empty();
         } else if (firstProductIsProcessed && lastProductIsProcessed) {
-            return optionalLastProduct;
+            return Optional.of(searchProductByIndex(sphereClient, end));
         } else {
-            final Long mid = (start+end)/2;
+            final Long mid = (start + end) / 2;
             final Optional<ProductProjection> leftResult = findLastProductWithJoyrideChannel(sphereClient, start, mid);
-            final Optional<ProductProjection> rightResult = findLastProductWithJoyrideChannel(sphereClient, mid+1, end);
-            return maxBetweenProducts(leftResult, rightResult);
+            final Optional<ProductProjection> rightResult = findLastProductWithJoyrideChannel(sphereClient, mid + 1, end);
+            return maxBetweenProducts(leftResult.get(), rightResult.get());
         }
     }
 
-    private Optional<ProductProjection> maxBetweenProducts(final Optional<ProductProjection> product1, final Optional<ProductProjection> product2) {
-        if ( !product1.isPresent() ) {
-            return product2;
-        } else if ( !product2.isPresent() ){
-            return product1;
+    private static Optional<ProductProjection> maxBetweenProducts(@Nullable final ProductProjection product1, @Nullable final ProductProjection product2) {
+        if (product1 == null) {
+            return Optional.of(product2);
+        } else if (product2 == null) {
+            return Optional.of(product1);
         } else {
-            final String productId1 = product1.map(m -> m.getId()).orElse("");
-            final String productId2 = product2.map(m -> m.getId()).orElse("");
-            final Optional<ProductProjection> productProjection = productId1.compareTo(productId2) == 1 ? product1 : product2;
-            return productProjection;
+            final String productId1 = product1 != null ? product1.getId() : "";
+            final String productId2 = product2 != null ? product1.getId() : "";
+            final ProductProjection productProjection = productId1.compareTo(productId2) == 1 ? product1 : product2;
+            return Optional.of(productProjection);
         }
     }
 
-    private boolean containsJoyrideChannel(final BlockingSphereClient sphereClient, Optional<ProductProjection> productVariantOptional) {
-        final List<String> joyrideChannels = channelListHolder(sphereClient).getChannels()
-                .stream()
-                .map(m -> m.getId())
-                .collect(Collectors.toList());
-        final List<ProductVariant> firstProductVariants = productVariantOptional
-                .map(firstProduct -> firstProduct.getAllVariants())
-                .orElse(Collections.emptyList());
-        final List<Price> firstProductPrices = firstProductVariants
+    private static boolean productContainJoyridePrice(@Nullable final ProductProjection product) {
+        final List<String> joyrideChannels = PreferredChannels.CHANNEL_KEYS;
+        final List<ProductVariant> productVariants = product != null ? product.getAllVariants() : Collections.emptyList();
+        final List<Price> productPrices = productVariants
                 .stream()
                 .flatMap(variant -> variant.getPrices().stream())
                 .collect(Collectors.toList());
-        final List<String> priceChannelsIds = firstProductPrices.stream()
+        final Set<String> channelsKeys = productPrices.stream()
                 .filter(price -> price.getChannel() != null)
-                .map(price -> price.getChannel().getId())
-                .collect(Collectors.toList());
-        return CollectionUtils.containsAny(priceChannelsIds, joyrideChannels);
-    }
-
-    public static Optional<ProductProjection> findLastModifiedProduct(final BlockingSphereClient sphereClient) {
-        final ProductProjectionQuery productProjectionQuery = ProductProjectionQuery.ofCurrent().withSort(m -> m.lastModifiedAt().sort().desc()).withLimit(1L);
-        return sphereClient.execute(productProjectionQuery).toCompletableFuture().join().head();
+                .map(price -> price.getChannel().getObj().getKey())
+                .collect(Collectors.toSet());
+        return CollectionUtils.containsAny(channelsKeys, joyrideChannels);
     }
 
 }
