@@ -65,7 +65,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
                                              final ChannelListHolder channelListHolder) {
         final StepBuilder stepBuilder = stepBuilderFactory.get("availabilityPricesImportStep");
         return stepBuilder
-                .<ProductProjection, ProductUpdateCommand>chunk(50)
+                .<ProductProjection, ProductUpdateCommand>chunk(20)
                 .reader(productReader)
                 .processor(priceCreationProcessor(sphereClient, channelListHolder))
                 .listener(CustomItemProcessorListener.class)
