@@ -76,9 +76,14 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
                 .build();
     }
 
+
     @Bean
     @StepScope
     public ItemReader<ProductProjection> productReader(final BlockingSphereClient sphereClient) {
+        return createReader(sphereClient);
+    }
+
+    static ItemReader<ProductProjection> createReader(final BlockingSphereClient sphereClient) {
         final ProductProjectionQuery productProjectionQuery1 = ProductProjectionQuery.ofCurrent().withSort(m -> m.id().sort().asc());
         final Long productsCount = sphereClient.executeBlocking(productProjectionQuery1).getTotal();
         final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
@@ -178,9 +183,11 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
             return Optional.of(searchProductByIndex(sphereClient, end));
         } else {
             final Long mid = (start + end) / 2;
-            final Optional<ProductProjection> leftResult = findLastProductWithJoyrideChannel(sphereClient, start, mid);
-            final Optional<ProductProjection> rightResult = findLastProductWithJoyrideChannel(sphereClient, mid + 1, end);
-            return maxBetweenProducts(leftResult.get(), rightResult.get());
+            final Optional<ProductProjection> optionalLeftResult = findLastProductWithJoyrideChannel(sphereClient, start, mid);
+            final Optional<ProductProjection> optionalRightResult = findLastProductWithJoyrideChannel(sphereClient, mid + 1, end);
+            final ProductProjection leftResult = optionalLeftResult.isPresent() ? optionalLeftResult.get() : null;
+            final ProductProjection rightResult = optionalRightResult.isPresent() ? optionalRightResult.get() : null;
+            return maxBetweenProducts(leftResult, rightResult);
         }
     }
 
@@ -197,7 +204,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
         }
     }
 
-    private static boolean productContainJoyridePrice(@Nullable final ProductProjection product) {
+    public static boolean productContainJoyridePrice(@Nullable final ProductProjection product) {
         final List<String> joyrideChannels = PreferredChannels.CHANNEL_KEYS;
         final List<ProductVariant> productVariants = product != null ? product.getAllVariants() : Collections.emptyList();
         final List<Price> productPrices = productVariants

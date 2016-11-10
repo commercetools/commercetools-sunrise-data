@@ -5,7 +5,6 @@ import com.commercetools.dataimport.categories.TestConfiguration;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.ChannelDraft;
 import io.sphere.sdk.channels.commands.ChannelCreateCommand;
-import io.sphere.sdk.channels.commands.ChannelDeleteCommand;
 import io.sphere.sdk.products.PriceDraft;
 import io.sphere.sdk.products.Product;
 import io.sphere.sdk.products.ProductProjection;
@@ -14,11 +13,10 @@ import io.sphere.sdk.products.commands.ProductUpdateCommand;
 import io.sphere.sdk.products.commands.updateactions.AddPrice;
 import io.sphere.sdk.products.commands.updateactions.Publish;
 import io.sphere.sdk.products.commands.updateactions.Unpublish;
-import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.utils.MoneyImpl;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -29,11 +27,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static com.commercetools.dataimport.joyrideavailability.AvailabilityPricesImportJobConfiguration.findLastProductWithJoyrideChannel;
-import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.createProduct;
-import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.createProductType;
+import static com.commercetools.dataimport.joyrideavailability.AvailabilityPricesImportJobConfiguration.*;
+import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
+import static com.commercetools.dataimport.joyrideavailability.PreferredChannels.CHANNEL_KEYS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,33 +50,45 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
 
     @Test
     public void findLastProductWithJoyridePrice() {
-        final String sku = RandomStringUtils.randomAlphabetic(10);
-        final ProductType productType = createProductType(sphereClient);
-        final Product product = createProduct(sphereClient, productType, sku);
+        final Product product = createProduct(sphereClient);
         final Long productsCount = 1L;
         assertThat(findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1)).isEmpty();
 
-        final String joyrideChannelKey = PreferredChannels.CHANNEL_KEYS.get(0);
-        final Channel joyrideChannel = sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(joyrideChannelKey)));
-        final PriceDraft priceDraft = PriceDraft.of(MoneyImpl.of(new BigDecimal("123456"), "EUR")).withChannel(joyrideChannel);
-        final AddPrice addPrice = AddPrice.of(product.getMasterData().getCurrent().getMasterVariant().getId(), priceDraft);
-        Product updatedProduct = sphereClient.executeBlocking(ProductUpdateCommand.of(product, asList(addPrice, Publish.of())));
-        final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
-        assertThat(lastProductWithJoyrideChannel).isPresent();
-        assertThat(lastProductWithJoyrideChannel.get().getAllVariants().get(0).getSku()).isEqualTo(sku);
-
-        final Product productToDelete = sphereClient.executeBlocking(ProductUpdateCommand.of(updatedProduct, Unpublish.of()));
-        sphereClient.executeBlocking(ProductDeleteCommand.of(productToDelete));
-        sphereClient.executeBlocking(ChannelDeleteCommand.of(joyrideChannel));
+        withPriceWithJoyrideChannel(sphereClient, priceDraft -> {
+            final AddPrice addPrice = AddPrice.of(product.getMasterData().getCurrent().getMasterVariant().getId(), priceDraft);
+            Product updatedProduct = sphereClient.executeBlocking(ProductUpdateCommand.of(product, asList(addPrice, Publish.of())));
+            final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
+            assertThat(lastProductWithJoyrideChannel).isPresent();
+            assertThat(lastProductWithJoyrideChannel.get().getMasterVariant().getSku()).isEqualTo(product.getMasterData().getCurrent().getMasterVariant().getSku());
+            final Product productToDelete = sphereClient.executeBlocking(ProductUpdateCommand.of(updatedProduct, Unpublish.of()));
+            sphereClient.executeBlocking(ProductDeleteCommand.of(productToDelete));
+        });
     }
 
     @Test
-    public void restartOnFailurePoint() {
-
-        final ProductType productType = createProductType(sphereClient);
-
+    public void readerRestartAfterLastProductWithJoyride() throws Exception {
+        final int amountOfProducts = 10;
+        createProducts(sphereClient, amountOfProducts);
+        final ItemReader<ProductProjection> reader = createReader(sphereClient);
+        ProductProjection productRead;
+        List<ProductProjection> nonProcessedProducts = new ArrayList<>();
+        while ((productRead = reader.read()) != null) {
+            assertThat(productContainJoyridePrice(productRead)).isFalse();
+            nonProcessedProducts.add(productRead);
+        }
+        final ItemReader<ProductProjection> reader2 = createReader(sphereClient);
+        final String joyrideChannelKey = CHANNEL_KEYS.get(0);
+        final Channel joyrideChannel = sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(joyrideChannelKey)));
+        final PriceDraft priceDraft = PriceDraft.of(MoneyImpl.of(new BigDecimal("123456"), "EUR")).withChannel(joyrideChannel);
+        final int stopIndex = amountOfProducts / 2;
+        for (int i = 0; i <= stopIndex; i++) {
+            final ProductProjection product = reader2.read();
+            final AddPrice addPrice = AddPrice.of(product.getMasterVariant().getId(), priceDraft);
+            sphereClient.executeBlocking(ProductUpdateCommand.of(product, asList(addPrice, Publish.of())));
+        }
+        final ItemReader<ProductProjection> reader3 = createReader(sphereClient);
+        ProductProjection restartProduct = reader3.read();
+        assertThat(restartProduct.getId()).isEqualTo(nonProcessedProducts.get(stopIndex + 1).getId());
 
     }
-
-
 }
