@@ -87,7 +87,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
         final ProductProjectionQuery productProjectionQuery1 = ProductProjectionQuery.ofCurrent().withSort(m -> m.id().sort().asc());
         final Long productsCount = sphereClient.executeBlocking(productProjectionQuery1).getTotal();
         final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
-        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofStaged();
+        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
         final ProductProjectionQuery productProjectionQuery =
                 lastProductWithJoyrideChannel
                         .map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThan(product.getId())))
