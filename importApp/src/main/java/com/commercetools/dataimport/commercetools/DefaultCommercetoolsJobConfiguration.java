@@ -4,6 +4,7 @@ import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.SphereClient;
 import io.sphere.sdk.client.SphereClientConfig;
 import io.sphere.sdk.client.SphereClientFactory;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+@EnableBatchProcessing
 public abstract class DefaultCommercetoolsJobConfiguration {
 
     @Bean(destroyMethod = "close")

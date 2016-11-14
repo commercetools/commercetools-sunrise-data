@@ -1,7 +1,7 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport.categories;
 
 import com.commercetools.CommercetoolsTestConfiguration;
-import com.commercetools.dataimport.categories.TestConfiguration;
+import com.commercetools.dataimport.joyrideavailability.InventoryEntryCreationJobConfiguration;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.inventory.InventoryEntry;
 import io.sphere.sdk.inventory.InventoryEntryDraft;
@@ -17,12 +17,9 @@ import io.sphere.sdk.producttypes.commands.ProductTypeCreateCommand;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -35,19 +32,15 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@IntegrationTest
-@ContextConfiguration(classes = {TestConfiguration.class, InventoryEntryCreationJobConfiguration.class, CommercetoolsTestConfiguration.class})
-@TestPropertySource("/test.properties")
+@ContextConfiguration(classes = {CommercetoolsTestConfiguration.class})
 @EnableAutoConfiguration
 @Configuration
-public class InventoryEntryCreationJobIntegrationTest {
-
-    @Autowired
-    private JobLauncherTestUtils jobLauncherTestUtils;
-
+@TestPropertySource("classpath:/test.properties")
+public class JoyrideIntegrationTest {
     @Autowired
     @Qualifier("test")
     private BlockingSphereClient sphereClient;
+
 
     @Test
     public void findLastInventoryEntryTest() throws Exception {
@@ -58,11 +51,6 @@ public class InventoryEntryCreationJobIntegrationTest {
         assertThat(lastInventoryEntry.get().getSku()).isEqualTo(sku);
     }
 
-    @Test
-    public void jobDeletesCategories() throws Exception {
-        final JobExecution jobExecution = jobLauncherTestUtils.launchJob();
-    }
-
     private ProductType createProductType() {
         final ProductTypeDraft productTypeDraft =
                 ProductTypeDraft.of(RandomStringUtils.randomAlphabetic(10), "name", "a 'T' shaped cloth", Collections.emptyList());
@@ -71,7 +59,7 @@ public class InventoryEntryCreationJobIntegrationTest {
     }
 
     private Product createProduct(final ProductType productType, final String sku) {
-        final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "product-name"),
+        final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "prodcut-name"),
                 LocalizedString.of(Locale.ENGLISH, RandomStringUtils.randomAlphabetic(10)), ProductVariantDraftBuilder.of().sku(sku).build());
         final Product product = sphereClient.executeBlocking(ProductCreateCommand.of(productDraftBuilder.build()));
         return product;
@@ -83,5 +71,4 @@ public class InventoryEntryCreationJobIntegrationTest {
         final InventoryEntryDraft inventoryEntryDraft = InventoryEntryDraft.of(sku, quantityOnStock);
         sphereClient.executeBlocking(InventoryEntryCreateCommand.of(inventoryEntryDraft));
     }
-
 }
