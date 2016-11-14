@@ -1,5 +1,6 @@
 package com.commercetools.dataimport.joyrideavailability;
 
+import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.ChannelDraft;
 import io.sphere.sdk.channels.commands.ChannelCreateCommand;
@@ -8,6 +9,7 @@ import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.inventory.commands.InventoryEntryDeleteCommand;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
+import io.sphere.sdk.models.Address;
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.products.PriceDraft;
 import io.sphere.sdk.products.Product;
@@ -16,6 +18,7 @@ import io.sphere.sdk.products.ProductVariantDraftBuilder;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.products.commands.ProductDeleteCommand;
 import io.sphere.sdk.products.commands.ProductUpdateCommand;
+import io.sphere.sdk.products.commands.updateactions.AddPrice;
 import io.sphere.sdk.products.commands.updateactions.Publish;
 import io.sphere.sdk.products.commands.updateactions.Unpublish;
 import io.sphere.sdk.products.queries.ProductProjectionQuery;
@@ -35,8 +38,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.commercetools.dataimport.joyrideavailability.PreferredChannels.CHANNEL_KEYS;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class JoyrideAvailabilityUtils {
 
@@ -48,6 +51,11 @@ public class JoyrideAvailabilityUtils {
         sphereClient.executeBlocking(ChannelDeleteCommand.of(joyrideChannel));
     }
 
+    public static Product withPrice(final Function<PriceDraft, Product> function) {
+        final PriceDraft priceDraft = PriceDraft.of(MoneyImpl.of(new BigDecimal("123456"), "EUR")).withCountry(CountryCode.DE);
+        return function.apply(priceDraft);
+    }
+
     public static ProductType createProductType(final BlockingSphereClient sphereClient) {
         final ProductTypeDraft productTypeDraft =
                 ProductTypeDraft.of(RandomStringUtils.randomAlphabetic(10), "name", "a 'T' shaped cloth", Collections.emptyList());
@@ -56,20 +64,31 @@ public class JoyrideAvailabilityUtils {
     }
 
     public static Product createProduct(final BlockingSphereClient sphereClient) {
-        final String sku = RandomStringUtils.randomAlphabetic(10);
-        final ProductType productType = createProductType(sphereClient);
-        final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "product-name"),
-                LocalizedString.of(Locale.ENGLISH, RandomStringUtils.randomAlphabetic(10)), ProductVariantDraftBuilder.of().sku(sku).build());
-        final Product product = sphereClient.executeBlocking(ProductCreateCommand.of(productDraftBuilder.build()));
-        final Product publishedProduct = sphereClient.executeBlocking(ProductUpdateCommand.of(product, Publish.of()));
-        assertThat(publishedProduct.getMasterData().isPublished()).isTrue();
-        return publishedProduct;
+        return withPrice(priceDraft -> {
+            final String sku = RandomStringUtils.randomAlphabetic(10);
+            final ProductType productType = createProductType(sphereClient);
+            final ProductDraftBuilder productDraftBuilder = ProductDraftBuilder.of(productType, LocalizedString.of(Locale.ENGLISH, "product-name"),
+                    LocalizedString.of(Locale.ENGLISH, RandomStringUtils.randomAlphabetic(10)), ProductVariantDraftBuilder.of().sku(sku).build());
+            final Product product = sphereClient.executeBlocking(ProductCreateCommand.of(productDraftBuilder.publish(true).build()));
+            final AddPrice addPrice = AddPrice.of(product.getMasterData().getCurrent().getMasterVariant().getId(), priceDraft);
+            Product productWithPrice = sphereClient.executeBlocking(ProductUpdateCommand.of(product, asList(addPrice, Publish.of())));
+            return productWithPrice;
+        });
     }
 
     public static void createProducts(final BlockingSphereClient sphereClient, final int productsAmount) {
         for (int i = 0; i < productsAmount; i++) {
             createProduct(sphereClient);
         }
+    }
+
+    public static void withJoyrideChannels(final BlockingSphereClient sphereClient, final Consumer<List<Channel>> consumer) {
+        final List<Channel> joyrideChannels = CHANNEL_KEYS.stream()
+                .map(channelKey -> sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(channelKey).
+                        withAddress(Address.of(CountryCode.DE)))))
+                .collect(toList());
+        consumer.accept(joyrideChannels);
+        joyrideChannels.forEach(joyrideChannel -> sphereClient.executeBlocking(ChannelDeleteCommand.of(joyrideChannel)));
     }
 
     public static void deleteInventoryEntries(final BlockingSphereClient sphereClient) {

@@ -65,8 +65,8 @@ public class CategoriesImportJobConfigurationIntegrationTest {
                 .contains("en", "de", "it");
         final CategoryQuery categoryQuery = CategoryQuery.of().byIsRoot().withLimit(500);
         sphereClient.executeBlocking(categoryQuery)
-        .getResults()
-        .forEach(cat -> sphereClient.executeBlocking(CategoryDeleteCommand.of(cat)));
+                .getResults()
+                .forEach(cat -> sphereClient.executeBlocking(CategoryDeleteCommand.of(cat)));
 
         assertThat(sphereClient.executeBlocking(CategoryQuery.of().withLimit(0)).getTotal())
                 .as("to test the import no categories should exist in the project " + project.getKey())

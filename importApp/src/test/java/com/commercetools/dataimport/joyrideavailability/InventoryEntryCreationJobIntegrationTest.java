@@ -1,7 +1,6 @@
-package com.commercetools.dataimport.categories;
+package com.commercetools.dataimport.joyrideavailability;
 
 import com.commercetools.CommercetoolsTestConfiguration;
-import com.commercetools.dataimport.joyrideavailability.InventoryEntryCreationJobConfiguration;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.inventory.InventoryEntry;
 import io.sphere.sdk.inventory.InventoryEntryDraft;
@@ -36,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @EnableAutoConfiguration
 @Configuration
 @TestPropertySource("classpath:/test.properties")
-public class JoyrideIntegrationTest {
+public class InventoryEntryCreationJobIntegrationTest extends JoyrideAvailabilityIntegrationTest {
     @Autowired
     @Qualifier("test")
     private BlockingSphereClient sphereClient;
@@ -65,7 +64,7 @@ public class JoyrideIntegrationTest {
         return product;
     }
 
-    private void createInventoryEntry (final String sku) {
+    private void createInventoryEntry(final String sku) {
         createProduct(createProductType(), sku);
         final Long quantityOnStock = 50L;
         final InventoryEntryDraft inventoryEntryDraft = InventoryEntryDraft.of(sku, quantityOnStock);

@@ -13,9 +13,13 @@ import io.sphere.sdk.products.commands.ProductUpdateCommand;
 import io.sphere.sdk.products.commands.updateactions.AddPrice;
 import io.sphere.sdk.products.commands.updateactions.Publish;
 import io.sphere.sdk.products.commands.updateactions.Unpublish;
+import io.sphere.sdk.products.queries.ProductProjectionQuery;
+import io.sphere.sdk.queries.PagedQueryResult;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +71,30 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
     }
 
     @Test
+    public void jobAvailabilityPricesImport() throws Exception {
+        withJoyrideChannels(sphereClient, joyrideChannels -> {
+            final int amountOfProducts = 10;
+            createProducts(sphereClient, amountOfProducts);
+            final PagedQueryResult<ProductProjection> productProjectionPagedQueryResult = sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent().withLimit(0));
+            assertThat(productProjectionPagedQueryResult.getTotal()).isEqualTo(amountOfProducts);
+            try {
+                final JobExecution jobExecution = jobLauncherTestUtils.launchJob();
+                assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            final List<ProductProjection> updatedProducts =
+                    sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent().withExpansionPaths(m -> m.allVariants().prices().channel())).getResults();
+            updatedProducts.forEach(m -> assertThat(productContainJoyridePrice(m)).isTrue());
+            updatedProducts
+                    .forEach(m -> {
+                        final Product productToDelete = sphereClient.executeBlocking(ProductUpdateCommand.of(m, Unpublish.of()));
+                        sphereClient.executeBlocking(ProductDeleteCommand.of(productToDelete));
+                    });
+        });
+    }
+
+    @Test
     public void readerRestartAfterLastProductWithJoyride() throws Exception {
         final int amountOfProducts = 10;
         createProducts(sphereClient, amountOfProducts);
@@ -95,4 +123,5 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
         assertThat(restartProduct.getId()).isEqualTo(nonProcessedProducts.get(restartIndex).getId());
 
     }
+
 }

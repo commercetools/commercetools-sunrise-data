@@ -15,8 +15,7 @@ import io.sphere.sdk.products.commands.updateactions.AddPrice;
 import io.sphere.sdk.products.commands.updateactions.Publish;
 import io.sphere.sdk.products.queries.ProductProjectionQuery;
 import io.sphere.sdk.products.search.PriceSelection;
-import io.sphere.sdk.products.search.ProductProjectionSearch;
-import io.sphere.sdk.search.PagedSearchResult;
+import io.sphere.sdk.queries.PagedQueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -87,7 +86,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
         final ProductProjectionQuery productProjectionQuery1 = ProductProjectionQuery.ofCurrent().withSort(m -> m.id().sort().asc());
         final Long productsCount = sphereClient.executeBlocking(productProjectionQuery1).getTotal();
         final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
-        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
+        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofStaged();
         final ProductProjectionQuery productProjectionQuery =
                 lastProductWithJoyrideChannel
                         .map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThan(product.getId())))
@@ -110,15 +109,11 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
     }
 
     private ProductProjection fetchProjectionWithPriceSelection(final BlockingSphereClient sphereClient, final ProductProjection productProjection, final Channel channel) {
-
         final CountryCode country = channel.getAddress().getCountry();
         final CurrencyUnit currency = Monetary.getCurrency(country.toLocale());
-
         final PriceSelection priceSelection = PriceSelection.of(currency).withPriceCountry(country);
-        final ProductProjectionSearch searchRequest = ProductProjectionSearch.ofCurrent()
-                .withQueryFilters(m -> m.id().is(productProjection.getId()))
-                .withPriceSelection(priceSelection);
-        final PagedSearchResult<ProductProjection> result = sphereClient.executeBlocking(searchRequest);
+        final ProductProjectionQuery productProjectionQuery = ProductProjectionQuery.ofCurrent().withPredicates(m -> m.id().is(productProjection.getId())).withPriceSelection(priceSelection);
+        final PagedQueryResult<ProductProjection> result = sphereClient.executeBlocking(productProjectionQuery);
         return result.getResults().get(0);
     }
 
