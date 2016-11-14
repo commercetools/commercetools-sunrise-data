@@ -11,10 +11,7 @@ import io.sphere.sdk.inventory.commands.InventoryEntryDeleteCommand;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
 import io.sphere.sdk.models.Address;
 import io.sphere.sdk.models.LocalizedString;
-import io.sphere.sdk.products.PriceDraft;
-import io.sphere.sdk.products.Product;
-import io.sphere.sdk.products.ProductDraftBuilder;
-import io.sphere.sdk.products.ProductVariantDraftBuilder;
+import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.products.commands.ProductDeleteCommand;
 import io.sphere.sdk.products.commands.ProductUpdateCommand;
@@ -36,12 +33,25 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static com.commercetools.dataimport.joyrideavailability.PreferredChannels.CHANNEL_KEYS;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 public class JoyrideAvailabilityUtils {
+
+    public static void withListOfProductProjections(final BlockingSphereClient sphereClient, final int amountOfProducts, final UnaryOperator<List<ProductProjection>> op) {
+        for (int i = 0; i < amountOfProducts; i++) {
+            createProduct(sphereClient);
+        }
+        final List<ProductProjection> productProjection = sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent().withSort(m -> m.id().sort().asc())).getResults();
+        final List<ProductProjection> productsToDelete = op.apply(productProjection);
+        productsToDelete.forEach(m -> {
+            final Product productToDelete = sphereClient.executeBlocking(ProductUpdateCommand.of(m, Unpublish.of()));
+            sphereClient.executeBlocking(ProductDeleteCommand.of(productToDelete));
+        });
+    }
 
     public static void withPriceWithJoyrideChannel(final BlockingSphereClient sphereClient, final Consumer<PriceDraft> consumer) {
         final String joyrideChannelKey = CHANNEL_KEYS.get(0);
@@ -76,13 +86,7 @@ public class JoyrideAvailabilityUtils {
         });
     }
 
-    public static void createProducts(final BlockingSphereClient sphereClient, final int productsAmount) {
-        for (int i = 0; i < productsAmount; i++) {
-            createProduct(sphereClient);
-        }
-    }
-
-    public static void withJoyrideChannels(final BlockingSphereClient sphereClient, final Consumer<List<Channel>> consumer) {
+    public static void withJoyrideChannels(final BlockingSphereClient sphereClient, final Consumer<List<Channel>> consumer) throws Exception {
         final List<Channel> joyrideChannels = CHANNEL_KEYS.stream()
                 .map(channelKey -> sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(channelKey).
                         withAddress(Address.of(CountryCode.DE)))))

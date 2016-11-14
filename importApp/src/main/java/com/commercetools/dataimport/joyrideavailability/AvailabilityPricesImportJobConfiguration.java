@@ -96,6 +96,10 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
 
     @Bean
     protected ItemProcessor<ProductProjection, ProductUpdateCommand> priceCreationProcessor(final BlockingSphereClient sphereClient, final ChannelListHolder channelListHolder) {
+        return createProcessor(sphereClient, channelListHolder);
+    }
+
+    private ItemProcessor<ProductProjection, ProductUpdateCommand> createProcessor(final BlockingSphereClient sphereClient, final ChannelListHolder channelListHolder) {
         return productProjection -> {
             final List<AddPrice> productPriceAddUpdateActions = channelListHolder.getChannels().stream()
                     .peek(m -> logger.info("attempting to process product {} in channel {}", productProjection.getId(), m.getId()))
@@ -127,13 +131,17 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
         return Optional.ofNullable(productVariant.getPrice())
                 .filter(price -> price.getValue() != null)
                 .map(price -> {
-                    final Random random = new Random(productVariant.getSku().hashCode() + channel.getKey().hashCode());
-                    final double factor = randInt(random, 90, 110) * 0.01;
-                    final MonetaryAmount newAmount = price.getValue().multiply(factor);
-                    final PriceDraftDsl priceDraft = PriceDraft.of(price).withValue(newAmount).withChannel(channel);
+                    final PriceDraftDsl priceDraft = randomPriceDraft(productVariant, channel, price);
                     return Stream.of(AddPrice.of(productVariant.getId(), priceDraft));
                 })
                 .orElseGet(Stream::empty);
+    }
+
+    static PriceDraftDsl randomPriceDraft(final ProductVariant productVariant, final Channel channel, final Price price) {
+        final Random random = new Random(productVariant.getSku().hashCode() + channel.getKey().hashCode());
+        final double factor = randInt(random, 90, 110) * 0.01;
+        final MonetaryAmount newAmount = price.getValue().multiply(factor);
+        return PriceDraft.of(price).withValue(newAmount).withChannel(channel);
     }
 
     @Bean
@@ -152,7 +160,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
                 .collect(SphereClientUtils.blockingWaitForEachCollector(5, TimeUnit.MINUTES));
     }
 
-    public int randInt(final Random random, final int min, final int max) {
+    static int randInt(final Random random, final int min, final int max) {
         return random.nextInt((max - min) + 1) + min;
     }
 
