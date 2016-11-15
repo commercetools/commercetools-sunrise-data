@@ -70,11 +70,11 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
                 updatedProducts.forEach(m -> {
                     assertThat(productContainJoyridePrice(m)).isTrue();
                     final ProductProjection productProjectionWithoutJoyride = productsWithoutJoyride.stream().filter(p -> p.getId().equals(m.getId())).limit(1L).collect(toList()).get(0);
-                    final Price originalPrice = productProjectionWithoutJoyride.getMasterVariant().getPrices().get(0);
+                    final Price originalMasterVariantPrice = productProjectionWithoutJoyride.getMasterVariant().getPrices().get(0);
                     final ProductVariant masterVariant = m.getMasterVariant();
                     masterVariant.getPrices().forEach(variantPrice -> {
                         if (variantPrice.getChannel() != null) {
-                            final PriceDraftDsl randomPriceDraft = randomPriceDraft(masterVariant, variantPrice.getChannel().getObj(), originalPrice);
+                            final PriceDraftDsl randomPriceDraft = randomPriceDraft(masterVariant, variantPrice.getChannel().getObj(), originalMasterVariantPrice);
                             assertThat(variantPrice.getValue()).isEqualTo(randomPriceDraft.getValue());
                         }
                     });
@@ -82,15 +82,6 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
                 return updatedProducts;
             });
         });
-    }
-
-    private void executeAvailabilityPricesImportJob() {
-        try {
-            final JobExecution jobExecution = jobLauncherTestUtils.launchJob();
-            assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
@@ -139,6 +130,15 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void executeAvailabilityPricesImportJob() {
+        try {
+            final JobExecution jobExecution = jobLauncherTestUtils.launchJob();
+            assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

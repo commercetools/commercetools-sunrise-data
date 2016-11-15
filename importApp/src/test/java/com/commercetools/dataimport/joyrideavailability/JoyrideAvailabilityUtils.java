@@ -7,6 +7,9 @@ import io.sphere.sdk.channels.commands.ChannelCreateCommand;
 import io.sphere.sdk.channels.commands.ChannelDeleteCommand;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
+import io.sphere.sdk.inventory.InventoryEntry;
+import io.sphere.sdk.inventory.InventoryEntryDraft;
+import io.sphere.sdk.inventory.commands.InventoryEntryCreateCommand;
 import io.sphere.sdk.inventory.commands.InventoryEntryDeleteCommand;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
 import io.sphere.sdk.models.Address;
@@ -41,6 +44,13 @@ import static java.util.stream.Collectors.toList;
 
 public class JoyrideAvailabilityUtils {
 
+    public static void withProduct(final BlockingSphereClient sphereClient, final UnaryOperator<Product> op) {
+        final Product product = createProduct(sphereClient);
+        final Product updatedProduct = op.apply(product);
+        final Product productToDelete = sphereClient.executeBlocking(ProductUpdateCommand.of(updatedProduct, Unpublish.of()));
+        sphereClient.executeBlocking(ProductDeleteCommand.of(productToDelete));
+    }
+
     public static void withListOfProductProjections(final BlockingSphereClient sphereClient, final int amountOfProducts, final UnaryOperator<List<ProductProjection>> op) {
         for (int i = 0; i < amountOfProducts; i++) {
             createProduct(sphereClient);
@@ -53,6 +63,20 @@ public class JoyrideAvailabilityUtils {
         });
     }
 
+    public static void withJoyrideChannels(final BlockingSphereClient sphereClient, final Consumer<List<Channel>> consumer) throws Exception {
+        final List<Channel> joyrideChannels = CHANNEL_KEYS.stream()
+                .map(channelKey -> sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(channelKey).
+                        withAddress(Address.of(CountryCode.DE)))))
+                .collect(toList());
+        consumer.accept(joyrideChannels);
+        joyrideChannels.forEach(joyrideChannel -> sphereClient.executeBlocking(ChannelDeleteCommand.of(joyrideChannel)));
+    }
+
+    public static Product withPrice(final Function<PriceDraft, Product> function) {
+        final PriceDraft priceDraft = PriceDraft.of(MoneyImpl.of(new BigDecimal("123456"), "EUR")).withCountry(CountryCode.DE);
+        return function.apply(priceDraft);
+    }
+
     public static void withPriceWithJoyrideChannel(final BlockingSphereClient sphereClient, final Consumer<PriceDraft> consumer) {
         final String joyrideChannelKey = CHANNEL_KEYS.get(0);
         final Channel joyrideChannel = sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(joyrideChannelKey)));
@@ -61,9 +85,12 @@ public class JoyrideAvailabilityUtils {
         sphereClient.executeBlocking(ChannelDeleteCommand.of(joyrideChannel));
     }
 
-    public static Product withPrice(final Function<PriceDraft, Product> function) {
-        final PriceDraft priceDraft = PriceDraft.of(MoneyImpl.of(new BigDecimal("123456"), "EUR")).withCountry(CountryCode.DE);
-        return function.apply(priceDraft);
+    public static void withInventoryEntry(final BlockingSphereClient sphereClient, final String sku, Consumer<InventoryEntry> consumer) {
+        final Long quantityOnStock = 50L;
+        final InventoryEntryDraft inventoryEntryDraft = InventoryEntryDraft.of(sku, quantityOnStock);
+        final InventoryEntry inventoryEntry = sphereClient.executeBlocking(InventoryEntryCreateCommand.of(inventoryEntryDraft));
+        consumer.accept(inventoryEntry);
+        sphereClient.executeBlocking(InventoryEntryDeleteCommand.of(inventoryEntry));
     }
 
     public static ProductType createProductType(final BlockingSphereClient sphereClient) {
@@ -84,15 +111,6 @@ public class JoyrideAvailabilityUtils {
             Product productWithPrice = sphereClient.executeBlocking(ProductUpdateCommand.of(product, asList(addPrice, Publish.of())));
             return productWithPrice;
         });
-    }
-
-    public static void withJoyrideChannels(final BlockingSphereClient sphereClient, final Consumer<List<Channel>> consumer) throws Exception {
-        final List<Channel> joyrideChannels = CHANNEL_KEYS.stream()
-                .map(channelKey -> sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(channelKey).
-                        withAddress(Address.of(CountryCode.DE)))))
-                .collect(toList());
-        consumer.accept(joyrideChannels);
-        joyrideChannels.forEach(joyrideChannel -> sphereClient.executeBlocking(ChannelDeleteCommand.of(joyrideChannel)));
     }
 
     public static void deleteInventoryEntries(final BlockingSphereClient sphereClient) {
