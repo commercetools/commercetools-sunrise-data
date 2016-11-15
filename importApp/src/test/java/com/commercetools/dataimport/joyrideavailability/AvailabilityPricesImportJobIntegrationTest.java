@@ -13,17 +13,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameter;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.commercetools.dataimport.joyrideavailability.AvailabilityPricesImportJobConfiguration.*;
@@ -43,8 +48,11 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
 
+    @Autowired
+    private Environment env;
+
     @Test
-    public void findLastProductWithJoyridePrice() {
+    public void findLastProductWithJoyridePrice() throws Exception {
         final Product product = createProduct(sphereClient);
         final Long productsCount = 1L;
         assertThat(findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1)).isEmpty();
@@ -92,10 +100,8 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
             withListOfProductProjections(sphereClient, amountOfProducts, productsWithoutJoyride -> {
                 final ItemReader<ProductProjection> initialReader = createReader(sphereClient);
                 addJoyridePriceToProductsUntilStopIndex(stopIndex, priceDraft, initialReader);
-
                 final ItemReader<ProductProjection> restartReader = createReader(sphereClient);
                 addJoyrideToMissingProducts(stopIndex, priceDraft, productsWithoutJoyride, restartReader);
-
                 final List<ProductProjection> products = sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent().withExpansionPaths(m -> m.allVariants().prices().channel())).getResults();
                 products.forEach(m -> assertThat(productContainJoyridePrice(m)).isTrue());
                 return products;
@@ -103,42 +109,33 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
         });
     }
 
-    private void addJoyrideToMissingProducts(final int stopIndex, final PriceDraft priceDraft, final List<ProductProjection> productsWithoutJoyride, final ItemReader<ProductProjection> restartReader) {
-        try {
-            final ProductProjection restartProduct = restartReader.read();
-            assertThat(restartProduct.getId()).isEqualTo(productsWithoutJoyride.get(stopIndex + 1).getId());
-            final AddPrice addPrice = AddPrice.of(restartProduct.getMasterVariant().getId(), priceDraft);
-            sphereClient.executeBlocking(ProductUpdateCommand.of(restartProduct, asList(addPrice, Publish.of())));
-            ProductProjection productProjection;
-            while ((productProjection = restartReader.read()) != null) {
-                final AddPrice addPrice2 = AddPrice.of(productProjection.getMasterVariant().getId(), priceDraft);
-                sphereClient.executeBlocking(ProductUpdateCommand.of(productProjection, asList(addPrice2, Publish.of())));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    private void addJoyrideToMissingProducts(final int stopIndex, final PriceDraft priceDraft, final List<ProductProjection> productsWithoutJoyride, final ItemReader<ProductProjection> restartReader) throws Exception {
+        final ProductProjection restartProduct = restartReader.read();
+        assertThat(restartProduct.getId()).isEqualTo(productsWithoutJoyride.get(stopIndex + 1).getId());
+        final AddPrice addPrice = AddPrice.of(restartProduct.getMasterVariant().getId(), priceDraft);
+        sphereClient.executeBlocking(ProductUpdateCommand.of(restartProduct, asList(addPrice, Publish.of())));
+        ProductProjection productProjection;
+        while ((productProjection = restartReader.read()) != null) {
+            final AddPrice addPrice2 = AddPrice.of(productProjection.getMasterVariant().getId(), priceDraft);
+            sphereClient.executeBlocking(ProductUpdateCommand.of(productProjection, asList(addPrice2, Publish.of())));
         }
     }
 
-    private void addJoyridePriceToProductsUntilStopIndex(final int stopIndex, final PriceDraft priceDraft, final ItemReader<ProductProjection> initialReader) {
+    private void addJoyridePriceToProductsUntilStopIndex(final int stopIndex, final PriceDraft priceDraft, final ItemReader<ProductProjection> initialReader) throws Exception {
         int index = 0;
         while (index <= stopIndex) {
-            try {
-                final ProductProjection productProjection = initialReader.read();
-                final AddPrice addPrice = AddPrice.of(productProjection.getMasterVariant().getId(), priceDraft);
-                sphereClient.executeBlocking(ProductUpdateCommand.of(productProjection, asList(addPrice, Publish.of())));
-                index++;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            final ProductProjection productProjection = initialReader.read();
+            final AddPrice addPrice = AddPrice.of(productProjection.getMasterVariant().getId(), priceDraft);
+            sphereClient.executeBlocking(ProductUpdateCommand.of(productProjection, asList(addPrice, Publish.of())));
+            index++;
         }
     }
 
-    private void executeAvailabilityPricesImportJob() {
-        try {
-            final JobExecution jobExecution = jobLauncherTestUtils.launchJob();
-            assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void executeAvailabilityPricesImportJob() throws Exception {
+        final Map<String, JobParameter> jobParametersMap = new HashMap<>();
+        addCommercetoolsCredentialValues(env, jobParametersMap);
+        final JobParameters jobParameters = new JobParameters(jobParametersMap);
+        final JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
+        assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
     }
 }

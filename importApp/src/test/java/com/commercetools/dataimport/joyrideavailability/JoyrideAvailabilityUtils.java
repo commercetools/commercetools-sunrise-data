@@ -1,5 +1,7 @@
 package com.commercetools.dataimport.joyrideavailability;
 
+import com.commercetools.ExceptionalConsumer;
+import com.commercetools.ExceptionalUnaryOperator;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.ChannelDraft;
@@ -29,11 +31,14 @@ import io.sphere.sdk.queries.PagedQueryResult;
 import io.sphere.sdk.queries.Query;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.batch.core.JobParameter;
+import org.springframework.core.env.Environment;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -51,7 +56,7 @@ public class JoyrideAvailabilityUtils {
         sphereClient.executeBlocking(ProductDeleteCommand.of(productToDelete));
     }
 
-    public static void withListOfProductProjections(final BlockingSphereClient sphereClient, final int amountOfProducts, final UnaryOperator<List<ProductProjection>> op) {
+    public static void withListOfProductProjections(final BlockingSphereClient sphereClient, final int amountOfProducts, final ExceptionalUnaryOperator<List<ProductProjection>> op) throws Exception {
         for (int i = 0; i < amountOfProducts; i++) {
             createProduct(sphereClient);
         }
@@ -63,7 +68,7 @@ public class JoyrideAvailabilityUtils {
         });
     }
 
-    public static void withJoyrideChannels(final BlockingSphereClient sphereClient, final Consumer<List<Channel>> consumer) throws Exception {
+    public static void withJoyrideChannels(final BlockingSphereClient sphereClient, final ExceptionalConsumer<List<Channel>> consumer) throws Exception {
         final List<Channel> joyrideChannels = CHANNEL_KEYS.stream()
                 .map(channelKey -> sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(channelKey).
                         withAddress(Address.of(CountryCode.DE)))))
@@ -77,7 +82,7 @@ public class JoyrideAvailabilityUtils {
         return function.apply(priceDraft);
     }
 
-    public static void withPriceWithJoyrideChannel(final BlockingSphereClient sphereClient, final Consumer<PriceDraft> consumer) {
+    public static void withPriceWithJoyrideChannel(final BlockingSphereClient sphereClient, final ExceptionalConsumer<PriceDraft> consumer) throws Exception {
         final String joyrideChannelKey = CHANNEL_KEYS.get(0);
         final Channel joyrideChannel = sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(joyrideChannelKey)));
         final PriceDraft priceDraft = PriceDraft.of(MoneyImpl.of(new BigDecimal("123456"), "EUR")).withChannel(joyrideChannel);
@@ -142,5 +147,13 @@ public class JoyrideAvailabilityUtils {
                     .collect(toList());
             modifiedResourcesAmount = modifiedResources.size();
         } while (modifiedResourcesAmount > 0);
+    }
+
+    public static void addCommercetoolsCredentialValues(final Environment env, final Map<String, JobParameter> jobParametersMap) {
+        final List<String> keys = asList("commercetools.projectKey", "commercetools.clientId", "commercetools.clientSecret", "commercetools.authUrl", "commercetools.apiUrl");
+        for (final String key : keys) {
+            final String value = env.getProperty(key);
+            jobParametersMap.put(key, new JobParameter(value));
+        }
     }
 }
