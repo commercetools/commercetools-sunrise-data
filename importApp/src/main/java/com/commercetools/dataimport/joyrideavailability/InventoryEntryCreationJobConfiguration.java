@@ -118,7 +118,7 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
                 .collect(Collectors.toList());
     }
 
-    private InventoryEntryDraft createInventoryEntryDraftForProductVariant(final Channel channel, final ProductVariant productVariant) {
+    static InventoryEntryDraft createInventoryEntryDraftForProductVariant(final Channel channel, final ProductVariant productVariant) {
         final Random random = new Random(productVariant.getSku().hashCode() + channel.getKey().hashCode());
         final int bucket = randomInt(random, 0, 99);
         final long quantityOnStock;
