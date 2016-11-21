@@ -11,6 +11,7 @@ import io.sphere.sdk.inventory.InventoryEntry;
 import io.sphere.sdk.inventory.InventoryEntryDraft;
 import io.sphere.sdk.inventory.commands.InventoryEntryCreateCommand;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
+import io.sphere.sdk.models.ResourceView;
 import io.sphere.sdk.products.ProductProjection;
 import io.sphere.sdk.products.ProductVariant;
 import io.sphere.sdk.products.queries.ProductProjectionQuery;
@@ -20,8 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobScope;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -71,10 +70,13 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
     }
 
     @Bean
-    @StepScope
     public ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
+        return createReader(sphereClient);
+    }
+
+    static ItemReader<ProductProjection> createReader(final BlockingSphereClient sphereClient) {
         final Optional<InventoryEntry> lastInventoryEntry = findLastInventoryEntry(sphereClient);
-        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofStaged();
+        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
         final ProductProjectionQuery productProjectionQuery =
                 lastInventoryEntry
                         .map(inventoryEntry -> {
@@ -86,8 +88,8 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
     }
 
     @Bean
-    protected ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryProcessor(final ChannelListHolder channelListHolder) {
-        return product -> inventoryEntryListByChannel(product, channelListHolder.getChannels());
+    protected ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryProcessor(final BlockingSphereClient sphereClient) {
+        return product -> inventoryEntryListByChannel(product, channelListHolder(sphereClient).getChannels());
     }
 
     @Bean
@@ -101,8 +103,6 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
         };
     }
 
-    @Bean
-    @JobScope
     public ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
         final ChannelQuery channelQuery = ChannelQuery.of()
                 .withPredicates(m -> m.key().isIn(PreferredChannels.CHANNEL_KEYS));
@@ -111,8 +111,8 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
     }
 
     private List<InventoryEntryDraft> inventoryEntryListByChannel(final ProductProjection product, final List<Channel> channels) {
+        logger.info("Processing product {}", Optional.ofNullable(product).map(ResourceView::getId).orElse("product was null"));
         return channels.stream()
-                .peek(draft -> logger.info("Processing product {}", product.getId()))
                 .flatMap(channel -> product.getAllVariants().stream()
                         .map(productVariant -> createInventoryEntryDraftForProductVariant(channel, productVariant)))
                 .collect(Collectors.toList());

@@ -26,18 +26,18 @@ public abstract class JoyrideAvailabilityIntegrationTest {
     public void setUp() throws Exception {
         unpublishProducts(sphereClient);
         final List<ProductProjection> publishedProducts = sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
-        assertThat(publishedProducts.size()).isEqualTo(0);
+        assertThat(publishedProducts).hasSize(0);
 
         deleteProducts(sphereClient);
         final List<ProductProjection> stagedProducts = sphereClient.executeBlocking(ProductProjectionQuery.ofStaged()).getResults();
-        assertThat(stagedProducts.size()).isEqualTo(0);
+        assertThat(stagedProducts).hasSize(0);
 
         deleteInventoryEntries(sphereClient);
         final List<InventoryEntry> inventoryEntries = sphereClient.executeBlocking(InventoryEntryQuery.of()).getResults();
-        assertThat(inventoryEntries.size()).isEqualTo(0);
+        assertThat(inventoryEntries).hasSize(0);
 
         deleteChannels(sphereClient);
         final List<Channel> channels = sphereClient.executeBlocking(ChannelQuery.of()).getResults();
-        assertThat(channels.size()).isEqualTo(0);
+        assertThat(channels).hasSize(0);
     }
 }
