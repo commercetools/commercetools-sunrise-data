@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -70,7 +71,8 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
     }
 
     @Bean
-    public ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
+    @StepScope
+    protected ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
         return createReader(sphereClient);
     }
 
