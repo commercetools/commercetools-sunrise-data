@@ -7,6 +7,8 @@ import io.sphere.sdk.inventory.InventoryEntry;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
 import io.sphere.sdk.products.ProductProjection;
 import io.sphere.sdk.products.queries.ProductProjectionQuery;
+import io.sphere.sdk.types.Type;
+import io.sphere.sdk.types.queries.TypeQuery;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,5 +41,9 @@ public abstract class JoyrideAvailabilityIntegrationTest {
         deleteChannels(sphereClient);
         final List<Channel> channels = sphereClient.executeBlocking(ChannelQuery.of()).getResults();
         assertThat(channels).hasSize(0);
+
+        deleteTypes(sphereClient);
+        final List<Type> types = sphereClient.executeBlocking(TypeQuery.of()).getResults();
+        assertThat(types).hasSize(0);
     }
 }

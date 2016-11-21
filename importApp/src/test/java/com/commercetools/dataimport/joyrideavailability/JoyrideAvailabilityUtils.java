@@ -29,6 +29,8 @@ import io.sphere.sdk.producttypes.ProductTypeDraft;
 import io.sphere.sdk.producttypes.commands.ProductTypeCreateCommand;
 import io.sphere.sdk.queries.PagedQueryResult;
 import io.sphere.sdk.queries.Query;
+import io.sphere.sdk.types.commands.TypeDeleteCommand;
+import io.sphere.sdk.types.queries.TypeQuery;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.batch.core.JobParameter;
@@ -124,6 +126,10 @@ public class JoyrideAvailabilityUtils {
 
     public static void deleteChannels(final BlockingSphereClient sphereClient) {
         updateOrDeleteResources(sphereClient, ChannelQuery.of(), (channel) -> sphereClient.executeBlocking(ChannelDeleteCommand.of(channel)));
+    }
+
+    public static void deleteTypes(final BlockingSphereClient sphereClient) {
+        updateOrDeleteResources(sphereClient, TypeQuery.of(), (type) -> sphereClient.executeBlocking(TypeDeleteCommand.of(type)));
     }
 
     public static void unpublishProducts(final BlockingSphereClient sphereClient) {
