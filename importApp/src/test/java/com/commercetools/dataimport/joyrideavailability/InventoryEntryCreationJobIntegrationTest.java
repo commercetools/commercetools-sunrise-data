@@ -9,6 +9,7 @@ import io.sphere.sdk.inventory.InventoryEntryDraft;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
 import io.sphere.sdk.products.ProductProjection;
 import io.sphere.sdk.products.ProductVariant;
+import io.sphere.sdk.products.queries.ProductProjectionQuery;
 import io.sphere.sdk.queries.PagedQueryResult;
 import net.jcip.annotations.NotThreadSafe;
 import org.junit.Test;
@@ -35,9 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.commercetools.dataimport.joyrideavailability.InventoryEntryCreationJobConfiguration.createInventoryEntryDraftForProductVariant;
-import static com.commercetools.dataimport.joyrideavailability.InventoryEntryCreationJobConfiguration.createReader;
+import static com.commercetools.dataimport.joyrideavailability.InventoryEntryCreationJobConfiguration.*;
 import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
+import static com.commercetools.dataimport.joyrideavailability.PreferredChannels.CHANNEL_KEYS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,53 +67,62 @@ public class InventoryEntryCreationJobIntegrationTest extends JoyrideAvailabilit
     private ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter;
 
     @Test
-    public void findLastInventoryEntryTest() throws Exception {
-        withProduct(sphereClient, product -> {
-            final String sku = product.getMasterData().getCurrent().getMasterVariant().getSku();
-            withInventoryEntry(sphereClient, sku, inventoryEntry -> {
-                final Optional<InventoryEntry> lastInventoryEntry = InventoryEntryCreationJobConfiguration.findLastInventoryEntry(sphereClient);
-                assertThat(lastInventoryEntry).isPresent();
-                assertThat(lastInventoryEntry.get()).isEqualTo(inventoryEntry);
+    public void findLastProductWithInventoryEntries() throws Exception {
+        final int amountOfProducts = 10;
+        withJoyrideChannels(sphereClient, joyrideChannels -> {
+            withListOfProductProjections(sphereClient, amountOfProducts, productsWithoutInventories -> {
+                assertThat(productsWithoutInventories).hasSize(amountOfProducts);
+                final Long lastProductIndex = (long) (amountOfProducts - 1);
+                final Optional<ProductProjection> lastProductWithInventory = findLastProductWithInventory(sphereClient);
+                assertThat(lastProductWithInventory).isEmpty();
+
+                final int stopIndex = 6;
+                addInventoriesToProductsUntilStopIndex(stopIndex);
+                final Optional<ProductProjection> lastProductWithInventory1 = findLastProductWithInventory(sphereClient);
+                final ProductProjection stopProduct = productsWithoutInventories.get(stopIndex);
+                assertThat(stopProduct.getId()).isEqualTo(lastProductWithInventory1.get().getId());
+
+                addInventoriesToMissingProducts();
+                final Optional<ProductProjection> lastProductWithInventory2 = findLastProductWithInventory(sphereClient);
+                final ProductProjection lastProduct = productsWithoutInventories.get(lastProductIndex.intValue());
+                assertThat(lastProduct.getId()).isEqualTo(lastProductWithInventory2.get().getId());
+
+                deleteInventoryEntries(sphereClient);
+                return sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
             });
-            return product;
         });
     }
 
     @Test
     public void jobInventoryEntryCreation() throws Exception {
-        final int amountOfProducts = 4;
+        final int amountOfProducts = 10;
         withJoyrideChannels(sphereClient, joyrideChannels -> {
             withListOfProductProjections(sphereClient, amountOfProducts, productProjections -> {
                 assertThat(productProjections).hasSize(amountOfProducts);
-                assertThat(joyrideChannels).hasSize(PreferredChannels.CHANNEL_KEYS.size());
+                assertThat(joyrideChannels).hasSize(CHANNEL_KEYS.size());
                 final InventoryEntryQuery inventoryBaseQuery = InventoryEntryQuery.of();
                 final PagedQueryResult<InventoryEntry> inventoryEntryPagedQueryResult = sphereClient.executeBlocking(inventoryBaseQuery.withLimit(0));
                 assertThat(inventoryEntryPagedQueryResult.getTotal()).isZero();
                 executeInventoryEntryCreationJob();
                 validateInventoryEntries(amountOfProducts, joyrideChannels, productProjections, inventoryBaseQuery);
+                deleteInventoryEntries(sphereClient);
                 return productProjections;
             });
         });
     }
 
     @Test
-    public void restartAfterPartialExecution() throws Exception {
+    public void readerRestartAfterPartialExecution() throws Exception {
         final int amountOfProducts = 10;
         final int stopIndex = 6;
         withJoyrideChannels(sphereClient, joyrideChannels -> {
-            withListOfProductProjections(sphereClient, amountOfProducts, productProjections -> {
-                assertThat(productProjections).hasSize(amountOfProducts);
-                final InventoryEntryQuery inventoryBaseQuery = InventoryEntryQuery.of();
-                final PagedQueryResult<InventoryEntry> inventoryEntryPagedQueryResult = sphereClient.executeBlocking(inventoryBaseQuery.withLimit(0));
-                assertThat(inventoryEntryPagedQueryResult.getTotal()).isZero();
-                executePartiallyInventoryCreationJob(stopIndex);
-                final ItemReader<ProductProjection> restartReader = createReader(sphereClient);
-                final ProductProjection afterRestartProductRead = restartReader.read();
-                assertThat(afterRestartProductRead.getId()).isEqualTo(productProjections.get(stopIndex).getId());
-
-                endExecutionInventoryCreationJob(restartReader);
-                validateInventoryEntries(amountOfProducts, joyrideChannels, productProjections, inventoryBaseQuery);
-                return productProjections;
+            withListOfProductProjections(sphereClient, amountOfProducts, productsWithoutInventories -> {
+                addInventoriesToProductsUntilStopIndex(stopIndex);
+                final ItemReader<ProductProjection> restartReader = createProductProjectionReader(sphereClient);
+                final ProductProjection restartProduct = restartReader.read();
+                assertThat(restartProduct.getId()).isEqualTo(productsWithoutInventories.get(stopIndex + 1).getId());
+                deleteInventoryEntries(sphereClient);
+                return productsWithoutInventories;
             });
         });
     }
@@ -127,22 +137,23 @@ public class InventoryEntryCreationJobIntegrationTest extends JoyrideAvailabilit
                     final Long expectedStockQuantity = stockQuantityByChannelAndProductVariant(joyrideChannels, productProjections, inventoryEntry);
                     assertThat(expectedStockQuantity).isEqualTo(inventoryEntry.getQuantityOnStock());
                 });
-        deleteInventoryEntries(sphereClient);
     }
 
-    private void endExecutionInventoryCreationJob(final ItemReader<ProductProjection> reader) throws Exception {
-        ProductProjection product;
-        while ((product = reader.read()) != null) {
-            final List<InventoryEntryDraft> list = inventoryEntryProcessor.process(product);
+    private void addInventoriesToProductsUntilStopIndex(final int stopIndex) throws Exception {
+        final ItemReader<ProductProjection> initialReader = InventoryEntryCreationJobConfiguration.createProductProjectionReader(sphereClient);
+        int index = 0;
+        while (index <= stopIndex) {
+            final List<InventoryEntryDraft> list = inventoryEntryProcessor.process(initialReader.read());
             inventoryEntryWriter.write(asList(list));
+            index++;
         }
     }
 
-    private void executePartiallyInventoryCreationJob(final int stopIndex) throws Exception {
-        final ItemReader<ProductProjection> initialReader = createReader(sphereClient);
-        for (int i = 0; i <= stopIndex; i++) {
-            final ProductProjection read = initialReader.read();
-            final List<InventoryEntryDraft> list = inventoryEntryProcessor.process(read);
+    private void addInventoriesToMissingProducts() throws Exception {
+        final ItemReader<ProductProjection> restartReader = InventoryEntryCreationJobConfiguration.createProductProjectionReader(sphereClient);
+        ProductProjection product;
+        while ((product = restartReader.read()) != null) {
+            final List<InventoryEntryDraft> list = inventoryEntryProcessor.process(product);
             inventoryEntryWriter.write(asList(list));
         }
     }

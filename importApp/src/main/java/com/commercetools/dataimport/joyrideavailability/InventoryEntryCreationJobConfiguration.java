@@ -73,20 +73,7 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
     @Bean
     @StepScope
     protected ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
-        return createReader(sphereClient);
-    }
-
-    static ItemReader<ProductProjection> createReader(final BlockingSphereClient sphereClient) {
-        final Optional<InventoryEntry> lastInventoryEntry = findLastInventoryEntry(sphereClient);
-        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
-        final ProductProjectionQuery productProjectionQuery =
-                lastInventoryEntry
-                        .map(inventoryEntry -> {
-                            final PagedQueryResult<ProductProjection> queryResult = sphereClient.executeBlocking(ProductProjectionQuery.ofStaged().plusPredicates(product -> product.allVariants().where(m -> m.sku().is(inventoryEntry.getSku()))));
-                            return queryResult.head().map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThanOrEqualTo(product.getId()))).orElse(baseQuery);
-                        })
-                        .orElse(baseQuery);
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, productProjection -> productProjection.getId());
+        return createProductProjectionReader(sphereClient);
     }
 
     @Bean
@@ -103,6 +90,15 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
                     .map(draft -> sphereClient.execute(InventoryEntryCreateCommand.of(draft)))
                     .collect(SphereClientUtils.blockingWaitForEachCollector(5, TimeUnit.MINUTES));
         };
+    }
+
+    static ItemReader<ProductProjection> createProductProjectionReader(final BlockingSphereClient sphereClient) {
+        final Optional<ProductProjection> lastProductWithInventory = findLastProductWithInventory(sphereClient);
+        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
+        final ProductProjectionQuery productProjectionQuery = lastProductWithInventory
+                .map(productProjection -> baseQuery.withPredicates(product -> product.id().isGreaterThan(productProjection.getId())))
+                .orElse(baseQuery);
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, productProjection -> productProjection.getId());
     }
 
     public ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
@@ -141,8 +137,14 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
         return random.nextInt((max - min) + 1) + min;
     }
 
-    public static Optional<InventoryEntry> findLastInventoryEntry(final BlockingSphereClient sphereClient) {
+    static Optional<ProductProjection> findLastProductWithInventory(final BlockingSphereClient sphereClient) {
         final InventoryEntryQuery inventoryEntryQuery = InventoryEntryQuery.of().withSort(m -> m.lastModifiedAt().sort().desc()).withLimit(1L);
-        return sphereClient.execute(inventoryEntryQuery).toCompletableFuture().join().head();
+        final Optional<InventoryEntry> inventoryEntryOptional = sphereClient.execute(inventoryEntryQuery).toCompletableFuture().join().head();
+        return inventoryEntryOptional.map(inventoryEntry -> {
+            final PagedQueryResult<ProductProjection> productProjectionPagedQueryResult
+                    = sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent().plusPredicates(product -> product.allVariants().where(m -> m.sku().is(inventoryEntry.getSku()))));
+            return productProjectionPagedQueryResult.head();
+        }).orElse(Optional.empty());
     }
+
 }
