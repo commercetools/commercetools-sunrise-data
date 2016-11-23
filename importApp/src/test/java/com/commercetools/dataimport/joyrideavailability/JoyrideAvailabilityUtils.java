@@ -84,14 +84,6 @@ public class JoyrideAvailabilityUtils {
         return function.apply(priceDraft);
     }
 
-    public static void withPriceWithJoyrideChannel(final BlockingSphereClient sphereClient, final ExceptionalConsumer<PriceDraft> consumer) throws Exception {
-        final String joyrideChannelKey = CHANNEL_KEYS.get(0);
-        final Channel joyrideChannel = sphereClient.executeBlocking(ChannelCreateCommand.of(ChannelDraft.of(joyrideChannelKey)));
-        final PriceDraft priceDraft = PriceDraft.of(MoneyImpl.of(new BigDecimal("123456"), "EUR")).withChannel(joyrideChannel);
-        consumer.accept(priceDraft);
-        sphereClient.executeBlocking(ChannelDeleteCommand.of(joyrideChannel));
-    }
-
     public static void withInventoryEntry(final BlockingSphereClient sphereClient, final String sku, Consumer<InventoryEntry> consumer) {
         final Long quantityOnStock = 50L;
         final InventoryEntryDraft inventoryEntryDraft = InventoryEntryDraft.of(sku, quantityOnStock);

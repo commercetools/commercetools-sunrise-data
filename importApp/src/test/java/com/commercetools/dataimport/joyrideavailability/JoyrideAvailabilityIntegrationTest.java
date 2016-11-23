@@ -9,6 +9,7 @@ import io.sphere.sdk.products.ProductProjection;
 import io.sphere.sdk.products.queries.ProductProjectionQuery;
 import io.sphere.sdk.types.Type;
 import io.sphere.sdk.types.queries.TypeQuery;
+import net.jcip.annotations.NotThreadSafe;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +19,7 @@ import java.util.List;
 import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@NotThreadSafe
 public abstract class JoyrideAvailabilityIntegrationTest {
 
     @Autowired
