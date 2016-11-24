@@ -54,7 +54,7 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
     private ItemProcessor<ProductProjection, ProductUpdateCommand> priceCreationProcessor;
 
     @Autowired
-    private ItemWriter<ProductUpdateCommand> setPriceWriter;
+    private ItemWriter<ProductUpdateCommand> productPriceWriter;
 
     @Autowired
     private Environment env;
@@ -151,6 +151,6 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
 
     private void processProductAndWritePrice(final ProductProjection productProjection) throws Exception {
         final ProductUpdateCommand productUpdateCommand = priceCreationProcessor.process(productProjection);
-        setPriceWriter.write(asList(productUpdateCommand));
+        productPriceWriter.write(asList(productUpdateCommand));
     }
 }

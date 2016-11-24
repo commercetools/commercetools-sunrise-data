@@ -84,7 +84,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
     }
 
     @Bean
-    public ItemWriter<ProductUpdateCommand> setPriceWriter(final BlockingSphereClient sphereClient) {
+    public ItemWriter<ProductUpdateCommand> productPriceWriter(final BlockingSphereClient sphereClient) {
         return updates -> updates.stream()
                 .map(sphereClient::execute)
                 .collect(SphereClientUtils.blockingWaitForEachCollector(5, TimeUnit.MINUTES));
