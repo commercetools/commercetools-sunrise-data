@@ -96,6 +96,70 @@
     }
   },
   {
+    "key": "sunrise-store-boston-1",
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Boston Back Bay",
+      "de": "SUNRISE Store Boston Back Bay"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
+          "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_boston_1.jpg",
+        "latitude": "42.3488953",
+        "longitude": "-71.08358"
+      }
+    },
+    "address": {
+      "streetName": "Newbury St,",
+      "streetNumber": "212",
+      "postalCode": "MA 02116",
+      "city": "Boston",
+      "country": "US"
+    }
+  },
+  {
+    "key": "sunrise-store-boston-2",
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Boston CambridgeSide Galleria",
+      "de": "SUNRISE Store Boston CambridgeSide Galleria"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
+          "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_boston_2.jpg",
+        "latitude": "42.3576958",
+        "longitude": "-71.0874848"
+      }
+    },
+    "address": {
+      "streetName": "Cambridgeside Pl",
+      "streetNumber": "100",
+      "postalCode": "MA 02141",
+      "city": "Cambridge",
+      "country": "US"
+    }
+  },
+  {
     "key": "sunrise-store-stockholm",
     "roles": [
       "InventorySupply",
