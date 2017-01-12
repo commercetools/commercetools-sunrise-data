@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.util.*;
 
-import static java.util.Arrays.asList;
+import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.addCommercetoolsCredentialValues;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,8 +65,8 @@ public class CategoriesImportJobConfigurationIntegrationTest {
                 .contains("en", "de", "it");
         final CategoryQuery categoryQuery = CategoryQuery.of().byIsRoot().withLimit(500);
         sphereClient.executeBlocking(categoryQuery)
-        .getResults()
-        .forEach(cat -> sphereClient.executeBlocking(CategoryDeleteCommand.of(cat)));
+                .getResults()
+                .forEach(cat -> sphereClient.executeBlocking(CategoryDeleteCommand.of(cat)));
 
         assertThat(sphereClient.executeBlocking(CategoryQuery.of().withLimit(0)).getTotal())
                 .as("to test the import no categories should exist in the project " + project.getKey())
@@ -77,7 +77,7 @@ public class CategoriesImportJobConfigurationIntegrationTest {
     public void jobCreatesCategories() throws Exception {
         final Map<String, JobParameter> jobParametersMap = new HashMap<>();
         jobParametersMap.put("resource", new JobParameter("file://" + new File(".", "../categories/categories.csv").getAbsolutePath()));
-        addCommercetoolsCredentialValues(jobParametersMap);
+        addCommercetoolsCredentialValues(env, jobParametersMap);
         final JobParameters jobParameters = new JobParameters(jobParametersMap);
         final JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
         final CategoryQuery categoryQuery = CategoryQuery.of().withLimit(0);
@@ -98,11 +98,4 @@ public class CategoriesImportJobConfigurationIntegrationTest {
         soft.assertAll();
     }
 
-    private void addCommercetoolsCredentialValues(final Map<String, JobParameter> jobParametersMap) {
-        final List<String> keys = asList("commercetools.projectKey", "commercetools.clientId", "commercetools.clientSecret", "commercetools.authUrl", "commercetools.apiUrl");
-        for (final String key : keys) {
-            final String value = env.getProperty(key);
-            jobParametersMap.put(key, new JobParameter(value));
-        }
-    }
 }
