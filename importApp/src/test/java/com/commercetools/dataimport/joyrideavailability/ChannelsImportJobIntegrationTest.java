@@ -2,12 +2,8 @@ package com.commercetools.dataimport.joyrideavailability;
 
 import com.commercetools.CommercetoolsTestConfiguration;
 import com.commercetools.dataimport.categories.TestConfiguration;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
-import io.sphere.sdk.json.SphereJsonUtils;
 import io.sphere.sdk.types.Type;
 import io.sphere.sdk.types.queries.TypeQuery;
 import net.jcip.annotations.NotThreadSafe;
@@ -29,11 +25,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.commercetools.dataimport.common.JsonUtils.createJsonList;
 import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,7 +67,7 @@ public class ChannelsImportJobIntegrationTest extends JoyrideAvailabilityIntegra
 
     private void checkChannels(final String channelsResourcePath) throws IOException {
         Resource resource = appContext.getResource(channelsResourcePath);
-        final List<Channel> channelsFromJsonFile = fetchListFromJsonResource(resource, Channel.class);
+        final List<Channel> channelsFromJsonFile = createJsonList(resource, Channel.class);
         final ChannelQuery channelQuery = ChannelQuery.of();
         final List<Channel> channelList = sphereClient.executeBlocking(channelQuery).getResults();
         assertThat(channelList).hasSize(channelsFromJsonFile.size());
@@ -80,18 +76,10 @@ public class ChannelsImportJobIntegrationTest extends JoyrideAvailabilityIntegra
 
     private void checkTypes(final String typesResourcePath) throws IOException {
         Resource resource = appContext.getResource(typesResourcePath);
-        final List<Type> typesFromJsonFile = fetchListFromJsonResource(resource, Type.class);
+        final List<Type> typesFromJsonFile = createJsonList(resource, Type.class);
         final TypeQuery typeQuery = TypeQuery.of();
         final List<Type> typeList = sphereClient.executeBlocking(typeQuery).getResults();
         assertThat(typeList).hasSize(typesFromJsonFile.size());
         deleteTypes(sphereClient);
-    }
-
-    private <T> List<T> fetchListFromJsonResource(final Resource resource, final Class<T> clazz) throws IOException {
-        final TypeFactory typeFactory = TypeFactory.defaultInstance();
-        final JavaType javaType = typeFactory.constructCollectionType(List.class, clazz);
-        final ObjectReader reader = SphereJsonUtils.newObjectMapper().readerFor(javaType);
-        final InputStream inputStream = resource.getInputStream();
-        return reader.readValue(inputStream);
     }
 }
