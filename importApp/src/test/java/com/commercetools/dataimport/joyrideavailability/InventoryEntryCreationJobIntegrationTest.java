@@ -68,6 +68,7 @@ public class InventoryEntryCreationJobIntegrationTest extends JoyrideAvailabilit
 
     @Test
     public void findLastProductWithInventoryEntries() throws Exception {
+        System.err.println("INI findLastProductWithInventoryEntries");
         final int amountOfProducts = 10;
         withJoyrideChannels(sphereClient, joyrideChannels -> {
             withListOfProductProjections(sphereClient, amountOfProducts, productsWithoutInventories -> {
@@ -91,10 +92,12 @@ public class InventoryEntryCreationJobIntegrationTest extends JoyrideAvailabilit
                 return sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
             });
         });
+        System.err.println("END findLastProductWithInventoryEntries");
     }
 
     @Test
     public void jobInventoryEntryCreation() throws Exception {
+        System.err.println("INI jobInventoryEntryCreation");
         final int amountOfProducts = 10;
         withJoyrideChannels(sphereClient, joyrideChannels -> {
             withListOfProductProjections(sphereClient, amountOfProducts, productProjections -> {
@@ -109,10 +112,12 @@ public class InventoryEntryCreationJobIntegrationTest extends JoyrideAvailabilit
                 return productProjections;
             });
         });
+        System.err.println("END jobInventoryEntryCreation");
     }
 
     @Test
     public void readerRestartAfterPartialExecution() throws Exception {
+        System.err.println("INI readerRestartAfterPartialExecution");
         final int amountOfProducts = 10;
         final int stopIndex = 6;
         withJoyrideChannels(sphereClient, joyrideChannels -> {
@@ -125,6 +130,7 @@ public class InventoryEntryCreationJobIntegrationTest extends JoyrideAvailabilit
                 return productsWithoutInventories;
             });
         });
+        System.err.println("END readerRestartAfterPartialExecution");
     }
 
     private void validateInventoryEntries(final int amountOfProducts, final List<Channel> joyrideChannels, final List<ProductProjection> productProjections, final InventoryEntryQuery inventoryBaseQuery) {

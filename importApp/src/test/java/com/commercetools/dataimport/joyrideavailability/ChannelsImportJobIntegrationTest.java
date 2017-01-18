@@ -52,6 +52,7 @@ public class ChannelsImportJobIntegrationTest extends JoyrideAvailabilityIntegra
 
     @Test
     public void channelImportStepTest() throws Exception {
+        System.err.println("INI channelImportStepTest");
         final Map<String, JobParameter> jobParametersMap = new HashMap<>();
         final String channelsResourcePath = "file://" + new File(".", "../joyride/channels.json").getAbsolutePath();
         final String typesResourcePath = "file://" + new File(".", "../joyride/types.json").getAbsolutePath();
@@ -63,6 +64,7 @@ public class ChannelsImportJobIntegrationTest extends JoyrideAvailabilityIntegra
         assertThat(status).isEqualTo(ExitStatus.COMPLETED);
         checkChannels(channelsResourcePath);
         checkTypes(typesResourcePath);
+        System.err.println("END channelImportStepTest");
     }
 
     private void checkChannels(final String channelsResourcePath) throws IOException {

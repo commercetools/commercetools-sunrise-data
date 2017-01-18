@@ -28,6 +28,7 @@ public abstract class JoyrideAvailabilityIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
+        System.err.println("INI SETUP");
         unpublishProducts(sphereClient);
         final List<ProductProjection> publishedProducts = sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
         assertThat(publishedProducts).hasSize(0);
@@ -47,5 +48,7 @@ public abstract class JoyrideAvailabilityIntegrationTest {
         deleteTypes(sphereClient);
         final List<Type> types = sphereClient.executeBlocking(TypeQuery.of()).getResults();
         assertThat(types).hasSize(0);
+
+        System.err.println("END SETUP");
     }
 }

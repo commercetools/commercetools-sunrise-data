@@ -61,6 +61,7 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
 
     @Test
     public void findLastProductWithJoyridePrice() throws Exception {
+        System.err.println("INI findLastProductWithJoyridePrice");
         final int amountOfProducts = 10;
         withJoyrideChannels(sphereClient, joyrideChannels -> {
             withListOfProductProjections(sphereClient, amountOfProducts, productsWithoutJoyride -> {
@@ -83,10 +84,12 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
                 return sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
             });
         });
+        System.err.println("END findLastProductWithJoyridePrice");
     }
 
     @Test
     public void readerRestartAfterPartialExecution() throws Exception {
+        System.err.println("INI readerRestartAfterPartialExecution");
         final int amountOfProducts = 10;
         final int stopIndex = 4;
         withJoyrideChannels(sphereClient, joyrideChannels -> {
@@ -98,10 +101,12 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
                 return sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
             });
         });
+        System.err.println("END readerRestartAfterPartialExecution");
     }
 
     @Test
     public void jobAvailabilityPricesImport() throws Exception {
+        System.err.println("INI jobAvailabilityPricesImport");
         final int amountOfProducts = 10;
         withJoyrideChannels(sphereClient, joyrideChannels -> {
             withListOfProductProjections(sphereClient, amountOfProducts, productsWithoutJoyride -> {
@@ -122,6 +127,7 @@ public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabil
                 return updatedProducts;
             });
         });
+        System.err.println("END jobAvailabilityPricesImport");
     }
 
     private void addJoyrideToMissingProducts() throws Exception {
