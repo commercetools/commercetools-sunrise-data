@@ -11,11 +11,11 @@ import io.sphere.sdk.types.Type;
 import io.sphere.sdk.types.queries.TypeQuery;
 import net.jcip.annotations.NotThreadSafe;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
@@ -28,34 +28,34 @@ public abstract class JoyrideAvailabilityIntegrationTest {
     @Qualifier("test")
     protected BlockingSphereClient sphereClient;
 
+    private static final Logger logger = LoggerFactory.getLogger(JoyrideAvailabilityIntegrationTest.class);
+
     @Before
     public void setUp() throws Exception {
-        System.err.println(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()) + " - INI SETUP");
-        System.err.println(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()) + " - Unpublishing products...");
+
+        logger.info("Unpublishing products ...");
         unpublishProducts(sphereClient);
         final List<ProductProjection> publishedProducts = sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
         assertThat(publishedProducts).hasSize(0);
 
-        System.err.println(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()) + " - Deleting products...");
+        logger.info("Deleting products ...");
         deleteProducts(sphereClient);
         final List<ProductProjection> stagedProducts = sphereClient.executeBlocking(ProductProjectionQuery.ofStaged()).getResults();
         assertThat(stagedProducts).hasSize(0);
 
-        System.err.println(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()) + " - Deleting Invetories...");
+        logger.info("Deleting inventory entries ...");
         deleteInventoryEntries(sphereClient);
         final List<InventoryEntry> inventoryEntries = sphereClient.executeBlocking(InventoryEntryQuery.of()).getResults();
         assertThat(inventoryEntries).hasSize(0);
 
-        System.err.println(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()) + " - Deleting channels ...");
+        logger.info("Deleting channels ...");
         deleteChannels(sphereClient);
         final List<Channel> channels = sphereClient.executeBlocking(ChannelQuery.of()).getResults();
         assertThat(channels).hasSize(0);
 
-        System.err.println(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()) + " - Deleting types ...");
+        logger.info("Deleting types ...");
         deleteTypes(sphereClient);
         final List<Type> types = sphereClient.executeBlocking(TypeQuery.of()).getResults();
         assertThat(types).hasSize(0);
-
-        System.err.println(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()) + " - END SETUP");
     }
 }
