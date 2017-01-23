@@ -33,29 +33,29 @@ public abstract class JoyrideAvailabilityIntegrationTest {
     @Before
     public void setUp() throws Exception {
 
-        logger.info("Unpublishing products ...");
         unpublishProducts(sphereClient);
         final List<ProductProjection> publishedProducts = sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
         assertThat(publishedProducts).hasSize(0);
+        logger.info("All products have been unpublised.");
 
-        logger.info("Deleting products ...");
         deleteProducts(sphereClient);
         final List<ProductProjection> stagedProducts = sphereClient.executeBlocking(ProductProjectionQuery.ofStaged()).getResults();
         assertThat(stagedProducts).hasSize(0);
+        logger.info("All products have been deleted.");
 
-        logger.info("Deleting inventory entries ...");
         deleteInventoryEntries(sphereClient);
         final List<InventoryEntry> inventoryEntries = sphereClient.executeBlocking(InventoryEntryQuery.of()).getResults();
         assertThat(inventoryEntries).hasSize(0);
+        logger.info("All inventory entries have been deleted.");
 
-        logger.info("Deleting channels ...");
         deleteChannels(sphereClient);
         final List<Channel> channels = sphereClient.executeBlocking(ChannelQuery.of()).getResults();
         assertThat(channels).hasSize(0);
+        logger.info("All channels have been deleted.");
 
-        logger.info("Deleting types ...");
         deleteTypes(sphereClient);
         final List<Type> types = sphereClient.executeBlocking(TypeQuery.of()).getResults();
         assertThat(types).hasSize(0);
+        logger.info("All types have been deleted.");
     }
 }
