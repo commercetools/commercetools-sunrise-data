@@ -56,30 +56,6 @@
           "name": "LocalizedString"
         },
         "inputHint": "MultiLine"
-      },
-      {
-        "name": "longitude",
-        "label": {
-          "de": "Längengrad",
-          "en": "Longitude"
-        },
-        "required": true,
-        "type": {
-          "name": "String"
-        },
-        "inputHint": "SingleLine"
-      },
-      {
-        "name": "latitude",
-        "label": {
-          "de": "Breitengrad",
-          "en": "Latitude"
-        },
-        "required": true,
-        "type": {
-          "name": "String"
-        },
-        "inputHint": "SingleLine"
       }
     ]
   }
