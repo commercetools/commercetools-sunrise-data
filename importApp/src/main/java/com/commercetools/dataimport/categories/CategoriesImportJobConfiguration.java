@@ -7,8 +7,7 @@ import io.sphere.sdk.categories.CategoryDraftBuilder;
 import io.sphere.sdk.categories.commands.CategoryCreateCommand;
 import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
-import io.sphere.sdk.models.LocalizedString;
-import io.sphere.sdk.models.Referenceable;
+import io.sphere.sdk.models.*;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -26,11 +25,17 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 @Component
 @Lazy
 public class CategoriesImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
 
-    public static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId"};
+    public static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId", "webImageUrl", "iosImageUrl"};
 
     @Bean
     public Job categoriesCreateJob(final Step categoriesImportStep) {
@@ -67,7 +72,26 @@ public class CategoriesImportJobConfiguration extends DefaultCommercetoolsJobCon
             final Referenceable<Category> parent = externalParentId == null
                     ? null
                     : sphereClient.executeBlocking(CategoryQuery.of().byExternalId(externalParentId)).head().orElse(null);
-            return CategoryDraftBuilder.of(name, slug).externalId(externalId).parent(parent).build();
+            final List<AssetDraft> assets = new ArrayList<>();
+            if (!isEmpty(item.getWebImageUrl())) {
+                final AssetSource assetSource = AssetSourceBuilder.ofUri(item.getWebImageUrl())
+                        .key("web")
+                        .build();
+                final AssetDraft assetDraft = AssetDraftBuilder.of(singletonList(assetSource), name)
+                        .tags("web")
+                        .build();
+                assets.add(assetDraft);
+            }
+            if (!isEmpty(item.getIosImageUrl())) {
+                final AssetSource assetSource = AssetSourceBuilder.ofUri(item.getIosImageUrl())
+                        .key("ios")
+                        .build();
+                final AssetDraft assetDraft = AssetDraftBuilder.of(singletonList(assetSource), name)
+                        .tags("ios")
+                        .build();
+                assets.add(assetDraft);
+            }
+            return CategoryDraftBuilder.of(name, slug).externalId(externalId).parent(parent).assets(assets).build();
         };
     }
 

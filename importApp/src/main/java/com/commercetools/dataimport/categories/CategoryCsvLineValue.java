@@ -7,6 +7,8 @@ public class CategoryCsvLineValue {
     private LocalizedField slug = new LocalizedField();
     private String parentId;
     private String externalId;
+    private String webImageUrl;
+    private String iosImageUrl;
 
     public CategoryCsvLineValue() {
     }
@@ -41,5 +43,21 @@ public class CategoryCsvLineValue {
 
     public void setSlug(final LocalizedField slug) {
         this.slug = slug;
+    }
+
+    public String getWebImageUrl() {
+        return webImageUrl;
+    }
+
+    public void setWebImageUrl(String webImageUrl) {
+        this.webImageUrl = webImageUrl;
+    }
+
+    public String getIosImageUrl() {
+        return iosImageUrl;
+    }
+
+    public void setIosImageUrl(String iosImageUrl) {
+        this.iosImageUrl = iosImageUrl;
     }
 }
