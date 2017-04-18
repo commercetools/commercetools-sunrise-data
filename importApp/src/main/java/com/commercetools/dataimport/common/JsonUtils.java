@@ -26,11 +26,24 @@ public final class JsonUtils {
      * @throws IOException in case the resource reading did not work or the JSON mapping
      */
     public static <T> ItemReader<T> createJsonListReader(final Resource resource, final Class<T> clazz) throws IOException {
+        final List<T> listFromJsonResource = createJsonList(resource, clazz);
+        return new ListItemReader<>(listFromJsonResource);
+    }
+
+    /**
+     * Reads a file containing direcly an array of objects which should be converted to a list of {@code clazz} elements.
+     *
+     * @param resource the resource wich a JSON array of objects where each object should be converted to an instance of {@code clazz}
+     * @param clazz the type element the List should return
+     * @param <T> the type element the List should return
+     * @return List
+     * @throws IOException in case the resource reading did not work or the JSON mapping
+     */
+    public static <T> List<T> createJsonList(final Resource resource, final Class<T> clazz) throws IOException {
         final TypeFactory typeFactory = TypeFactory.defaultInstance();
         final JavaType javaType = typeFactory.constructCollectionType(List.class, clazz);
         final ObjectReader reader = SphereJsonUtils.newObjectMapper().readerFor(javaType);
         final InputStream inputStream = resource.getInputStream();
-        final List<T> list = reader.readValue(inputStream);
-        return new ListItemReader<>(list);
+        return reader.readValue(inputStream);
     }
 }

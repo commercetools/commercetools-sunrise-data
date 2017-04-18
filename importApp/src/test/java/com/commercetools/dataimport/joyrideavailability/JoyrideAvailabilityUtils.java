@@ -33,6 +33,8 @@ import io.sphere.sdk.types.commands.TypeDeleteCommand;
 import io.sphere.sdk.types.queries.TypeQuery;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.core.env.Environment;
 
@@ -50,6 +52,8 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 public class JoyrideAvailabilityUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(JoyrideAvailabilityUtils.class);
 
     public static void withProduct(final BlockingSphereClient sphereClient, final UnaryOperator<Product> op) {
         final Product product = createProduct(sphereClient);
@@ -113,18 +117,22 @@ public class JoyrideAvailabilityUtils {
     }
 
     public static void deleteInventoryEntries(final BlockingSphereClient sphereClient) {
+        logger.info("Deleting inventory entries ...");
         updateOrDeleteResources(sphereClient, InventoryEntryQuery.of(), (inventoryEntry) -> sphereClient.executeBlocking(InventoryEntryDeleteCommand.of(inventoryEntry)));
     }
 
     public static void deleteChannels(final BlockingSphereClient sphereClient) {
+        logger.info("Deleting channels ...");
         updateOrDeleteResources(sphereClient, ChannelQuery.of(), (channel) -> sphereClient.executeBlocking(ChannelDeleteCommand.of(channel)));
     }
 
     public static void deleteTypes(final BlockingSphereClient sphereClient) {
+        logger.info("Deleting types ...");
         updateOrDeleteResources(sphereClient, TypeQuery.of(), (type) -> sphereClient.executeBlocking(TypeDeleteCommand.of(type)));
     }
 
     public static void unpublishProducts(final BlockingSphereClient sphereClient) {
+        logger.info("Unpublishing products ...");
         updateOrDeleteResources(sphereClient, ProductProjectionQuery.ofCurrent(), (item) -> {
             final ProductUpdateCommand updateCommand = ProductUpdateCommand.of(item, Unpublish.of());
             return sphereClient.executeBlocking(updateCommand);
@@ -132,19 +140,24 @@ public class JoyrideAvailabilityUtils {
     }
 
     public static void deleteProducts(final BlockingSphereClient sphereClient) {
+        logger.info("Deleting products ...");
         updateOrDeleteResources(sphereClient, ProductProjectionQuery.ofStaged(), (item) -> sphereClient.executeBlocking(ProductDeleteCommand.of(item)));
     }
 
     public static <T, S> void updateOrDeleteResources(final BlockingSphereClient sphereClient, final Query<T> query, final Function<T, S> function) {
-        int modifiedResourcesAmount;
+        long resourceCount;
+        long processedItems = 0L;
+        long totalItems = sphereClient.executeBlocking(query).getTotal();
+        logger.info("Items to process: " + totalItems);
         do {
             final PagedQueryResult<T> pagedQueryResult = sphereClient.executeBlocking(query);
-            final List<S> modifiedResources = pagedQueryResult.getResults()
-                    .stream()
-                    .map(item -> function.apply(item))
-                    .collect(toList());
-            modifiedResourcesAmount = modifiedResources.size();
-        } while (modifiedResourcesAmount > 0);
+            resourceCount = pagedQueryResult.getCount();
+            pagedQueryResult.getResults().forEach(item -> function.apply(item));
+            if (resourceCount > 0) {
+                processedItems += resourceCount;
+                logger.info("Processed " + processedItems + " of " + totalItems);
+            }
+        } while (resourceCount > 0);
     }
 
     public static void addCommercetoolsCredentialValues(final Environment env, final Map<String, JobParameter> jobParametersMap) {
