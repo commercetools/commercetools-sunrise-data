@@ -18,9 +18,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_sanfrancisco.jpg",
-        "latitude": "37.770929",
-        "longitude": "-122.402917"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_sanfrancisco.jpg"
       }
     },
     "address": {
@@ -29,6 +27,13 @@
       "postalCode": "CA 94103",
       "city": "San Francisco",
       "country": "US"
+    },
+    "geoLocation": {
+      "coordinates": [
+        -122.402917,
+        37.770929
+      ],
+      "type": "Point"
     }
   },
   {
@@ -50,9 +55,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_chicago.jpg",
-        "latitude": "41.875664",
-        "longitude": "-87.628376"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_chicago.jpg"
       }
     },
     "address": {
@@ -61,6 +64,13 @@
       "postalCode": "IL 60605",
       "city": "Chicago",
       "country": "US"
+    },
+    "geoLocation": {
+      "coordinates": [
+        -87.628376,
+        41.875664
+      ],
+      "type": "Point"
     }
   },
   {
@@ -82,9 +92,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_newyork.jpg",
-        "latitude": "40.753878",
-        "longitude": "-73.991596"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_newyork.jpg"
       }
     },
     "address": {
@@ -93,6 +101,13 @@
       "postalCode": "NY 10018",
       "city": "New York",
       "country": "US"
+    },
+    "geoLocation": {
+      "coordinates": [
+        -73.991596,
+        40.753878
+      ],
+      "type": "Point"
     }
   },
   {
@@ -114,9 +129,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_boston_1.jpg",
-        "latitude": "42.3488953",
-        "longitude": "-71.08358"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_boston_1.jpg"
       }
     },
     "address": {
@@ -125,6 +138,13 @@
       "postalCode": "MA 02116",
       "city": "Boston",
       "country": "US"
+    },
+    "geoLocation": {
+      "coordinates": [
+        -71.08358,
+        42.348895
+      ],
+      "type": "Point"
     }
   },
   {
@@ -146,9 +166,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_boston_2.jpg",
-        "latitude": "42.3576958",
-        "longitude": "-71.0874848"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_boston_2.jpg"
       }
     },
     "address": {
@@ -157,6 +175,13 @@
       "postalCode": "MA 02141",
       "city": "Cambridge",
       "country": "US"
+    },
+    "geoLocation": {
+      "coordinates": [
+        -71.087485,
+        42.357696
+      ],
+      "type": "Point"
     }
   },
   {
@@ -178,9 +203,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_stockholm.jpg",
-        "latitude": "59.327969",
-        "longitude": "18.053533"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_stockholm.jpg"
       }
     },
     "address": {
@@ -189,6 +212,13 @@
       "postalCode": "112 21",
       "city": "Stockholm",
       "country": "SE"
+    },
+    "geoLocation": {
+      "coordinates": [
+        18.053533,
+        59.327969
+      ],
+      "type": "Point"
     }
   },
   {
@@ -210,9 +240,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_brussels.jpg",
-        "latitude": "50.844750",
-        "longitude": "4.350163"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_brussels.jpg"
       }
     },
     "address": {
@@ -221,6 +249,13 @@
       "postalCode": "1000",
       "city": "Brussels",
       "country": "BE"
+    },
+    "geoLocation": {
+      "coordinates": [
+        4.350163,
+        50.84475
+      ],
+      "type": "Point"
     }
   },
   {
@@ -242,9 +277,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_cologne.jpg",
-        "latitude": "50.941413",
-        "longitude": "6.950018"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_cologne.jpg"
       }
     },
     "address": {
@@ -253,6 +286,13 @@
       "postalCode": "50667",
       "city": "Cologne",
       "country": "DE"
+    },
+    "geoLocation": {
+      "coordinates": [
+        6.950018,
+        50.941413
+      ],
+      "type": "Point"
     }
   },
   {
@@ -274,9 +314,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_barcelona.jpg",
-        "latitude": "41.394958",
-        "longitude": "2.152732"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_barcelona.jpg"
       }
     },
     "address": {
@@ -285,6 +323,13 @@
       "postalCode": "08006",
       "city": "Barcelona",
       "country": "ES"
+    },
+    "geoLocation": {
+      "coordinates": [
+        2.152732,
+        41.394958
+      ],
+      "type": "Point"
     }
   },
   {
@@ -306,9 +351,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_amsterdam.jpg",
-        "latitude": "52.3714165",
-        "longitude": "4.9037492"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_amsterdam.jpg"
       }
     },
     "address": {
@@ -317,6 +360,13 @@
       "postalCode": "1011 NK",
       "city": "Amsterdam",
       "country": "NL"
+    },
+    "geoLocation": {
+      "coordinates": [
+        4.9037492,
+        52.3714165
+      ],
+      "type": "Point"
     }
   },
   {
@@ -338,9 +388,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_london.jpg",
-        "latitude": "51.515456",
-        "longitude": "-0.141107"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_london.jpg"
       }
     },
     "address": {
@@ -349,6 +397,13 @@
       "postalCode": "W1A 1AB",
       "city": "London",
       "country": "GB"
+    },
+    "geoLocation": {
+      "coordinates": [
+        -0.141107,
+        51.515456
+      ],
+      "type": "Point"
     }
   },
   {
@@ -370,9 +425,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_madrid.jpg",
-        "latitude": "40.420486",
-        "longitude": "-3.706606"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_madrid.jpg"
       }
     },
     "address": {
@@ -381,6 +434,13 @@
       "postalCode": "28013",
       "city": "Madrid",
       "country": "ES"
+    },
+    "geoLocation": {
+      "coordinates": [
+        -3.706606,
+        40.420486
+      ],
+      "type": "Point"
     }
   },
   {
@@ -402,9 +462,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_vienna.jpg",
-        "latitude": "48.202872",
-        "longitude": "16.367181"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_vienna.jpg"
       }
     },
     "address": {
@@ -413,6 +471,13 @@
       "postalCode": "1010",
       "city": "Vienna",
       "country": "AT"
+    },
+    "geoLocation": {
+      "coordinates": [
+        16.367181,
+        48.202872
+      ],
+      "type": "Point"
     }
   },
   {
@@ -434,9 +499,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_zurich.jpg",
-        "latitude": "47.400272",
-        "longitude": "8.533638"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_zurich.jpg"
       }
     },
     "address": {
@@ -445,6 +508,13 @@
       "postalCode": "8057",
       "city": "Zurich",
       "country": "CH"
+    },
+    "geoLocation": {
+      "coordinates": [
+        8.533638,
+        47.400272
+      ],
+      "type": "Point"
     }
   },
   {
@@ -466,9 +536,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_paris.jpg",
-        "latitude": "48.8709589",
-        "longitude": "2.2999867"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_paris.jpg"
       }
     },
     "address": {
@@ -477,6 +545,13 @@
       "postalCode": "75008",
       "city": "Paris",
       "country": "FR"
+    },
+    "geoLocation": {
+      "coordinates": [
+        2.2999867,
+        48.8709589
+      ],
+      "type": "Point"
     }
   },
   {
@@ -498,9 +573,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_hamburg.jpg",
-        "latitude": "53.5512179",
-        "longitude": "10.0015642"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_hamburg.jpg"
       }
     },
     "address": {
@@ -509,6 +582,13 @@
       "postalCode": "20095",
       "city": "Hamburg",
       "country": "DE"
+    },
+    "geoLocation": {
+      "coordinates": [
+        10.0015642,
+        53.5512179
+      ],
+      "type": "Point"
     }
   },
   {
@@ -530,9 +610,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_munich.jpg",
-        "latitude": "48.1654126",
-        "longitude": "11.5407678"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_munich.jpg"
       }
     },
     "address": {
@@ -541,6 +619,13 @@
       "postalCode": "80637",
       "city": "Munich",
       "country": "DE"
+    },
+    "geoLocation": {
+      "coordinates": [
+        11.5407678,
+        48.1654126
+      ],
+      "type": "Point"
     }
   },
   {
@@ -562,9 +647,7 @@
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
-        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_berlin.jpg",
-        "latitude": "52.5174434",
-        "longitude": "13.3879598"
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_berlin.jpg"
       }
     },
     "address": {
@@ -573,6 +656,13 @@
       "postalCode": "10117",
       "city": "Berlin",
       "country": "DE"
+    },
+    "geoLocation": {
+      "coordinates": [
+        13.3879598,
+        52.5174434
+      ],
+      "type": "Point"
     }
   }
 ]
