@@ -1,7 +1,8 @@
 package com.commercetools.dataimport.joyrideavailability;
 
 import com.commercetools.CommercetoolsTestConfiguration;
-import com.commercetools.dataimport.categories.TestConfiguration;
+import com.commercetools.dataimport.IntegrationTest;
+import com.commercetools.dataimport.TestConfiguration;
 import io.sphere.sdk.products.Price;
 import io.sphere.sdk.products.PriceDraftDsl;
 import io.sphere.sdk.products.ProductProjection;
@@ -21,7 +22,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,18 +34,18 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.commercetools.dataimport.joyrideavailability.AvailabilityPricesImportJobConfiguration.*;
-import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
+import static com.commercetools.dataimport.TestUtils.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@IntegrationTest
+@org.springframework.boot.test.IntegrationTest
 @ContextConfiguration(classes = {TestConfiguration.class, AvailabilityPricesImportJobConfiguration.class, CommercetoolsTestConfiguration.class})
 @EnableAutoConfiguration
 @Configuration
 @TestPropertySource("classpath:/test.properties")
 @NotThreadSafe
-public class AvailabilityPricesImportJobIntegrationTest extends JoyrideAvailabilityIntegrationTest {
+public class AvailabilityPricesImportJobIntegrationTest extends IntegrationTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;

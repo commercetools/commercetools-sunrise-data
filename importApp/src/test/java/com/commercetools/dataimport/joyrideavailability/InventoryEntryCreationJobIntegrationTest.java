@@ -1,7 +1,8 @@
 package com.commercetools.dataimport.joyrideavailability;
 
 import com.commercetools.CommercetoolsTestConfiguration;
-import com.commercetools.dataimport.categories.TestConfiguration;
+import com.commercetools.dataimport.IntegrationTest;
+import com.commercetools.dataimport.TestConfiguration;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.inventory.InventoryEntry;
@@ -37,7 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.commercetools.dataimport.joyrideavailability.InventoryEntryCreationJobConfiguration.*;
-import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
+import static com.commercetools.dataimport.TestUtils.*;
 import static com.commercetools.dataimport.joyrideavailability.PreferredChannels.CHANNEL_KEYS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Configuration
 @TestPropertySource("classpath:/test.properties")
 @NotThreadSafe
-public class InventoryEntryCreationJobIntegrationTest extends JoyrideAvailabilityIntegrationTest {
+public class InventoryEntryCreationJobIntegrationTest extends IntegrationTest {
 
     @Autowired
     private Environment env;
