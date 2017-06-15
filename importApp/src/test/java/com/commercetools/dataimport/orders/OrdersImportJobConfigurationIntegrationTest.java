@@ -43,6 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.commercetools.dataimport.TestUtils.addCommercetoolsCredentialValues;
@@ -129,8 +130,9 @@ public class OrdersImportJobConfigurationIntegrationTest extends IntegrationTest
         return Files.newBufferedReader(csvPath)
                 .lines()
                 .skip(1)
-                .filter(str -> !str.isEmpty())
-                .map(line -> line.split(",")[2].trim())
+                .filter(((Predicate<String>) String::isEmpty).negate())
+                .map(str ->str.split(","))
+                .map(arr -> arr[2].trim())
                 .collect(Collectors.toList());
     }
 
@@ -138,8 +140,9 @@ public class OrdersImportJobConfigurationIntegrationTest extends IntegrationTest
         return Files.newBufferedReader(csvPath)
                 .lines()
                 .skip(1)
-                .filter(str -> !str.isEmpty())
-                .map(line -> line.split(",")[0].trim() + "_" + line.split(",")[1].trim())
+                .filter(((Predicate<String>) String::isEmpty).negate())
+                .map(str -> str.split(","))
+                .map(arr -> arr[0].trim() + "_" + arr[1].trim())
                 .distinct()
                 .count();
     }

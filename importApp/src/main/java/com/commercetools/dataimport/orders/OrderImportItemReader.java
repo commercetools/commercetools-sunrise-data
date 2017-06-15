@@ -1,5 +1,6 @@
 package com.commercetools.dataimport.orders;
 
+import com.commercetools.dataimport.orders.csvline.OrderCsvLineValue;
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.orders.*;
 import io.sphere.sdk.products.Price;
@@ -8,12 +9,7 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.SingleItemPeekableItemReader;
-import org.springframework.core.io.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,34 +18,13 @@ import java.util.Locale;
 
 public class OrderImportItemReader implements ItemReader<OrderImportDraft>, ItemStream {
 
-    public static final String[] ORDER_CSV_HEADER_NAMES = new String[]{"customerEmail", "orderNumber", "lineitems.variant.sku", "lineitems.price", "lineitems.quantity", "totalPrice"};
 
-    private final SingleItemPeekableItemReader<OrderCsvLineValue> singleItemPeekableItemReader;
+    private SingleItemPeekableItemReader<OrderCsvLineValue> singleItemPeekableItemReader;
 
-    private final FlatFileItemReader flatFileItemReader;
+    public OrderImportItemReader() {}
 
-
-    public OrderImportItemReader() {
-
-        flatFileItemReader = new FlatFileItemReader<>();
-        flatFileItemReader.setLineMapper(new DefaultLineMapper<OrderCsvLineValue>() {{
-            setLineTokenizer(new DelimitedLineTokenizer() {{
-                setNames(ORDER_CSV_HEADER_NAMES);
-
-            }});
-            setFieldSetMapper(new BeanWrapperFieldSetMapper<OrderCsvLineValue>() {{
-                setTargetType(OrderCsvLineValue.class);
-            }});
-        }});
-        flatFileItemReader.setLinesToSkip(1);
-
-        singleItemPeekableItemReader = new SingleItemPeekableItemReader<>();
-        singleItemPeekableItemReader.setDelegate(flatFileItemReader);
-
-    }
-
-    public void setResource(Resource resource) {
-        this.flatFileItemReader.setResource(resource);
+    public void setDelegate(final SingleItemPeekableItemReader singleItemPeekableItemReader){
+        this.singleItemPeekableItemReader = singleItemPeekableItemReader;
     }
 
     @Override
@@ -70,29 +45,27 @@ public class OrderImportItemReader implements ItemReader<OrderImportDraft>, Item
     @Override
     public OrderImportDraft read() throws Exception {
 
-        OrderCsvLineValue currentLine = this.singleItemPeekableItemReader.read();
+        OrderCsvLineValue nextLine = this.singleItemPeekableItemReader.peek();
 
-        if (currentLine == null) {
+        if (nextLine == null) {
             return null;
         }
 
-        final String currentID = getOrderIdUsingEmailAndOrderNumber(currentLine);
+        final String currentID = getOrderIdUsingEmailAndOrderNumber(nextLine);
 
         OrderImportDraftBuilder orderImportDraftBuilder = OrderImportDraftBuilder.ofLineItems(
-                MoneyImpl.ofCents((long) (currentLine.getTotalPrice() * 100), "EUR"),
+                MoneyImpl.ofCents((long) (nextLine.getTotalPrice() * 100), "EUR"),
                 OrderState.COMPLETE,
                 null)
-                .customerEmail(currentLine.getCustomerEmail())
-                .orderNumber(currentLine.getOrderNumber());
+                .customerEmail(nextLine.getCustomerEmail())
+                .orderNumber(nextLine.getOrderNumber());
 
         List<LineItemImportDraft> lineItems = new ArrayList<>();
-        lineItems.add(extractLineItemDraftFromCSVLine(currentLine));
-        OrderCsvLineValue next = singleItemPeekableItemReader.peek();
 
-        while (next != null && currentID.equals(getOrderIdUsingEmailAndOrderNumber(next))) {
-            currentLine = singleItemPeekableItemReader.read();
-            lineItems.add(extractLineItemDraftFromCSVLine(currentLine));
-            next = singleItemPeekableItemReader.peek();
+        while (nextLine != null && currentID.equals(getOrderIdUsingEmailAndOrderNumber(nextLine))) {
+            nextLine = singleItemPeekableItemReader.read();
+            lineItems.add(extractLineItemDraftFromCSVLine(nextLine));
+            nextLine = singleItemPeekableItemReader.peek();
         }
 
         orderImportDraftBuilder.lineItems(lineItems);
