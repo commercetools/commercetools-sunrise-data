@@ -1,6 +1,7 @@
 package com.commercetools.dataimport.categories;
 
 import com.commercetools.CommercetoolsTestConfiguration;
+import com.commercetools.dataimport.TestConfiguration;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
 import io.sphere.sdk.categories.commands.CategoryCreateCommand;
