@@ -1,8 +1,7 @@
 package com.commercetools.dataimport.joyrideavailability;
 
 import com.commercetools.CommercetoolsTestConfiguration;
-import com.commercetools.dataimport.IntegrationTest;
-import com.commercetools.dataimport.TestConfiguration;
+import com.commercetools.dataimport.categories.TestConfiguration;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.types.Type;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.commercetools.dataimport.common.JsonUtils.createJsonList;
-import static com.commercetools.dataimport.TestUtils.*;
+import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -40,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Configuration
 @TestPropertySource("classpath:/test.properties")
 @NotThreadSafe
-public class ChannelsImportJobIntegrationTest extends IntegrationTest {
+public class ChannelsImportJobIntegrationTest extends JoyrideAvailabilityIntegrationTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;

@@ -1,4 +1,4 @@
-package com.commercetools.dataimport;
+package com.commercetools.dataimport.joyrideavailability;
 
 import com.commercetools.ExceptionalConsumer;
 import com.commercetools.ExceptionalUnaryOperator;
@@ -16,8 +16,6 @@ import io.sphere.sdk.inventory.commands.InventoryEntryDeleteCommand;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
 import io.sphere.sdk.models.Address;
 import io.sphere.sdk.models.LocalizedString;
-import io.sphere.sdk.orders.commands.OrderDeleteCommand;
-import io.sphere.sdk.orders.queries.OrderQuery;
 import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.products.commands.ProductDeleteCommand;
@@ -53,9 +51,9 @@ import static com.commercetools.dataimport.joyrideavailability.PreferredChannels
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-public class TestUtils {
+public class JoyrideAvailabilityUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(JoyrideAvailabilityUtils.class);
 
     public static void withProduct(final BlockingSphereClient sphereClient, final UnaryOperator<Product> op) {
         final Product product = createProduct(sphereClient);
@@ -144,11 +142,6 @@ public class TestUtils {
     public static void deleteProducts(final BlockingSphereClient sphereClient) {
         logger.info("Deleting products ...");
         updateOrDeleteResources(sphereClient, ProductProjectionQuery.ofStaged(), (item) -> sphereClient.executeBlocking(ProductDeleteCommand.of(item)));
-    }
-
-    public static void deleteOrders(final BlockingSphereClient sphereClient) {
-        logger.info("Deleting orders ...");
-        updateOrDeleteResources(sphereClient, OrderQuery.of(), (item) -> sphereClient.executeBlocking(OrderDeleteCommand.of(item)));
     }
 
     public static <T, S> void updateOrDeleteResources(final BlockingSphereClient sphereClient, final Query<T> query, final Function<T, S> function) {

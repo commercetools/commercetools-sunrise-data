@@ -1,7 +1,6 @@
 package com.commercetools.dataimport.categories;
 
 import com.commercetools.CommercetoolsTestConfiguration;
-import com.commercetools.dataimport.TestConfiguration;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.commands.CategoryDeleteCommand;
 import io.sphere.sdk.categories.queries.CategoryQuery;
@@ -33,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.util.*;
 
-import static com.commercetools.dataimport.TestUtils.addCommercetoolsCredentialValues;
+import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.addCommercetoolsCredentialValues;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
