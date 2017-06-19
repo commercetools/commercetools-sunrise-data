@@ -1,10 +1,12 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport;
 
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.inventory.InventoryEntry;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
+import io.sphere.sdk.orders.Order;
+import io.sphere.sdk.orders.queries.OrderQuery;
 import io.sphere.sdk.products.ProductProjection;
 import io.sphere.sdk.products.queries.ProductProjectionQuery;
 import io.sphere.sdk.types.Type;
@@ -18,17 +20,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.List;
 
-import static com.commercetools.dataimport.joyrideavailability.JoyrideAvailabilityUtils.*;
+import static com.commercetools.dataimport.TestUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @NotThreadSafe
-public abstract class JoyrideAvailabilityIntegrationTest {
+public abstract class IntegrationTest {
 
     @Autowired
     @Qualifier("test")
     protected BlockingSphereClient sphereClient;
 
-    private static final Logger logger = LoggerFactory.getLogger(JoyrideAvailabilityIntegrationTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(IntegrationTest.class);
 
     @Before
     public void setUp() throws Exception {
@@ -57,5 +59,11 @@ public abstract class JoyrideAvailabilityIntegrationTest {
         final List<Type> types = sphereClient.executeBlocking(TypeQuery.of()).getResults();
         assertThat(types).hasSize(0);
         logger.info("All types have been deleted.");
+
+        deleteOrders(sphereClient);
+        final List<Order> orders = sphereClient.executeBlocking(OrderQuery.of()).getResults();
+        assertThat(orders).hasSize(0);
+        logger.info("All orders have been deleted.");
+
     }
 }

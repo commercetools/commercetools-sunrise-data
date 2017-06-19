@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.categories;
+package com.commercetools.dataimport;
 
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.context.annotation.Bean;
