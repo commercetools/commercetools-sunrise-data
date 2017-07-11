@@ -37,6 +37,10 @@ Add your commercetools credentials and may remove jobs you don't need.
       "name": "productsCreateJob",
       "maxProducts": 4000,
       "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/products/products.csv"
+    },
+    {
+      "name": "ordersCreateJob",
+      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/orders/orders.json"
     }
   ]
 }
