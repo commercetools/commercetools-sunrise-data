@@ -33,7 +33,8 @@ import java.util.concurrent.TimeoutException;
         "com.commercetools.dataimport.common",
         "com.commercetools.dataimport.products",
         "com.commercetools.dataimport.producttypes",
-        "com.commercetools.dataimport.joyrideavailability"
+        "com.commercetools.dataimport.joyrideavailability",
+        "com.commercetools.dataimport.orders"
 })
 @EnableBatchProcessing
 @EnableAutoConfiguration
