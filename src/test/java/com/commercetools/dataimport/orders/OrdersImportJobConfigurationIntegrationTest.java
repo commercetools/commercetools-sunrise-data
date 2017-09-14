@@ -69,14 +69,14 @@ public class OrdersImportJobConfigurationIntegrationTest extends IntegrationTest
 
     @Bean
     Resource categoryCsvResource() {
-        return new FileSystemResource("../orders/beveelorders.csv");
+        return new FileSystemResource("../orders/orders.csv");
     }
 
 
     @Test
     public void jobCreatesOrders() throws Exception {
 
-        Path csvPath = Paths.get("../orders/beveelorders.csv");
+        Path csvPath = Paths.get("../orders/orders.csv");
 
         List<String> skus = extractSkusFromCSV(csvPath);
         createProductWithSkus(sphereClient, new HashSet<>(skus));
