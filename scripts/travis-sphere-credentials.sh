@@ -1,4 +1,4 @@
-cat > "importApp/travis-payload.json" << EOF
+cat > "travis-payload.json" << EOF
 {
   "commercetools": {
     "projectKey": "$PROJECT_KEY",
@@ -19,22 +19,22 @@ cat > "importApp/travis-payload.json" << EOF
     },
     {
       "name": "productTypeCreateJob",
-      "resource": "file://$ROOT_PROJ/product-types/product-types.json"
+      "resource": "file://$ROOT_PROJ/data/product-types/product-types.json"
     },
     {
       "name": "categoriesCreateJob",
-      "resource": "file://$ROOT_PROJ/categories/categories.csv"
+      "resource": "file://$ROOT_PROJ/data/categories/categories.csv"
     },
     {
       "name": "productsCreateJob",
       "maxProducts": 4000,
-      "resource": "file://$ROOT_PROJ/products/products.csv"
+      "resource": "file://$ROOT_PROJ/data/products/products.csv"
     }
   ]
 }
 EOF
 
-cat > "importApp/src/test/resources/test.properties" << EOF
+cat > "src/test/resources/test.properties" << EOF
 commercetools.projectKey=$PROJECT_KEY
 commercetools.clientId=$CLIENT_ID
 commercetools.clientSecret=$CLIENT_SECRET
