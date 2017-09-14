@@ -1,4 +1,11 @@
-.idea
-target
-*.iml
+target/
 *.DS_Store
+*.iml
+.idea
+test.properties
+.mvn
+/dev-payload*.json
+*.zip
+iron.json
+payload*.json
+integrationtest.properties
