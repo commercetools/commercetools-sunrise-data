@@ -49,29 +49,50 @@ Before starting the import, make sure you have access to the [Admin Center](http
       "jobs": [
         {
           "name": "importJoyrideChannelsJob",
-          "channelsResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/joyride/channels.json",
-          "typesResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/joyride/types.json"
+          "channelsResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/channels.json",
+          "typesResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/types.json"
         }
       ]
     }
     ```
 3. Adapt the file with your commercetools project credentials.
-4. Run the following commands:
+4. Run the following command:
     ```bash
-    export PAYLOAD_FILE=payload-channels.json
-    mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+    export PAYLOAD_FILE=payload-channels.json && mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
     ```
 
 ### 3. Import catalog
+1. Go to [Category import](https://impex.commercetools.com/commands/category-import) and drop the file [categories.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/categories/categories.csv), enable "Sort categories by parentId before importing" and run.
+2. Go to [Product Type import](https://impex.commercetools.com/commands/product-type-import) and drop the file [product-type-template.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/producttypes/product-type-template.csv) on "Product Type template as CSV" and [product-type-attributes.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/producttypes/product-type-attributes.csv) on "Product Type attributes as CSV", then run. 
+3. Go to [Product import](https://impex.commercetools.com/commands/product-import) and drop the file [products.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv), then run.
+4. Go to [Stock import](https://impex.commercetools.com/commands/stock-import) and drop the file [inventory.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory.csv), then run.
 
+### 4. Import orders
 
-
-
+1. Go back to the root folder of the cloned project and create another file named `payload-orders.json` with the following content:
+    ```json
+    {
+      "commercetools": {
+        "projectKey": "demo-playground",
+        "clientId": "7_QU3-WVwJnIyYQlIsHDhp2R",
+        "clientSecret": "UbJN7TijNwICwTKUjteVvYcmYr7RjQiC",
+        "authUrl": "https://auth.sphere.io",
+        "apiUrl": "https://api.sphere.io"
+      },
+      "jobs": [
+        {
+          "name": "ordersCreateJob",
+          "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.json"
+        }
+      ]
+    }
+    ```
+2. Adapt the file with your commercetools project credentials.
+3. Run the following command:
+    ```bash
+    export PAYLOAD_FILE=payload-orders.json && mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+    ```
     
-        
-  
-
-
 
 ## How to create the data with the commercetools impex tool
 
