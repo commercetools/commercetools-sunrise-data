@@ -2,6 +2,47 @@
 
 [![Build Status](https://travis-ci.org/commercetools/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/commercetools/commercetools-sunrise-data)
 
+
+## How to create a project with Sunrise data
+
+Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com), the [IMPEX tool](https://impex.commercetools.com/) and the application in this repository.
+
+### 1. Set up your project
+1. Open the [Admin Center](https://admin.commercetools.com) and create an empty project (without sample data).
+2. Select your new project and go to **`Settings`**:
+    - In the tab **`International`**:
+        - **Currencies**: Euro (EUR)
+        - **Countries**: Germany (DE), Austria (AT)
+        - **Languages**: German (DE), English (EN)
+        - **Zone**: Europe with DE, AT
+    - In the tab **`Taxes`**:
+        - **Tax Category name**: "standard"
+        - **Tax rates**:
+            - Germany: 19% incl. in price
+            - Austria: 20% incl. in price
+    - In the tab **`Shipping Methods`**:
+        - **Standard shipping**:
+            - Name: "Standard"
+            - Description: "Delivery in 5-6 working days"
+            - Price: 3 EUR
+            - Free above: 200 EUR
+            - Select as default shipping
+        - **Express shipping**:
+            - Name: "Express"
+            - Description: "Delivery the same day"
+            - Price: 10 EUR
+    - In the tab **`Customer Groups`**:
+        - **Name**: "b2b"
+        
+### 2. Import channels and types
+1. 
+        
+    
+        
+  
+
+
+
 ## How to create the data with the commercetools impex tool
 
 ### csv files encoding:
