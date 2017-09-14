@@ -54,8 +54,8 @@ public class ChannelsImportJobIntegrationTest extends IntegrationTest {
     @Test
     public void channelImportStepTest() throws Exception {
         final Map<String, JobParameter> jobParametersMap = new HashMap<>();
-        final String channelsResourcePath = "file://" + new File(".", "../joyride/channels.json").getAbsolutePath();
-        final String typesResourcePath = "file://" + new File(".", "../joyride/types.json").getAbsolutePath();
+        final String channelsResourcePath = "file://" + new File(".", "data/joyride/channels.json").getAbsolutePath();
+        final String typesResourcePath = "file://" + new File(".", "data/joyride/types.json").getAbsolutePath();
         jobParametersMap.put("typesResource", new JobParameter(typesResourcePath));
         jobParametersMap.put("channelsResource", new JobParameter(channelsResourcePath));
         addCommercetoolsCredentialValues(env, jobParametersMap);

@@ -55,7 +55,7 @@ public class CategoriesImportJobConfigurationIntegrationTest {
 
     @Bean
     Resource categoryCsvResource() {
-        return new FileSystemResource("../categories/categories.csv");
+        return new FileSystemResource("data/categories/categories.csv");
     }
 
     @Before
@@ -77,7 +77,7 @@ public class CategoriesImportJobConfigurationIntegrationTest {
     @Test
     public void jobCreatesCategories() throws Exception {
         final Map<String, JobParameter> jobParametersMap = new HashMap<>();
-        jobParametersMap.put("resource", new JobParameter("file://" + new File(".", "../categories/categories.csv").getAbsolutePath()));
+        jobParametersMap.put("resource", new JobParameter("file://" + new File(".", "data/categories/categories.csv").getAbsolutePath()));
         addCommercetoolsCredentialValues(env, jobParametersMap);
         final JobParameters jobParameters = new JobParameters(jobParametersMap);
         final JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
