@@ -5,6 +5,7 @@ target/
 test.properties
 .mvn
 /dev-payload*.json
+travis-payload.json
 *.zip
 iron.json
 payload*.json
