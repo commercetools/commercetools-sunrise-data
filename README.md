@@ -26,7 +26,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
             - Description: "Delivery in 5-6 working days"
             - Price: 3 EUR
             - Free above: 200 EUR
-            - Select as default shipping
+            - Set as default: true
         - **Express shipping**:
             - Name: "Express"
             - Description: "Delivery the same day"
@@ -34,9 +34,39 @@ Before starting the import, make sure you have access to the [Admin Center](http
     - In the tab **`Customer Groups`**:
         - **Name**: "b2b"
         
-### 2. Import channels and types
-1. 
-        
+### 2. Import channels
+1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository to your computer.
+2. Go to the root folder of the cloned project and create a file named `payload-channels.json` with the following content:
+    ```json
+    {
+      "commercetools": {
+        "projectKey": "your-project-key",
+        "clientId": "your-client-id",
+        "clientSecret": "your-client-secret",
+        "authUrl": "https://auth.sphere.io",
+        "apiUrl": "https://api.sphere.io"
+      },
+      "jobs": [
+        {
+          "name": "importJoyrideChannelsJob",
+          "channelsResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/joyride/channels.json",
+          "typesResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/joyride/types.json"
+        }
+      ]
+    }
+    ```
+3. Adapt the file with your commercetools project credentials.
+4. Run the following commands:
+    ```bash
+    export PAYLOAD_FILE=payload-channels.json
+    mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+    ```
+
+### 3. Import catalog
+
+
+
+
     
         
   
