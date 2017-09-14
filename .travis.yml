@@ -3,9 +3,9 @@ services:
 - docker
 before_script:
 - export ROOT_PROJ='/wd'
-- bash importApp/scripts/travis-sphere-credentials.sh
+- bash scripts/travis-sphere-credentials.sh
 script:
-  - docker run -v $PWD:/wd msct/jdk8 /bin/sh -c "cd /wd/importApp && export PAYLOAD_FILE=/wd/importApp/travis-payload.json && export MAVEN_OPTS='-Xmx1024m' && ./mvnw test && ./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain"
+  - docker run -v $PWD:/wd msct/jdk8 /bin/sh -c "cd /wd && export PAYLOAD_FILE=/wd/travis-payload.json && export MAVEN_OPTS='-Xmx1024m' && ./mvnw test && ./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain"
 notifications:
   email:
     on_success: change
