@@ -5,7 +5,7 @@
 
 ## How to create a project with Sunrise data
 
-Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com), the [IMPEX tool](https://impex.commercetools.com/) and the application in this repository.
+Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com) and the [IMPEX tool](https://impex.commercetools.com/). To check that you can run the application in this repository read the _[Requirements](#requirements)_ section.
 
 ### 1. Set up your project
 1. Open the [Admin Center](https://admin.commercetools.com) and create an empty project (without sample data).
@@ -93,111 +93,117 @@ Before starting the import, make sure you have access to the [Admin Center](http
     export PAYLOAD_FILE=payload-orders.json && mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
     ```
     
+## How to use the application
 
-## How to create the data with the commercetools impex tool
+### Requirements
 
-### csv files encoding:
- - delimited by ","
- - encoding / file origin: UTF-8
- - use text data format for ALL columns
- 
-### import product types
-1. Import it with https://impex.sphere.io/playground
- - Endpoint: Product Types
- - Method: Create
- - use product-types/product-types.json as body, **but remove the surrounding square brackets before**
+- Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+- Install [Maven](https://maven.apache.org/)
 
-### import categories
-1. Use the category structure as in categories.csv
+### Payload JSON file
 
-2. Import it with https://impex.sphere.io/commands/category-import
+In order to run the application, you need to define a payload file that specifies what kind of tasks it is going to execute. This file should have the following content:
 
-### import products
-1. Use the product structure as in products.csv
-2. Import it with https://impex.sphere.io/commands/product-import
-
-
-
-## Run the importer
-
-### prepare a payload json file
-
-The payload file does not contain commerce data but configuration for the import.
-
-Add your commercetools credentials and may remove jobs you don't need.
-
-```
+```json
 {
   "commercetools": {
-    "projectKey": "",
-    "clientId": "",
-    "clientSecret": "",
-    "authUrl": "",
-    "apiUrl": ""
+    "projectKey": "your-project-key",
+    "clientId": "your-client-id",
+    "clientSecret": "your-client-secret",
+    "authUrl": "https://auth.sphere.io",
+    "apiUrl": "https://api.sphere.io"
   },
   "jobs": [
-    {
-      "name": "productsDeleteJob"
-    },
-    {
-      "name": "categoriesDeleteJob"
-    },
-    {
-      "name": "productTypesDeleteJob"
-    },
-    {
-      "name": "productTypeCreateJob",
-      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/product-types/product-types.json"
-    },
-    {
-      "name": "categoriesCreateJob",
-      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/categories/categories.csv"
-    },
-    {
-      "name": "productsCreateJob",
-      "maxProducts": 4000,
-      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv"
-    },
-    {
-      "name": "ordersCreateJob",
-      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.json"
-    }
+     // Add desired jobs here
   ]
 }
 ```
+Edit the project credentials and add the jobs you need to execute.
 
-### run it with Maven
+#### Jobs
 
-```
-export PAYLOAD_FILE=path/to/payload/file
-mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
-```
+You can combine as many jobs as you need in your payload file. They will be executed sequentially in the given order.
 
-### joyride
-
-
-```
+##### Delete products
+```json
 {
-    "commercetools": {
-    "projectKey": "",
-    "clientId": "",
-    "clientSecret": "",
-    "authUrl": "",
-    "apiUrl": ""
-    },
-    "jobs": [
-        {
-            "name": "importJoyrideChannelsJob",
-            "channelsResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/joyride/channels.json",
-            "typesResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/joyride/types.json"
-        },
-        {
-            "name": "inventoryEntryCreationJob"
-        },
-        {
-            "name": "availabilityPricesImportJob"
-        }
-    ]
+  "name": "productsDeleteJob"
 }
 ```
 
+##### Delete categories
+```json
+{
+  "name": "categoriesDeleteJob"
+}
+```
+
+##### Delete product types
+```json
+{
+  "name": "productTypesDeleteJob"
+}
+```
+
+##### Import product types
+```json
+{
+  "name": "productTypeCreateJob",
+  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/product-types/product-types.json"
+}
+```
+
+##### Import categories
+```json
+{
+  "name": "categoriesCreateJob",
+  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/categories/categories.csv"
+}
+```
+
+##### Import products
+```json
+{
+  "name": "productsCreateJob",
+  "maxProducts": 4000,
+  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv"
+}
+```
+
+##### Import orders
+```json
+{
+  "name": "ordersCreateJob",
+  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.json"
+}
+```
+
+##### Import channels
+```json
+{
+  "name": "importJoyrideChannelsJob",
+  "channelsResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/channels.json",
+  "typesResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/types.json"
+}
+```
+
+##### Generate inventory
+```json
+{
+  "name": "inventoryEntryCreationJob"
+}
+```
+
+##### Generate prices for channels
+```json
+{
+  "name": "availabilityPricesImportJob"
+}
+```
+
+### Run the application
+Run the application with maven:
+```bash
+export PAYLOAD_FILE=path/to/payload/file
+mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+``` 
