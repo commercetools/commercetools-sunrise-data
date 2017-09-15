@@ -104,7 +104,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
 
 In order to run the application, you need to define a payload file that specifies what kind of tasks it is going to execute. This file should have the following content:
 
-```json
+```
 {
   "commercetools": {
     "projectKey": "your-project-key",
