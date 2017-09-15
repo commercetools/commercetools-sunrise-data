@@ -114,7 +114,7 @@ In order to run the application, you need to define a payload file that specifie
     "apiUrl": "https://api.sphere.io"
   },
   "jobs": [
-     # Add desired jobs here
+     /* Add desired jobs here */
   ]
 }
 ```
