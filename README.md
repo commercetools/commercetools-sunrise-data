@@ -114,7 +114,7 @@ In order to run the application, you need to define a payload file that specifie
     "apiUrl": "https://api.sphere.io"
   },
   "jobs": [
-     // Add desired jobs here
+     # Add desired jobs here
   ]
 }
 ```
@@ -131,10 +131,27 @@ You can combine as many jobs as you need in your payload file. They will be exec
 }
 ```
 
+##### Import products
+```json
+{
+  "name": "productsCreateJob",
+  "maxProducts": 4000,
+  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv"
+}
+```
+
 ##### Delete categories
 ```json
 {
   "name": "categoriesDeleteJob"
+}
+```
+
+##### Import categories
+```json
+{
+  "name": "categoriesCreateJob",
+  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/categories/categories.csv"
 }
 ```
 
@@ -150,23 +167,6 @@ You can combine as many jobs as you need in your payload file. They will be exec
 {
   "name": "productTypeCreateJob",
   "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/product-types/product-types.json"
-}
-```
-
-##### Import categories
-```json
-{
-  "name": "categoriesCreateJob",
-  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/categories/categories.csv"
-}
-```
-
-##### Import products
-```json
-{
-  "name": "productsCreateJob",
-  "maxProducts": 4000,
-  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv"
 }
 ```
 
