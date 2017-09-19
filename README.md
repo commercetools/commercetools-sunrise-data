@@ -5,7 +5,7 @@
 
 ## How to create a project with Sunrise data
 
-Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com) and the [IMPEX tool](https://impex.commercetools.com/). To check that you can run the application in this repository read the _[Requirements](#requirements)_ section.
+Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com) and the [IMPEX tool](https://impex.commercetools.com/). You will also need to run the application in this repository, check that you meet the [requirements](#requirements).
 
 ### 1. Set up your project
 1. Open the [Admin Center](https://admin.commercetools.com) and create an empty project (without sample data).
