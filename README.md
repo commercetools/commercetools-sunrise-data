@@ -124,6 +124,20 @@ Edit the project credentials and add the jobs you need to execute.
 
 You can combine as many jobs as you need in your payload file. They will be executed sequentially in the given order.
 
+##### Delete categories
+```json
+{
+  "name": "categoriesDeleteJob"
+}
+```
+
+##### Delete product types
+```json
+{
+  "name": "productTypesDeleteJob"
+}
+```
+
 ##### Delete products
 ```json
 {
@@ -137,36 +151,6 @@ You can combine as many jobs as you need in your payload file. They will be exec
   "name": "productsCreateJob",
   "maxProducts": 4000,
   "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv"
-}
-```
-
-##### Delete categories
-```json
-{
-  "name": "categoriesDeleteJob"
-}
-```
-
-##### Import categories
-```json
-{
-  "name": "categoriesCreateJob",
-  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/categories/categories.csv"
-}
-```
-
-##### Delete product types
-```json
-{
-  "name": "productTypesDeleteJob"
-}
-```
-
-##### Import product types
-```json
-{
-  "name": "productTypeCreateJob",
-  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/product-types/product-types.json"
 }
 ```
 
