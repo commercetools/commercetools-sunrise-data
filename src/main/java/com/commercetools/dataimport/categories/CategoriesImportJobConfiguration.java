@@ -35,7 +35,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Lazy
 public class CategoriesImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
 
-    public static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId", "webImageUrl", "iosImageUrl"};
+    public static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId"};
 
     @Bean
     public Job categoriesCreateJob(final Step categoriesImportStep) {
