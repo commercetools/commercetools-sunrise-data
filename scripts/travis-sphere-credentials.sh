@@ -16,11 +16,6 @@ cat > "travis-payload.json" << EOF
     },
     {
       "name": "productTypesDeleteJob"
-    },
-    {
-      "name": "productsCreateJob",
-      "maxProducts": 4000,
-      "resource": "file://$ROOT_PROJ/data/products/products.csv"
     }
   ]
 }

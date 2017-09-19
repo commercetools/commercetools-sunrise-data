@@ -3,12 +3,13 @@ package com.commercetools.dataimport.products;
 import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
+import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.products.Product;
-import io.sphere.sdk.products.ProductDraft;
 import io.sphere.sdk.products.commands.ProductUpdateCommand;
 import io.sphere.sdk.products.commands.updateactions.Publish;
 import io.sphere.sdk.products.commands.updateactions.SetSearchKeywords;
 import io.sphere.sdk.products.queries.ProductQuery;
+import io.sphere.sdk.search.SearchKeyword;
 import io.sphere.sdk.search.SearchKeywords;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +28,16 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 @Lazy
@@ -91,7 +97,7 @@ public class SuggestKeywordsFromNameJobConfiguration extends DefaultCommercetool
 
                 System.err.println("processing " + item.getMasterData().getStaged().getName());
 
-                final SearchKeywords searchKeywords = ProductDraftReader.searchKeywordsFromName(item.getMasterData().getStaged().getName());
+                final SearchKeywords searchKeywords = searchKeywordsFromName(item.getMasterData().getStaged().getName());
                 return ProductUpdateCommand.of(item, asList(SetSearchKeywords.of(searchKeywords), Publish.of()));
             }
 
@@ -99,6 +105,13 @@ public class SuggestKeywordsFromNameJobConfiguration extends DefaultCommercetool
                 return item.getMasterData().getStaged().getSearchKeywords().getContent().isEmpty();
             }
         };
+    }
+
+    private static SearchKeywords searchKeywordsFromName(final LocalizedString name) {
+        final Map<Locale, List<SearchKeyword>> content = name.stream()
+                .collect(toMap(entry -> entry.getLocale(),
+                        entr -> Collections.singletonList(SearchKeyword.of(entr.getValue()))));
+        return SearchKeywords.of(content);
     }
 
     private SynchronizedItemStreamReader<Product> productsReader(final BlockingSphereClient sphereClient) {

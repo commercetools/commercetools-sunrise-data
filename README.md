@@ -145,15 +145,6 @@ You can combine as many jobs as you need in your payload file. They will be exec
 }
 ```
 
-##### Import products
-```json
-{
-  "name": "productsCreateJob",
-  "maxProducts": 4000,
-  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv"
-}
-```
-
 ##### Import orders
 ```json
 {
