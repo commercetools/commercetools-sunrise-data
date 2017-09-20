@@ -73,9 +73,9 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```json
     {
       "commercetools": {
-        "projectKey": "demo-playground",
-        "clientId": "7_QU3-WVwJnIyYQlIsHDhp2R",
-        "clientSecret": "UbJN7TijNwICwTKUjteVvYcmYr7RjQiC",
+        "projectKey": "your-project-key",
+        "clientId": "your-client-id",
+        "clientSecret": "your-client-secret",
         "authUrl": "https://auth.sphere.io",
         "apiUrl": "https://api.sphere.io"
       },
