@@ -82,7 +82,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
       "jobs": [
         {
           "name": "ordersCreateJob",
-          "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.json"
+          "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.csv"
         }
       ]
     }
