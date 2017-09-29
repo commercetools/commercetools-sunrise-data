@@ -68,7 +68,7 @@ Add your commercetools credentials and may remove jobs you don't need.
     },
     {
       "name": "ordersCreateJob",
-      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.json"
+      "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.csv"
     }
   ]
 }
