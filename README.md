@@ -98,7 +98,6 @@ Before starting the import, make sure you have access to the [Admin Center](http
 ### Requirements
 
 - Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- Install [Maven](https://maven.apache.org/)
 
 ### Payload JSON file
 
@@ -180,5 +179,5 @@ You can combine as many jobs as you need in your payload file. They will be exec
 Run the application with maven:
 ```bash
 export PAYLOAD_FILE=path/to/payload/file
-mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
 ``` 
