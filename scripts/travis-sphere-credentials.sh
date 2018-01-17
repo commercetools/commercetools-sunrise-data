@@ -8,15 +8,6 @@ cat > "travis-payload.json" << EOF
     "apiUrl": "https://api.sphere.io"
   },
   "jobs": [
-    {
-      "name": "productsDeleteJob"
-    },
-    {
-      "name": "categoriesDeleteJob"
-    },
-    {
-      "name": "productTypesDeleteJob"
-    }
   ]
 }
 EOF
