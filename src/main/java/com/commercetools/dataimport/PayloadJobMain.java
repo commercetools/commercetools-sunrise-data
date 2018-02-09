@@ -62,7 +62,7 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
                 final JobExecution jobExecution = jobLauncher.run(job, jobParameters);
                 awaitTermination(jobExecution, Duration.ofMinutes(30));
                 if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
-                    throw new JobExecutionUnsuccessfullException(String.format("Job %s was unsuccessful with status %s.", jobName, jobExecution.getExitStatus()));
+                    throw new JobExecutionUnsuccessfulException(String.format("Job %s was unsuccessful with status %s.", jobName, jobExecution.getExitStatus()));
                 }
             }
         }

@@ -60,7 +60,7 @@ public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration 
         return reader;
     }
 
-    private FlatFileItemReader<OrderCsvLineValue> flatFileItemReader(final Resource resource) {
+    private static FlatFileItemReader<OrderCsvLineValue> flatFileItemReader(final Resource resource) {
         FlatFileItemReader<OrderCsvLineValue> flatFileItemReader = new FlatFileItemReader<>();
         flatFileItemReader.setLineMapper(lineMapper());
         flatFileItemReader.setLinesToSkip(1);
@@ -68,7 +68,7 @@ public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration 
         return flatFileItemReader;
     }
 
-    private DefaultLineMapper<OrderCsvLineValue> lineMapper() {
+    private static DefaultLineMapper<OrderCsvLineValue> lineMapper() {
         return new DefaultLineMapper<OrderCsvLineValue>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(ORDER_CSV_HEADER_NAMES);

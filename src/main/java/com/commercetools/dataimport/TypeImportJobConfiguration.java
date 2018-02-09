@@ -16,12 +16,12 @@ public abstract class TypeImportJobConfiguration extends CommercetoolsJobConfigu
 
     @Bean
     @StepScope
-    protected ItemReader<TypeDraft> importTypeReader(@Value("#{jobParameters['resource']}") final Resource resource) throws IOException {
+    public ItemReader<TypeDraft> importTypeReader(@Value("#{jobParameters['resource']}") final Resource resource) throws IOException {
         return JsonUtils.createJsonListReader(resource, TypeDraft.class);
     }
 
     @Bean
-    protected ItemWriter<TypeDraft> importTypeWriter(final BlockingSphereClient sphereClient) {
+    public ItemWriter<TypeDraft> importTypeWriter(final BlockingSphereClient sphereClient) {
         return items -> items.forEach(customType -> sphereClient.executeBlocking(TypeCreateCommand.of(customType)));
     }
 }
