@@ -8,44 +8,41 @@ import io.sphere.sdk.types.commands.TypeDeleteCommand;
 import io.sphere.sdk.types.queries.TypeQuery;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import static java.util.Collections.singletonList;
 
 @Configuration
-@EnableBatchProcessing
-@EnableAutoConfiguration
-public class ChannelTypeDeleteJobConfiguration extends CommercetoolsJobConfiguration {
+public class ChannelTypesDeleteJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Bean
-    public Job channelTypeDeleteJob(final Step channelTypeDeleteStep) {
-        return jobBuilderFactory.get("channelTypeDeleteJob")
-                .start(channelTypeDeleteStep)
+    public Job channelTypesDeleteJob(final Step channelTypesDeleteStep) {
+        return jobBuilderFactory.get("channelTypesDeleteJob")
+                .start(channelTypesDeleteStep)
                 .build();
     }
 
     @Bean
-    public Step channelTypeDeleteStep(final ItemReader<Type> deleteChannelTypeReader, final ItemWriter<Type> deleteChannelTypeWriter) {
-        return stepBuilderFactory.get("channelTypeDeleteStep")
+    public Step channelTypesDeleteStep(final ItemReader<Type> channelTypesDeleteReader,
+                                       final ItemWriter<Type> channelTypesDeleteWriter) {
+        return stepBuilderFactory.get("channelTypesDeleteStep")
                 .<Type, Type>chunk(1)
-                .reader(deleteChannelTypeReader)
-                .writer(deleteChannelTypeWriter)
+                .reader(channelTypesDeleteReader)
+                .writer(channelTypesDeleteWriter)
                 .build();
     }
 
     @Bean
-    public ItemReader<Type> deleteChannelTypeReader(final BlockingSphereClient sphereClient) {
+    public ItemReader<Type> channelTypesDeleteReader(final BlockingSphereClient sphereClient) {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, TypeQuery.of()
                 .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("channel"))));
     }
 
     @Bean
-    public ItemWriter<Type> deleteChannelTypeWriter(final BlockingSphereClient sphereClient) {
+    public ItemWriter<Type> channelTypesDeleteWriter(final BlockingSphereClient sphereClient) {
         return items -> items.forEach(item -> sphereClient.executeBlocking(TypeDeleteCommand.of(item)));
     }
 }

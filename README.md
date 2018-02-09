@@ -164,7 +164,7 @@ You can combine as many jobs as you need in your payload file. They will be exec
 ##### Generate inventory
 ```json
 {
-  "name": "inventoryEntryCreationJob"
+  "name": "inventoryEntryGenerationJob"
 }
 ```
 

@@ -12,16 +12,16 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
-public abstract class TypeImportJobConfiguration extends CommercetoolsJobConfiguration {
+public abstract class TypesImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Bean
     @StepScope
-    public ItemReader<TypeDraft> importTypeReader(@Value("#{jobParameters['resource']}") final Resource resource) throws IOException {
+    public ItemReader<TypeDraft> typesImportReader(@Value("#{jobParameters['resource']}") final Resource resource) throws IOException {
         return JsonUtils.createJsonListReader(resource, TypeDraft.class);
     }
 
     @Bean
-    public ItemWriter<TypeDraft> importTypeWriter(final BlockingSphereClient sphereClient) {
+    public ItemWriter<TypeDraft> typesImportWriter(final BlockingSphereClient sphereClient) {
         return items -> items.forEach(customType -> sphereClient.executeBlocking(TypeCreateCommand.of(customType)));
     }
 }

@@ -17,12 +17,10 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.SingleItemPeekableItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
-@Component
-@Lazy
+@Configuration
 public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     private static final String[] ORDER_CSV_HEADER_NAMES = new String[]{"customerEmail", "orderNumber", "lineitems.variant.sku", "lineitems.price", "lineitems.quantity", "totalPrice"};
@@ -35,16 +33,17 @@ public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration 
     }
 
     @Bean
-    public Step ordersImportStep(final ItemReader<OrderImportDraft> orderReader, final ItemWriter<OrderImportDraft> orderWriter) {
+    public Step ordersImportStep(final ItemReader<OrderImportDraft> ordersImportReader,
+                                 final ItemWriter<OrderImportDraft> ordersImportWriter) {
         return stepBuilderFactory.get("ordersImportStep")
                 .<OrderImportDraft, OrderImportDraft>chunk(1)
-                .reader(orderReader)
-                .writer(orderWriter)
+                .reader(ordersImportReader)
+                .writer(ordersImportWriter)
                 .build();
     }
 
     @Bean
-    protected ItemWriter<OrderImportDraft> orderWriter(final BlockingSphereClient sphereClient) {
+    public ItemWriter<OrderImportDraft> ordersImportWriter(final BlockingSphereClient sphereClient) {
         return items -> items.stream()
                 .map(OrderImportCommand::of)
                 .forEach(sphereClient::executeBlocking);
@@ -52,7 +51,7 @@ public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration 
 
     @Bean
     @StepScope
-    protected OrderImportItemReader orderReader(@Value("#{jobParameters['resource']}") final Resource resource) {
+    public OrderImportItemReader ordersImportReader(@Value("#{jobParameters['resource']}") final Resource resource) {
         final OrderImportItemReader reader = new OrderImportItemReader();
         final SingleItemPeekableItemReader<OrderCsvLineValue> itemReader = new SingleItemPeekableItemReader<>();
         itemReader.setDelegate(flatFileItemReader(resource));

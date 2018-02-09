@@ -20,12 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
@@ -43,28 +41,26 @@ import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 
 @Configuration
-@EnableBatchProcessing
-@EnableAutoConfiguration
-public class PricesPerChannelImportJobConfiguration extends CommercetoolsJobConfiguration {
+public class PricesPerChannelGenerationJobConfiguration extends CommercetoolsJobConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PricesPerChannelImportJobConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PricesPerChannelGenerationJobConfiguration.class);
 
     @Bean
-    public Job pricesPerChannelImportJob(final Step pricesPerChannelImportStep) {
-        return jobBuilderFactory.get("pricesPerChannelImportJob")
-                .start(pricesPerChannelImportStep)
+    public Job pricesPerChannelGenerationJob(final Step pricesPerChannelGenerationStep) {
+        return jobBuilderFactory.get("pricesPerChannelGenerationJob")
+                .start(pricesPerChannelGenerationStep)
                 .build();
     }
 
     @Bean
-    public Step pricesPerChannelImportStep(final ItemReader<ProductProjection> importPriceReader,
-                                           final ItemProcessor<ProductProjection, ProductUpdateCommand> importPriceProcessor,
-                                           final ItemWriter<ProductUpdateCommand> importPriceWriter) {
-        return stepBuilderFactory.get("pricesPerChannelImportStep")
+    public Step pricesPerChannelGenerationStep(final ItemReader<ProductProjection> pricesPerChannelGenerationReader,
+                                           final ItemProcessor<ProductProjection, ProductUpdateCommand> pricesPerChannelGenerationProcessor,
+                                           final ItemWriter<ProductUpdateCommand> pricesPerChannelGenerationWriter) {
+        return stepBuilderFactory.get("pricesPerChannelGenerationStep")
                 .<ProductProjection, ProductUpdateCommand>chunk(20)
-                .reader(importPriceReader)
-                .processor(importPriceProcessor)
-                .writer(importPriceWriter)
+                .reader(pricesPerChannelGenerationReader)
+                .processor(pricesPerChannelGenerationProcessor)
+                .writer(pricesPerChannelGenerationWriter)
                 .faultTolerant()
                 .skip(ErrorResponseException.class)
                 .skipLimit(1)
@@ -73,12 +69,12 @@ public class PricesPerChannelImportJobConfiguration extends CommercetoolsJobConf
 
     @Bean
     @StepScope
-    public ItemReader<ProductProjection> importPriceReader(final BlockingSphereClient sphereClient) {
+    public ItemReader<ProductProjection> pricesPerChannelGenerationReader(final BlockingSphereClient sphereClient) {
         return createProductReader(sphereClient);
     }
 
     @Bean
-    public ItemProcessor<ProductProjection, ProductUpdateCommand> importPriceProcessor(final BlockingSphereClient sphereClient) {
+    public ItemProcessor<ProductProjection, ProductUpdateCommand> pricesPerChannelGenerationProcessor(final BlockingSphereClient sphereClient) {
         return productProjection -> {
             final List<AddPrice> productPriceAddUpdateActions = channelListHolder(sphereClient).getChannels().stream()
                     .peek(m -> LOGGER.info("attempting to process product {} in channel {}", productProjection.getId(), m.getId()))
@@ -92,7 +88,7 @@ public class PricesPerChannelImportJobConfiguration extends CommercetoolsJobConf
     }
 
     @Bean
-    public ItemWriter<ProductUpdateCommand> importPriceWriter(final BlockingSphereClient sphereClient) {
+    public ItemWriter<ProductUpdateCommand> pricesPerChannelGenerationWriter(final BlockingSphereClient sphereClient) {
         return updates -> updates.forEach(sphereClient::executeBlocking);
     }
 
@@ -100,8 +96,7 @@ public class PricesPerChannelImportJobConfiguration extends CommercetoolsJobConf
         final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
         final Long productsCount = sphereClient.executeBlocking(baseQuery.withLimit(0)).getTotal();
         final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
-        final ProductProjectionQuery productProjectionQuery =
-                lastProductWithJoyrideChannel
+        final ProductProjectionQuery productProjectionQuery = lastProductWithJoyrideChannel
                         .map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThan(product.getId())))
                         .orElse(baseQuery);
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);

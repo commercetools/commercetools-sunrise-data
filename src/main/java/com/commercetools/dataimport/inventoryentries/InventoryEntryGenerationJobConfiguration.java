@@ -21,12 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -41,28 +39,26 @@ import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 
 @Configuration
-@EnableBatchProcessing
-@EnableAutoConfiguration
-public class InventoryEntryCreationJobConfiguration extends CommercetoolsJobConfiguration {
+public class InventoryEntryGenerationJobConfiguration extends CommercetoolsJobConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InventoryEntryCreationJobConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InventoryEntryGenerationJobConfiguration.class);
 
     @Bean
-    public Job inventoryEntryCreationJob(final Step inventoryEntryCreationStep) {
-        return jobBuilderFactory.get("inventoryEntryCreationJob")
-                .start(inventoryEntryCreationStep)
+    public Job inventoryEntryGenerationJob(final Step inventoryEntryGenerationStep) {
+        return jobBuilderFactory.get("inventoryEntryGenerationJob")
+                .start(inventoryEntryGenerationStep)
                 .build();
     }
 
     @Bean
-    public Step inventoryEntryCreationStep(final ItemReader<ProductProjection> inventoryEntryReader,
-                                           final ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryProcessor,
-                                           final ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter) {
-        return stepBuilderFactory.get("inventoryEntryCreationStep")
+    public Step inventoryEntryGenerationStep(final ItemReader<ProductProjection> inventoryEntryGenerationReader,
+                                             final ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryGenerationProcessor,
+                                             final ItemWriter<List<InventoryEntryDraft>> inventoryEntryGenerationWriter) {
+        return stepBuilderFactory.get("inventoryEntryGenerationStep")
                 .<ProductProjection, List<InventoryEntryDraft>>chunk(1)
-                .reader(inventoryEntryReader)
-                .processor(inventoryEntryProcessor)
-                .writer(inventoryEntryWriter)
+                .reader(inventoryEntryGenerationReader)
+                .processor(inventoryEntryGenerationProcessor)
+                .writer(inventoryEntryGenerationWriter)
                 .faultTolerant()
                 .skip(ErrorResponseException.class)
                 .skipLimit(1)
@@ -71,17 +67,17 @@ public class InventoryEntryCreationJobConfiguration extends CommercetoolsJobConf
 
     @Bean
     @StepScope
-    public ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
+    public ItemReader<ProductProjection> inventoryEntryGenerationReader(final BlockingSphereClient sphereClient) {
         return createProductReader(sphereClient);
     }
 
     @Bean
-    public ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryProcessor(final BlockingSphereClient sphereClient) {
+    public ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryGenerationProcessor(final BlockingSphereClient sphereClient) {
         return product -> inventoryEntryListByChannel(product, channelListHolder(sphereClient).getChannels());
     }
 
     @Bean
-    public ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter(final BlockingSphereClient sphereClient) {
+    public ItemWriter<List<InventoryEntryDraft>> inventoryEntryGenerationWriter(final BlockingSphereClient sphereClient) {
         return entries -> entries.stream()
                 .flatMap(Collection::stream)
                 .peek(draft -> LOGGER.info("attempting to create inventory entry sku {}, channel {}", draft.getSku(), draft.getSupplyChannel().getId()))

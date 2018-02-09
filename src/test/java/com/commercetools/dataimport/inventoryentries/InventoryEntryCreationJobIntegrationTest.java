@@ -39,12 +39,12 @@ import java.util.Optional;
 
 import static com.commercetools.dataimport.TestUtils.*;
 import static com.commercetools.dataimport.channels.PreferredChannels.CHANNEL_KEYS;
-import static com.commercetools.dataimport.inventoryentries.InventoryEntryCreationJobConfiguration.*;
+import static com.commercetools.dataimport.inventoryentries.InventoryEntryGenerationJobConfiguration.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfiguration.class, InventoryEntryCreationJobConfiguration.class, CommercetoolsTestConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, InventoryEntryGenerationJobConfiguration.class, CommercetoolsTestConfiguration.class})
 @EnableAutoConfiguration
 @Configuration
 @TestPropertySource("classpath:/test.properties")

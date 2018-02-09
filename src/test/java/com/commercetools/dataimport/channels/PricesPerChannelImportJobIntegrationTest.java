@@ -31,12 +31,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.*;
 
 import static com.commercetools.dataimport.TestUtils.*;
-import static com.commercetools.dataimport.channels.PricesPerChannelImportJobConfiguration.*;
+import static com.commercetools.dataimport.channels.PricesPerChannelGenerationJobConfiguration.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @org.springframework.boot.test.IntegrationTest
-@ContextConfiguration(classes = {TestConfiguration.class, PricesPerChannelImportJobConfiguration.class, CommercetoolsTestConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, PricesPerChannelGenerationJobConfiguration.class, CommercetoolsTestConfiguration.class})
 @EnableAutoConfiguration
 @Configuration
 @TestPropertySource("classpath:/test.properties")

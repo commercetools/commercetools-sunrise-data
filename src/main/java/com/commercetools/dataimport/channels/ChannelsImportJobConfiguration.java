@@ -12,14 +12,12 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Component
-@Lazy
+@Configuration
 public class ChannelsImportJobConfiguration extends CommercetoolsJobConfiguration {
 
     @Bean
@@ -30,22 +28,23 @@ public class ChannelsImportJobConfiguration extends CommercetoolsJobConfiguratio
     }
 
     @Bean
-    public Step channelsImportStep(final ItemReader<ChannelDraft> importChannelReader, final ItemWriter<ChannelDraft> importChannelWriter) {
+    public Step channelsImportStep(final ItemReader<ChannelDraft> channelsImportReader,
+                                   final ItemWriter<ChannelDraft> channelsImportWriter) {
         return stepBuilderFactory.get("channelsImportStep")
                 .<ChannelDraft, ChannelDraft>chunk(1)
-                .reader(importChannelReader)
-                .writer(importChannelWriter)
+                .reader(channelsImportReader)
+                .writer(channelsImportWriter)
                 .build();
     }
 
     @Bean
     @StepScope
-    public ItemReader<ChannelDraft> importChannelReader(@Value("#{jobParameters['resource']}") final Resource resource) throws IOException {
+    public ItemReader<ChannelDraft> channelsImportReader(@Value("#{jobParameters['resource']}") final Resource resource) throws IOException {
         return JsonUtils.createJsonListReader(resource, ChannelDraft.class);
     }
 
     @Bean
-    public ItemWriter<ChannelDraft> importChannelWriter(final BlockingSphereClient sphereClient) {
+    public ItemWriter<ChannelDraft> channelsImportWriter(final BlockingSphereClient sphereClient) {
         return items -> items.forEach(channelDraft -> sphereClient.executeBlocking(ChannelCreateCommand.of(channelDraft)));
     }
 }

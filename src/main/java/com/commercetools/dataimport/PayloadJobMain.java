@@ -24,16 +24,7 @@ import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
 
-@ComponentScan(basePackages = {
-        "com.commercetools.dataimport",
-        "com.commercetools.dataimport.categories",
-        "com.commercetools.dataimport.channels",
-        "com.commercetools.dataimport.customers",
-        "com.commercetools.dataimport.inventoryentries",
-        "com.commercetools.dataimport.orders",
-        "com.commercetools.dataimport.products",
-        "com.commercetools.dataimport.producttypes"
-})
+@ComponentScan("com.commercetools.dataimport")
 @EnableBatchProcessing
 @EnableAutoConfiguration
 public class PayloadJobMain extends CommercetoolsJobConfiguration {
@@ -52,10 +43,10 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
     }
 
     private static void run(final String[] args, final String payloadFilePath) throws Exception {
-        try(final ConfigurableApplicationContext context = SpringApplication.run(PayloadJobMain.class, args)) {
+        try (final ConfigurableApplicationContext context = SpringApplication.run(PayloadJobMain.class, args)) {
             final List<JobLaunchingData> jobLaunchingDataList = parseJobParameters(payloadFilePath);
             final JobLauncher jobLauncher = context.getBean(JobLauncher.class);
-            for(final JobLaunchingData jobLaunchingData : jobLaunchingDataList) {
+            for (final JobLaunchingData jobLaunchingData : jobLaunchingDataList) {
                 final String jobName = jobLaunchingData.getJobName();
                 final JobParameters jobParameters = jobLaunchingData.getJobParameters();
                 final Job job = context.getBean(jobName, Job.class);
