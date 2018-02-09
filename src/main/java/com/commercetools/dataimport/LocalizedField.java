@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.common;
+package com.commercetools.dataimport;
 
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.models.LocalizedStringEntry;

@@ -1,8 +1,9 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport.channels;
 
 import com.commercetools.CommercetoolsTestConfiguration;
 import com.commercetools.dataimport.IntegrationTest;
 import com.commercetools.dataimport.TestConfiguration;
+import com.commercetools.dataimport.channels.ChannelsImportJobConfiguration;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.types.Type;
@@ -30,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.commercetools.dataimport.common.JsonUtils.createJsonList;
+import static com.commercetools.dataimport.JsonUtils.createJsonList;
 import static com.commercetools.dataimport.TestUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,7 +56,7 @@ public class ChannelsImportJobIntegrationTest extends IntegrationTest {
     public void channelImportStepTest() throws Exception {
         final Map<String, JobParameter> jobParametersMap = new HashMap<>();
         final String channelsResourcePath = "file://" + new File(".", "data/channels/channels.json").getAbsolutePath();
-        final String typesResourcePath = "file://" + new File(".", "data/channels/types.json").getAbsolutePath();
+        final String typesResourcePath = "file://" + new File(".", "data/channels/channel-types.json").getAbsolutePath();
         jobParametersMap.put("typesResource", new JobParameter(typesResourcePath));
         jobParametersMap.put("channelsResource", new JobParameter(channelsResourcePath));
         addCommercetoolsCredentialValues(env, jobParametersMap);

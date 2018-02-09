@@ -1,19 +1,10 @@
-package com.commercetools.dataimport.commercetools;
+package com.commercetools.dataimport;
 
-import com.commercetools.dataimport.all.PayloadJobMain;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.sphere.sdk.client.BlockingSphereClient;
-import io.sphere.sdk.client.SphereClient;
-import io.sphere.sdk.client.SphereClientConfig;
-import io.sphere.sdk.client.SphereClientFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class CommercetoolsPayloadFileConfig {

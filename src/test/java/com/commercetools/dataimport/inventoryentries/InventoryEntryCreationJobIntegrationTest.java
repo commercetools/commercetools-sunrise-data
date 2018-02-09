@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport.inventoryentries;
 
 import com.commercetools.CommercetoolsTestConfiguration;
 import com.commercetools.dataimport.IntegrationTest;
@@ -37,9 +37,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.commercetools.dataimport.joyrideavailability.InventoryEntryCreationJobConfiguration.*;
 import static com.commercetools.dataimport.TestUtils.*;
-import static com.commercetools.dataimport.joyrideavailability.PreferredChannels.CHANNEL_KEYS;
+import static com.commercetools.dataimport.channels.PreferredChannels.CHANNEL_KEYS;
+import static com.commercetools.dataimport.inventoryentries.InventoryEntryCreationJobConfiguration.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 

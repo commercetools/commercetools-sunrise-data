@@ -1,8 +1,5 @@
-package com.commercetools.dataimport.all;
+package com.commercetools.dataimport;
 
-import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
-import com.commercetools.dataimport.common.JobExecutionUnsuccessfullException;
-import com.commercetools.dataimport.common.JobLaunchingData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -28,18 +25,20 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
 
 @ComponentScan(basePackages = {
+        "com.commercetools.dataimport",
         "com.commercetools.dataimport.categories",
-        "com.commercetools.dataimport.commercetools",
-        "com.commercetools.dataimport.common",
+        "com.commercetools.dataimport.channels",
+        "com.commercetools.dataimport.customers",
+        "com.commercetools.dataimport.inventoryentries",
+        "com.commercetools.dataimport.orders",
         "com.commercetools.dataimport.products",
-        "com.commercetools.dataimport.producttypes",
-        "com.commercetools.dataimport.joyrideavailability",
-        "com.commercetools.dataimport.orders"
+        "com.commercetools.dataimport.producttypes"
 })
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class PayloadJobMain extends DefaultCommercetoolsJobConfiguration {
-    public static final String PAYLOAD_FILE_ENV_NAME = "PAYLOAD_FILE";
+public class PayloadJobMain extends CommercetoolsJobConfiguration {
+
+    private static final String PAYLOAD_FILE_ENV_NAME = "PAYLOAD_FILE";
 
     public static void main(String [] args) throws Exception {
         final String payloadFilePath = System.getenv(PAYLOAD_FILE_ENV_NAME);
@@ -47,7 +46,7 @@ public class PayloadJobMain extends DefaultCommercetoolsJobConfiguration {
             System.out.println(String.format("The payload file is located at %s.", payloadFilePath));
             run(args, payloadFilePath);
         } else {
-            System.err.println("missing payload file path environment variable " + PAYLOAD_FILE_ENV_NAME);
+            System.err.println("Missing payload file path environment variable " + PAYLOAD_FILE_ENV_NAME);
             System.exit(1);
         }
     }

@@ -49,7 +49,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-import static com.commercetools.dataimport.joyrideavailability.PreferredChannels.CHANNEL_KEYS;
+import static com.commercetools.dataimport.channels.PreferredChannels.CHANNEL_KEYS;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 

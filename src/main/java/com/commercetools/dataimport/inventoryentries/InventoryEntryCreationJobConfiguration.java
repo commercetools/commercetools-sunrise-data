@@ -1,12 +1,13 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport.inventoryentries;
 
-import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
+import com.commercetools.dataimport.CommercetoolsJobConfiguration;
+import com.commercetools.dataimport.channels.ChannelListHolder;
+import com.commercetools.dataimport.channels.PreferredChannels;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.ErrorResponseException;
-import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.inventory.InventoryEntry;
 import io.sphere.sdk.inventory.InventoryEntryDraft;
 import io.sphere.sdk.inventory.commands.InventoryEntryCreateCommand;
@@ -22,7 +23,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -30,12 +30,12 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
@@ -43,23 +43,22 @@ import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class InventoryEntryCreationJobConfiguration extends DefaultCommercetoolsJobConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(InventoryEntryCreationJobConfiguration.class);
+public class InventoryEntryCreationJobConfiguration extends CommercetoolsJobConfiguration {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InventoryEntryCreationJobConfiguration.class);
 
     @Bean
-    public Job inventoryEntryCreationJob(final Step createInventoryEntryStep) {
+    public Job inventoryEntryCreationJob(final Step inventoryEntryCreationStep) {
         return jobBuilderFactory.get("inventoryEntryCreationJob")
-                .start(createInventoryEntryStep)
+                .start(inventoryEntryCreationStep)
                 .build();
     }
 
     @Bean
-    public Step createInventoryEntryStep(final BlockingSphereClient sphereClient,
-                                         final ItemReader<ProductProjection> inventoryEntryReader,
-                                         final ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryProcessor,
-                                         final ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter) {
-        final StepBuilder stepBuilder = stepBuilderFactory.get("createInventoryEntryStep");
-        return stepBuilder
+    public Step inventoryEntryCreationStep(final ItemReader<ProductProjection> inventoryEntryReader,
+                                           final ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryProcessor,
+                                           final ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter) {
+        return stepBuilderFactory.get("inventoryEntryCreationStep")
                 .<ProductProjection, List<InventoryEntryDraft>>chunk(1)
                 .reader(inventoryEntryReader)
                 .processor(inventoryEntryProcessor)
@@ -72,36 +71,30 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
 
     @Bean
     @StepScope
-    protected ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
-        return createProductProjectionReader(sphereClient);
-    }
-
-    @Bean
-    protected ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryProcessor(final BlockingSphereClient sphereClient) {
-        return product -> inventoryEntryListByChannel(product, channelListHolder(sphereClient).getChannels());
-    }
-
-    @Bean
-    public ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter(final BlockingSphereClient sphereClient) {
-        return entries -> {
-            final Stream<InventoryEntryDraft> inventoryEntryDraftStream = entries.stream().flatMap(list -> list.stream());
-            final List<InventoryEntry> collect = inventoryEntryDraftStream
-                    .peek(draft -> logger.info("attempting to create inventory entry sku {}, channel {}", draft.getSku(), draft.getSupplyChannel().getId()))
-                    .map(draft -> sphereClient.execute(InventoryEntryCreateCommand.of(draft)))
-                    .collect(SphereClientUtils.blockingWaitForEachCollector(5, TimeUnit.MINUTES));
-        };
-    }
-
-    static ItemReader<ProductProjection> createProductProjectionReader(final BlockingSphereClient sphereClient) {
+    public ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
         final Optional<ProductProjection> lastProductWithInventory = findLastProductWithInventory(sphereClient);
         final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
         final ProductProjectionQuery productProjectionQuery = lastProductWithInventory
                 .map(productProjection -> baseQuery.withPredicates(product -> product.id().isGreaterThan(productProjection.getId())))
                 .orElse(baseQuery);
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, productProjection -> productProjection.getId());
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
     }
 
-    public ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
+    @Bean
+    public ItemProcessor<ProductProjection, List<InventoryEntryDraft>> inventoryEntryProcessor(final BlockingSphereClient sphereClient) {
+        return product -> inventoryEntryListByChannel(product, channelListHolder(sphereClient).getChannels());
+    }
+
+    @Bean
+    public ItemWriter<List<InventoryEntryDraft>> inventoryEntryWriter(final BlockingSphereClient sphereClient) {
+        return entries -> entries.stream()
+                .flatMap(Collection::stream)
+                .peek(draft -> LOGGER.info("attempting to create inventory entry sku {}, channel {}", draft.getSku(), draft.getSupplyChannel().getId()))
+                .map(InventoryEntryCreateCommand::of)
+                .forEach(sphereClient::execute);
+    }
+
+    private ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
         final ChannelQuery channelQuery = ChannelQuery.of()
                 .withPredicates(m -> m.key().isIn(PreferredChannels.CHANNEL_KEYS));
         final List<Channel> channels = blockingWait(queryAll(sphereClient, channelQuery), 5, TimeUnit.MINUTES);
@@ -109,7 +102,7 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
     }
 
     private List<InventoryEntryDraft> inventoryEntryListByChannel(final ProductProjection product, final List<Channel> channels) {
-        logger.info("Processing product {}", Optional.ofNullable(product).map(ResourceView::getId).orElse("product was null"));
+        LOGGER.info("Processing product {}", Optional.ofNullable(product).map(ResourceView::getId).orElse("product was null"));
         return channels.stream()
                 .flatMap(channel -> product.getAllVariants().stream()
                         .map(productVariant -> createInventoryEntryDraftForProductVariant(channel, productVariant)))
@@ -128,12 +121,10 @@ public class InventoryEntryCreationJobConfiguration extends DefaultCommercetools
             quantityOnStock = 0;
         }
         final String sku = productVariant.getSku();
-        final InventoryEntryDraft inventoryEntryDraft = InventoryEntryDraft.of(sku, quantityOnStock)
-                .withSupplyChannel(channel);
-        return inventoryEntryDraft;
+        return InventoryEntryDraft.of(sku, quantityOnStock).withSupplyChannel(channel);
     }
 
-    static int randomInt(final Random random, final int min, final int max) {
+    private static int randomInt(final Random random, final int min, final int max) {
         return random.nextInt((max - min) + 1) + min;
     }
 

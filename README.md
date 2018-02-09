@@ -157,7 +157,7 @@ You can combine as many jobs as you need in your payload file. They will be exec
 {
   "name": "importJoyrideChannelsJob",
   "channelsResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/channels.json",
-  "typesResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/types.json"
+  "typesResource": channel-types.json
 }
 ```
 
@@ -171,7 +171,7 @@ You can combine as many jobs as you need in your payload file. They will be exec
 ##### Generate prices for channels
 ```json
 {
-  "name": "availabilityPricesImportJob"
+  "name": "pricesPerChannelImportJob"
 }
 ```
 
@@ -179,5 +179,5 @@ You can combine as many jobs as you need in your payload file. They will be exec
 Run the application with maven:
 ```bash
 export PAYLOAD_FILE=path/to/payload/file
-./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.PayloadJobMain
 ``` 

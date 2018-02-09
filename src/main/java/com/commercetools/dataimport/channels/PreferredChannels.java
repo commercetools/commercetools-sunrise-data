@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport.channels;
 
 import java.util.List;
 

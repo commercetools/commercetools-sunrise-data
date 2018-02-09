@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport.channels;
 
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.models.Base;

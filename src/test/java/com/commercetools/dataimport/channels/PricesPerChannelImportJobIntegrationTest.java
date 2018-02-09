@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport.channels;
 
 import com.commercetools.CommercetoolsTestConfiguration;
 import com.commercetools.dataimport.IntegrationTest;
@@ -28,24 +28,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
-import static com.commercetools.dataimport.joyrideavailability.AvailabilityPricesImportJobConfiguration.*;
 import static com.commercetools.dataimport.TestUtils.*;
-import static java.util.Arrays.asList;
+import static com.commercetools.dataimport.channels.PricesPerChannelImportJobConfiguration.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @org.springframework.boot.test.IntegrationTest
-@ContextConfiguration(classes = {TestConfiguration.class, AvailabilityPricesImportJobConfiguration.class, CommercetoolsTestConfiguration.class})
+@ContextConfiguration(classes = {TestConfiguration.class, PricesPerChannelImportJobConfiguration.class, CommercetoolsTestConfiguration.class})
 @EnableAutoConfiguration
 @Configuration
 @TestPropertySource("classpath:/test.properties")
 @NotThreadSafe
-public class AvailabilityPricesImportJobIntegrationTest extends IntegrationTest {
+public class PricesPerChannelImportJobIntegrationTest extends IntegrationTest {
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
@@ -151,6 +147,6 @@ public class AvailabilityPricesImportJobIntegrationTest extends IntegrationTest 
 
     private void processProductAndWritePrice(final ProductProjection productProjection) throws Exception {
         final ProductUpdateCommand productUpdateCommand = priceCreationProcessor.process(productProjection);
-        productPriceWriter.write(asList(productUpdateCommand));
+        productPriceWriter.write(Arrays.asList(productUpdateCommand));
     }
 }

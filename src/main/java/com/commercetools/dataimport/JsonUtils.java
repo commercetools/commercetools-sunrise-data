@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.common;
+package com.commercetools.dataimport;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectReader;

@@ -21,9 +21,9 @@ public class OrderImportItemReader implements ItemReader<OrderImportDraft>, Item
 
     private SingleItemPeekableItemReader<OrderCsvLineValue> singleItemPeekableItemReader;
 
-    public OrderImportItemReader() {}
+    OrderImportItemReader() {}
 
-    public void setDelegate(final SingleItemPeekableItemReader singleItemPeekableItemReader){
+    public void setDelegate(final SingleItemPeekableItemReader<OrderCsvLineValue> singleItemPeekableItemReader){
         this.singleItemPeekableItemReader = singleItemPeekableItemReader;
     }
 

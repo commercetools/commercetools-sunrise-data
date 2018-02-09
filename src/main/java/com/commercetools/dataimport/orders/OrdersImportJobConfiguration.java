@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.orders;
 
-import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
+import com.commercetools.dataimport.CommercetoolsJobConfiguration;
 import com.commercetools.dataimport.orders.csvline.OrderCsvLineValue;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.orders.OrderImportDraft;
@@ -8,7 +8,6 @@ import io.sphere.sdk.orders.commands.OrderImportCommand;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -24,11 +23,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Lazy
-public class OrdersImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
+public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration {
 
-    private volatile int counter = 0;
     private static final String[] ORDER_CSV_HEADER_NAMES = new String[]{"customerEmail", "orderNumber", "lineitems.variant.sku", "lineitems.price", "lineitems.quantity", "totalPrice"};
-
 
     @Bean
     public Job ordersCreateJob(final Step ordersImportStep) {
@@ -38,10 +35,8 @@ public class OrdersImportJobConfiguration extends DefaultCommercetoolsJobConfigu
     }
 
     @Bean
-    public Step ordersImportStep(final ItemReader<OrderImportDraft> orderReader,
-                                 final ItemWriter<OrderImportDraft> orderWriter) {
-        final StepBuilder stepBuilder = stepBuilderFactory.get("ordersImportStep");
-        return stepBuilder
+    public Step ordersImportStep(final ItemReader<OrderImportDraft> orderReader, final ItemWriter<OrderImportDraft> orderWriter) {
+        return stepBuilderFactory.get("ordersImportStep")
                 .<OrderImportDraft, OrderImportDraft>chunk(1)
                 .reader(orderReader)
                 .writer(orderWriter)
@@ -55,30 +50,32 @@ public class OrdersImportJobConfiguration extends DefaultCommercetoolsJobConfigu
                 .forEach(sphereClient::executeBlocking);
     }
 
-
     @Bean
     @StepScope
-    protected OrderImportItemReader orderReader(@Value("#{jobParameters['resource']}") final Resource orderCsvResource) {
+    protected OrderImportItemReader orderReader(@Value("#{jobParameters['resource']}") final Resource resource) {
+        final OrderImportItemReader reader = new OrderImportItemReader();
+        final SingleItemPeekableItemReader<OrderCsvLineValue> itemReader = new SingleItemPeekableItemReader<>();
+        itemReader.setDelegate(flatFileItemReader(resource));
+        reader.setDelegate(itemReader);
+        return reader;
+    }
 
-        FlatFileItemReader flatFileItemReader = new FlatFileItemReader<>();
-        flatFileItemReader.setLineMapper(new DefaultLineMapper<OrderCsvLineValue>() {{
+    private FlatFileItemReader<OrderCsvLineValue> flatFileItemReader(final Resource resource) {
+        FlatFileItemReader<OrderCsvLineValue> flatFileItemReader = new FlatFileItemReader<>();
+        flatFileItemReader.setLineMapper(lineMapper());
+        flatFileItemReader.setLinesToSkip(1);
+        flatFileItemReader.setResource(resource);
+        return flatFileItemReader;
+    }
+
+    private DefaultLineMapper<OrderCsvLineValue> lineMapper() {
+        return new DefaultLineMapper<OrderCsvLineValue>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(ORDER_CSV_HEADER_NAMES);
-
             }});
             setFieldSetMapper(new BeanWrapperFieldSetMapper<OrderCsvLineValue>() {{
                 setTargetType(OrderCsvLineValue.class);
             }});
-        }});
-        flatFileItemReader.setLinesToSkip(1);
-        flatFileItemReader.setResource(orderCsvResource);
-
-        SingleItemPeekableItemReader singleItemPeekableItemReader = new SingleItemPeekableItemReader();
-        singleItemPeekableItemReader.setDelegate(flatFileItemReader);
-
-        OrderImportItemReader reader = new OrderImportItemReader();
-        reader.setDelegate(singleItemPeekableItemReader);
-
-        return reader;
+        }};
     }
 }

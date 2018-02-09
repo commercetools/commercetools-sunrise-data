@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.common;
+package com.commercetools.dataimport;
 
 public class JobExecutionUnsuccessfullException extends RuntimeException {
     public JobExecutionUnsuccessfullException() {

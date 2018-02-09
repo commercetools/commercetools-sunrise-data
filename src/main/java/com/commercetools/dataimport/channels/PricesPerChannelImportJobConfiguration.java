@@ -1,14 +1,14 @@
-package com.commercetools.dataimport.joyrideavailability;
+package com.commercetools.dataimport.channels;
 
-import com.commercetools.dataimport.commercetools.DefaultCommercetoolsJobConfiguration;
+import com.commercetools.dataimport.CommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.client.ErrorResponseException;
-import io.sphere.sdk.client.SphereClientUtils;
 import io.sphere.sdk.commands.UpdateAction;
+import io.sphere.sdk.models.ResourceView;
 import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.commands.ProductUpdateCommand;
 import io.sphere.sdk.products.commands.updateactions.AddPrice;
@@ -22,7 +22,6 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -39,33 +38,33 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.commercetools.dataimport.joyrideavailability.PreferredChannels.CHANNEL_KEYS;
+import static com.commercetools.dataimport.channels.PreferredChannels.CHANNEL_KEYS;
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 
 @Configuration
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoolsJobConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(AvailabilityPricesImportJobConfiguration.class);
+public class PricesPerChannelImportJobConfiguration extends CommercetoolsJobConfiguration {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PricesPerChannelImportJobConfiguration.class);
 
     @Bean
-    public Job availabilityPricesImportJob(final Step availabilityPricesImportStep) {
-        return jobBuilderFactory.get("availabilityPricesImportJob")
-                .start(availabilityPricesImportStep)
+    public Job pricesPerChannelImportJob(final Step pricesPerChannelImportStep) {
+        return jobBuilderFactory.get("pricesPerChannelImportJob")
+                .start(pricesPerChannelImportStep)
                 .build();
     }
 
     @Bean
-    public Step availabilityPricesImportStep(final BlockingSphereClient sphereClient,
-                                             final ItemReader<ProductProjection> productReader,
-                                             final ItemWriter<ProductUpdateCommand> productPriceWriter) {
-        final StepBuilder stepBuilder = stepBuilderFactory.get("availabilityPricesImportStep");
-        return stepBuilder
+    public Step pricesPerChannelImportStep(final ItemReader<ProductProjection> importPriceReader,
+                                           final ItemProcessor<ProductProjection, ProductUpdateCommand> importPriceProcessor,
+                                           final ItemWriter<ProductUpdateCommand> importPriceWriter) {
+        return stepBuilderFactory.get("pricesPerChannelImportStep")
                 .<ProductProjection, ProductUpdateCommand>chunk(20)
-                .reader(productReader)
-                .processor(priceCreationProcessor(sphereClient))
-                .writer(productPriceWriter)
+                .reader(importPriceReader)
+                .processor(importPriceProcessor)
+                .writer(importPriceWriter)
                 .faultTolerant()
                 .skip(ErrorResponseException.class)
                 .skipLimit(1)
@@ -74,23 +73,30 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
 
     @Bean
     @StepScope
-    public ItemReader<ProductProjection> productReader(final BlockingSphereClient sphereClient) {
+    public ItemReader<ProductProjection> importPriceReader(final BlockingSphereClient sphereClient) {
         return createProductProjectionReader(sphereClient);
     }
 
     @Bean
-    protected ItemProcessor<ProductProjection, ProductUpdateCommand> priceCreationProcessor(final BlockingSphereClient sphereClient) {
-        return createProcessor(sphereClient);
+    public ItemProcessor<ProductProjection, ProductUpdateCommand> importPriceProcessor(final BlockingSphereClient sphereClient) {
+        return productProjection -> {
+            final List<AddPrice> productPriceAddUpdateActions = channelListHolder(sphereClient).getChannels().stream()
+                    .peek(m -> LOGGER.info("attempting to process product {} in channel {}", productProjection.getId(), m.getId()))
+                    .flatMap(channel -> createAddPriceStream(productProjection, channel, sphereClient))
+                    .collect(Collectors.toList());
+            final List<UpdateAction<Product>> allUpdateActions = new ArrayList<>(productPriceAddUpdateActions.size() + 1);
+            allUpdateActions.addAll(productPriceAddUpdateActions);
+            allUpdateActions.add(Publish.of());
+            return ProductUpdateCommand.of(productProjection, allUpdateActions);
+        };
     }
 
     @Bean
-    public ItemWriter<ProductUpdateCommand> productPriceWriter(final BlockingSphereClient sphereClient) {
-        return updates -> updates.stream()
-                .map(sphereClient::execute)
-                .collect(SphereClientUtils.blockingWaitForEachCollector(5, TimeUnit.MINUTES));
+    public ItemWriter<ProductUpdateCommand> importPriceWriter(final BlockingSphereClient sphereClient) {
+        return updates -> updates.forEach(sphereClient::executeBlocking);
     }
 
-    public ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
+    private ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
         final ChannelQuery channelQuery = ChannelQuery.of()
                 .withPredicates(m -> m.key().isIn(CHANNEL_KEYS));
         final List<Channel> channels = blockingWait(queryAll(sphereClient, channelQuery), 5, TimeUnit.MINUTES);
@@ -105,20 +111,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
                 lastProductWithJoyrideChannel
                         .map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThan(product.getId())))
                         .orElse(baseQuery);
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, productProjection -> productProjection.getId());
-    }
-
-    private ItemProcessor<ProductProjection, ProductUpdateCommand> createProcessor(final BlockingSphereClient sphereClient) {
-        return productProjection -> {
-            final List<AddPrice> productPriceAddUpdateActions = channelListHolder(sphereClient).getChannels().stream()
-                    .peek(m -> logger.info("attempting to process product {} in channel {}", productProjection.getId(), m.getId()))
-                    .flatMap(channel -> createAddPriceStream(productProjection, channel, sphereClient))
-                    .collect(Collectors.toList());
-            final List<UpdateAction<Product>> allUpdateActions = new ArrayList<>(productPriceAddUpdateActions.size() + 1);
-            allUpdateActions.addAll(productPriceAddUpdateActions);
-            allUpdateActions.add(Publish.of());
-            return ProductUpdateCommand.of(productProjection, allUpdateActions);
-        };
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
     }
 
     private ProductProjection fetchProjectionWithPriceSelection(final BlockingSphereClient sphereClient, final ProductProjection productProjection, final Channel channel) {
@@ -153,11 +146,11 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
         return PriceDraft.of(price).withValue(newAmount).withChannel(channel);
     }
 
-    static int randInt(final Random random, final int min, final int max) {
+    private static int randInt(final Random random, final int min, final int max) {
         return random.nextInt((max - min) + 1) + min;
     }
 
-    public static boolean productIsProcessed(final BlockingSphereClient sphereClient, final Long productIndex) {
+    private static boolean productIsProcessed(final BlockingSphereClient sphereClient, final Long productIndex) {
         final Optional<ProductProjection> optionalProduct = searchProductByIndex(sphereClient, productIndex);
         return optionalProduct.map(product -> productContainJoyridePrice(product)).orElse(false);
     }
@@ -190,7 +183,7 @@ public class AvailabilityPricesImportJobConfiguration extends DefaultCommercetoo
         return optionalRightResult.isPresent() ? optionalRightResult : optionalLeftResult;
     }
 
-    public static boolean productContainJoyridePrice(final ProductProjection product) {
+    private static boolean productContainJoyridePrice(final ProductProjection product) {
         final List<Price> productPrices = product.getAllVariants()
                 .stream()
                 .flatMap(variant -> variant.getPrices().stream())
