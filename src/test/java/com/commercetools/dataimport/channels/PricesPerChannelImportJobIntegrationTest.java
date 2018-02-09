@@ -88,7 +88,7 @@ public class PricesPerChannelImportJobIntegrationTest extends IntegrationTest {
         withJoyrideChannels(sphereClient, joyrideChannels -> {
             withListOfProductProjections(sphereClient, amountOfProducts, productsWithoutJoyride -> {
                 addJoyridePriceToProductsUntilStopIndex(stopIndex);
-                final ItemReader<ProductProjection> restartReader = createProductProjectionReader(sphereClient);
+                final ItemReader<ProductProjection> restartReader = createProductReader(sphereClient);
                 final ProductProjection restartProduct = restartReader.read();
                 assertThat(restartProduct.getId()).isEqualTo(productsWithoutJoyride.get(stopIndex + 1).getId());
                 return sphereClient.executeBlocking(ProductProjectionQuery.ofCurrent()).getResults();
@@ -121,7 +121,7 @@ public class PricesPerChannelImportJobIntegrationTest extends IntegrationTest {
     }
 
     private void addJoyrideToMissingProducts() throws Exception {
-        final ItemReader<ProductProjection> restartReader = createProductProjectionReader(sphereClient);
+        final ItemReader<ProductProjection> restartReader = createProductReader(sphereClient);
         ProductProjection productProjection;
         while ((productProjection = restartReader.read()) != null) {
             processProductAndWritePrice(productProjection);
@@ -129,7 +129,7 @@ public class PricesPerChannelImportJobIntegrationTest extends IntegrationTest {
     }
 
     private void addJoyridePriceToProductsUntilStopIndex(final int stopIndex) throws Exception {
-        final ItemReader<ProductProjection> initialReader = createProductProjectionReader(sphereClient);
+        final ItemReader<ProductProjection> initialReader = createProductReader(sphereClient);
         int index = 0;
         while (index <= stopIndex) {
             processProductAndWritePrice(initialReader.read());

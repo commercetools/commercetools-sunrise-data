@@ -72,12 +72,7 @@ public class InventoryEntryCreationJobConfiguration extends CommercetoolsJobConf
     @Bean
     @StepScope
     public ItemReader<ProductProjection> inventoryEntryReader(final BlockingSphereClient sphereClient) {
-        final Optional<ProductProjection> lastProductWithInventory = findLastProductWithInventory(sphereClient);
-        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
-        final ProductProjectionQuery productProjectionQuery = lastProductWithInventory
-                .map(productProjection -> baseQuery.withPredicates(product -> product.id().isGreaterThan(productProjection.getId())))
-                .orElse(baseQuery);
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
+        return createProductReader(sphereClient);
     }
 
     @Bean
@@ -92,6 +87,15 @@ public class InventoryEntryCreationJobConfiguration extends CommercetoolsJobConf
                 .peek(draft -> LOGGER.info("attempting to create inventory entry sku {}, channel {}", draft.getSku(), draft.getSupplyChannel().getId()))
                 .map(InventoryEntryCreateCommand::of)
                 .forEach(sphereClient::execute);
+    }
+
+    static ItemReader<ProductProjection> createProductReader(final BlockingSphereClient sphereClient) {
+        final Optional<ProductProjection> lastProductWithInventory = findLastProductWithInventory(sphereClient);
+        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
+        final ProductProjectionQuery productProjectionQuery = lastProductWithInventory
+                .map(productProjection -> baseQuery.withPredicates(product -> product.id().isGreaterThan(productProjection.getId())))
+                .orElse(baseQuery);
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
     }
 
     private ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {

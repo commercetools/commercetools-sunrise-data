@@ -74,7 +74,7 @@ public class PricesPerChannelImportJobConfiguration extends CommercetoolsJobConf
     @Bean
     @StepScope
     public ItemReader<ProductProjection> importPriceReader(final BlockingSphereClient sphereClient) {
-        return createProductProjectionReader(sphereClient);
+        return createProductReader(sphereClient);
     }
 
     @Bean
@@ -96,14 +96,7 @@ public class PricesPerChannelImportJobConfiguration extends CommercetoolsJobConf
         return updates -> updates.forEach(sphereClient::executeBlocking);
     }
 
-    private ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
-        final ChannelQuery channelQuery = ChannelQuery.of()
-                .withPredicates(m -> m.key().isIn(CHANNEL_KEYS));
-        final List<Channel> channels = blockingWait(queryAll(sphereClient, channelQuery), 5, TimeUnit.MINUTES);
-        return new ChannelListHolder(channels);
-    }
-
-    static ItemReader<ProductProjection> createProductProjectionReader(final BlockingSphereClient sphereClient) {
+    static ItemReader<ProductProjection> createProductReader(final BlockingSphereClient sphereClient) {
         final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
         final Long productsCount = sphereClient.executeBlocking(baseQuery.withLimit(0)).getTotal();
         final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
@@ -112,6 +105,13 @@ public class PricesPerChannelImportJobConfiguration extends CommercetoolsJobConf
                         .map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThan(product.getId())))
                         .orElse(baseQuery);
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
+    }
+
+    private ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
+        final ChannelQuery channelQuery = ChannelQuery.of()
+                .withPredicates(m -> m.key().isIn(CHANNEL_KEYS));
+        final List<Channel> channels = blockingWait(queryAll(sphereClient, channelQuery), 5, TimeUnit.MINUTES);
+        return new ChannelListHolder(channels);
     }
 
     private ProductProjection fetchProjectionWithPriceSelection(final BlockingSphereClient sphereClient, final ProductProjection productProjection, final Channel channel) {

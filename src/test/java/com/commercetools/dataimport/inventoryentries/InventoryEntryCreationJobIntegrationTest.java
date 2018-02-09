@@ -119,7 +119,7 @@ public class InventoryEntryCreationJobIntegrationTest extends IntegrationTest {
         withJoyrideChannels(sphereClient, joyrideChannels -> {
             withListOfProductProjections(sphereClient, amountOfProducts, productsWithoutInventories -> {
                 addInventoriesToProductsUntilStopIndex(stopIndex);
-                final ItemReader<ProductProjection> restartReader = createProductProjectionReader(sphereClient);
+                final ItemReader<ProductProjection> restartReader = createProductReader(sphereClient);
                 final ProductProjection restartProduct = restartReader.read();
                 assertThat(restartProduct.getId()).isEqualTo(productsWithoutInventories.get(stopIndex + 1).getId());
                 deleteInventoryEntries(sphereClient);
@@ -141,7 +141,7 @@ public class InventoryEntryCreationJobIntegrationTest extends IntegrationTest {
     }
 
     private void addInventoriesToProductsUntilStopIndex(final int stopIndex) throws Exception {
-        final ItemReader<ProductProjection> initialReader = InventoryEntryCreationJobConfiguration.createProductProjectionReader(sphereClient);
+        final ItemReader<ProductProjection> initialReader = createProductReader(sphereClient);
         int index = 0;
         while (index <= stopIndex) {
             final List<InventoryEntryDraft> list = inventoryEntryProcessor.process(initialReader.read());
@@ -151,7 +151,7 @@ public class InventoryEntryCreationJobIntegrationTest extends IntegrationTest {
     }
 
     private void addInventoriesToMissingProducts() throws Exception {
-        final ItemReader<ProductProjection> restartReader = InventoryEntryCreationJobConfiguration.createProductProjectionReader(sphereClient);
+        final ItemReader<ProductProjection> restartReader = createProductReader(sphereClient);
         ProductProjection product;
         while ((product = restartReader.read()) != null) {
             final List<InventoryEntryDraft> list = inventoryEntryProcessor.process(product);
