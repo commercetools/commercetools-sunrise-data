@@ -1,29 +1,21 @@
-package com.commercetools.dataimport.orders.csvline;
+package com.commercetools.dataimport.orders.cvsline;
 
 
 /**
  * This class is used as a container for the csv line data
  */
-
 public class OrderCsvLineValue {
 
     private String customerEmail;
-
     private String orderNumber;
-
-    private LineItem lineItems;
-
+    private LineItemCsvLineValue lineItems;
     private double totalPrice;
-
-
-    public OrderCsvLineValue() {
-    }
 
     public String getCustomerEmail() {
         return customerEmail;
     }
 
-    public void setCustomerEmail(String customerEmail) {
+    public void setCustomerEmail(final String customerEmail) {
         this.customerEmail = customerEmail;
     }
 
@@ -31,15 +23,15 @@ public class OrderCsvLineValue {
         return orderNumber;
     }
 
-    public void setOrderNumber(String orderNumber) {
+    public void setOrderNumber(final String orderNumber) {
         this.orderNumber = orderNumber;
     }
 
-    public LineItem getLineItems() {
+    public LineItemCsvLineValue getLineItems() {
         return lineItems;
     }
 
-    public void setLineItems(LineItem lineItems) {
+    public void setLineItems(final LineItemCsvLineValue lineItems) {
         this.lineItems = lineItems;
     }
 
@@ -47,10 +39,7 @@ public class OrderCsvLineValue {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(final double totalPrice) {
         this.totalPrice = totalPrice;
     }
-
-
-
 }

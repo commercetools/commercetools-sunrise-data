@@ -21,7 +21,7 @@ public class ChannelTypesImportJobConfiguration extends TypesImportJobConfigurat
 
     @Bean
     public Step channelTypesImportStep(final ItemReader<TypeDraft> typeImportReader,
-                                      final ItemWriter<TypeDraft> typeImportWriter) {
+                                       final ItemWriter<TypeDraft> typeImportWriter) {
         return stepBuilderFactory.get("channelTypesImportStep")
                 .<TypeDraft, TypeDraft>chunk(1)
                 .reader(typeImportReader)

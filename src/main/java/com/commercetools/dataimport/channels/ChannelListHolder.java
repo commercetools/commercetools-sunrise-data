@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ChannelListHolder extends Base {
+
     private final List<Channel> channels;
 
     public ChannelListHolder(final List<Channel> channels) {
