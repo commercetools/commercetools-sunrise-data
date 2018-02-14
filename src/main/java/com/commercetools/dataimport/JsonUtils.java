@@ -1,6 +1,7 @@
 package com.commercetools.dataimport;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.sphere.sdk.json.SphereJsonUtils;
@@ -13,6 +14,9 @@ import java.io.InputStream;
 import java.util.List;
 
 public final class JsonUtils {
+
+    private static final ObjectMapper MAPPER = SphereJsonUtils.newObjectMapper();
+
     private JsonUtils() {
     }
 
@@ -42,7 +46,7 @@ public final class JsonUtils {
     public static <T> List<T> createJsonList(final Resource resource, final Class<T> clazz) throws IOException {
         final TypeFactory typeFactory = TypeFactory.defaultInstance();
         final JavaType javaType = typeFactory.constructCollectionType(List.class, clazz);
-        final ObjectReader reader = SphereJsonUtils.newObjectMapper().readerFor(javaType);
+        final ObjectReader reader = MAPPER.readerFor(javaType);
         final InputStream inputStream = resource.getInputStream();
         return reader.readValue(inputStream);
     }

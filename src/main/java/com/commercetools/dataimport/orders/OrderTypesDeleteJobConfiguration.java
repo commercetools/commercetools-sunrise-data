@@ -1,6 +1,5 @@
 package com.commercetools.dataimport.orders;
 
-import com.commercetools.dataimport.CommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.types.Type;
@@ -8,41 +7,52 @@ import io.sphere.sdk.types.commands.TypeDeleteCommand;
 import io.sphere.sdk.types.queries.TypeQuery;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import static java.util.Collections.singletonList;
 
 @Configuration
-public class OrderTypesDeleteJobConfiguration extends CommercetoolsJobConfiguration {
+@EnableBatchProcessing
+public class OrderTypesDeleteJobConfiguration {
+
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private BlockingSphereClient sphereClient;
 
     @Bean
-    public Job orderTypesDeleteJob(final Step orderTypesDeleteStep) {
+    public Job orderTypesDeleteJob() {
         return jobBuilderFactory.get("orderTypesDeleteJob")
-                .start(orderTypesDeleteStep)
+                .start(orderTypesDeleteStep())
                 .build();
     }
 
     @Bean
-    public Step orderTypesDeleteStep(final ItemReader<Type> orderTypesDeleteReader,
-                                       final ItemWriter<Type> orderTypesDeleteWriter) {
+    public Step orderTypesDeleteStep() {
         return stepBuilderFactory.get("orderTypesDeleteStep")
                 .<Type, Type>chunk(1)
-                .reader(orderTypesDeleteReader)
-                .writer(orderTypesDeleteWriter)
+                .reader(reader())
+                .writer(writer())
                 .build();
     }
 
-    @Bean
-    public ItemReader<Type> orderTypesDeleteReader(final BlockingSphereClient sphereClient) {
+    private ItemReader<Type> reader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, TypeQuery.of()
                 .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("order"))));
     }
 
-    @Bean
-    public ItemWriter<Type> orderTypesDeleteWriter(final BlockingSphereClient sphereClient) {
+    private ItemWriter<Type> writer() {
         return items -> items.forEach(item -> sphereClient.executeBlocking(TypeDeleteCommand.of(item)));
     }
 }

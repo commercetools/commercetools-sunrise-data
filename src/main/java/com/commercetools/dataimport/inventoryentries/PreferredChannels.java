@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.channels;
+package com.commercetools.dataimport.inventoryentries;
 
 import java.util.List;
 

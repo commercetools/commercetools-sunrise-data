@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.channels;
 
-import com.commercetools.dataimport.CommercetoolsJobConfiguration;
+import com.commercetools.dataimport.inventoryentries.ChannelListHolder;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.channels.Channel;
@@ -20,10 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.CollectionUtils;
@@ -36,45 +39,50 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.commercetools.dataimport.channels.PreferredChannels.CHANNEL_KEYS;
+import static com.commercetools.dataimport.inventoryentries.PreferredChannels.CHANNEL_KEYS;
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 
 @Configuration
-public class PricesPerChannelGenerationJobConfiguration extends CommercetoolsJobConfiguration {
+@EnableBatchProcessing
+public class PricesPerChannelGenerationJobConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PricesPerChannelGenerationJobConfiguration.class);
 
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private BlockingSphereClient sphereClient;
+
     @Bean
-    public Job pricesPerChannelGenerationJob(final Step pricesPerChannelGenerationStep) {
+    public Job pricesPerChannelGenerationJob() {
         return jobBuilderFactory.get("pricesPerChannelGenerationJob")
-                .start(pricesPerChannelGenerationStep)
+                .start(pricesPerChannelGenerationStep())
                 .build();
     }
 
     @Bean
-    public Step pricesPerChannelGenerationStep(final ItemReader<ProductProjection> pricesPerChannelGenerationReader,
-                                           final ItemProcessor<ProductProjection, ProductUpdateCommand> pricesPerChannelGenerationProcessor,
-                                           final ItemWriter<ProductUpdateCommand> pricesPerChannelGenerationWriter) {
+    public Step pricesPerChannelGenerationStep() {
         return stepBuilderFactory.get("pricesPerChannelGenerationStep")
                 .<ProductProjection, ProductUpdateCommand>chunk(20)
-                .reader(pricesPerChannelGenerationReader)
-                .processor(pricesPerChannelGenerationProcessor)
-                .writer(pricesPerChannelGenerationWriter)
+                .reader(reader())
+                .processor(processor())
+                .writer(writer())
                 .faultTolerant()
                 .skip(ErrorResponseException.class)
                 .skipLimit(1)
                 .build();
     }
 
-    @Bean
-    @StepScope
-    public ItemReader<ProductProjection> pricesPerChannelGenerationReader(final BlockingSphereClient sphereClient) {
+    private ItemReader<ProductProjection> reader() {
         return createProductReader(sphereClient);
     }
 
-    @Bean
-    public ItemProcessor<ProductProjection, ProductUpdateCommand> pricesPerChannelGenerationProcessor(final BlockingSphereClient sphereClient) {
+    private ItemProcessor<ProductProjection, ProductUpdateCommand> processor() {
         return productProjection -> {
             final List<AddPrice> productPriceAddUpdateActions = channelListHolder(sphereClient).getChannels().stream()
                     .peek(m -> LOGGER.info("attempting to process product {} in channel {}", productProjection.getId(), m.getId()))
@@ -87,8 +95,7 @@ public class PricesPerChannelGenerationJobConfiguration extends CommercetoolsJob
         };
     }
 
-    @Bean
-    public ItemWriter<ProductUpdateCommand> pricesPerChannelGenerationWriter(final BlockingSphereClient sphereClient) {
+    private ItemWriter<ProductUpdateCommand> writer() {
         return updates -> updates.forEach(sphereClient::executeBlocking);
     }
 

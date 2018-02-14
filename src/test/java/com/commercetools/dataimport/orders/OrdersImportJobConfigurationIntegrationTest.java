@@ -103,11 +103,13 @@ public class OrdersImportJobConfigurationIntegrationTest extends IntegrationTest
 
         assertThat(order.getTotalPrice()).isEqualTo(MoneyImpl.ofCents(73375, "EUR"));
 
-        assertThat(order.getLineItems()).extracting("variant")
+        assertThat(order.getLineItems())
+                .extracting("variant")
                 .extracting("sku")
                 .containsExactly("A0E20000000252G", "M0E20000000DZKB", "A0E200000002AD2");
 
-        assertThat(order.getLineItems()).extracting("quantity")
+        assertThat(order.getLineItems())
+                .extracting("quantity")
                 .containsExactly(1L, 1L, 1L);
 
     }

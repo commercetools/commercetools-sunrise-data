@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -27,24 +26,30 @@ import java.util.concurrent.TimeoutException;
 @ComponentScan("com.commercetools.dataimport")
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class PayloadJobMain extends CommercetoolsJobConfiguration {
+public class PayloadJobMain {
 
-    private static final String PAYLOAD_FILE_ENV_NAME = "PAYLOAD_FILE";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static void main(String [] args) throws Exception {
-        final String payloadFilePath = System.getenv(PAYLOAD_FILE_ENV_NAME);
-        if (StringUtils.isNotEmpty(payloadFilePath)) {
-            System.out.println(String.format("The payload file is located at %s.", payloadFilePath));
-            run(args, payloadFilePath);
+        if (args.length > 0) {
+            final String payloadFilePath = args[0];
+            try {
+                final JsonNode payloadJson = MAPPER.readTree(new File(payloadFilePath));
+                System.out.println("The payload file is located at " + payloadFilePath);
+                run(args, payloadJson);
+            } catch (IOException e) {
+                System.err.println("Could not load payload file in path " + payloadFilePath);
+                System.exit(1);
+            }
         } else {
-            System.err.println("Missing payload file path environment variable " + PAYLOAD_FILE_ENV_NAME);
+            System.err.println("Missing argument with payload file path");
             System.exit(1);
         }
     }
 
-    private static void run(final String[] args, final String payloadFilePath) throws Exception {
+    private static void run(final String[] args, final JsonNode payloadJson) throws Exception {
         try (final ConfigurableApplicationContext context = SpringApplication.run(PayloadJobMain.class, args)) {
-            final List<JobLaunchingData> jobLaunchingDataList = parseJobParameters(payloadFilePath);
+            final List<JobLaunchingData> jobLaunchingDataList = buildJobLaunchingDataList(payloadJson);
             final JobLauncher jobLauncher = context.getBean(JobLauncher.class);
             for (final JobLaunchingData jobLaunchingData : jobLaunchingDataList) {
                 final String jobName = jobLaunchingData.getJobName();
@@ -74,32 +79,25 @@ public class PayloadJobMain extends CommercetoolsJobConfiguration {
         }
     }
 
-    private static List<JobLaunchingData> parseJobParameters(final String payloadFilePath) throws IOException {
-        final ObjectMapper mapper = new ObjectMapper();
-        final JsonNode payload = mapper.readTree(new File(payloadFilePath));
-        final ArrayNode jobs = (ArrayNode) payload.get("jobs");
-        final List<JobLaunchingData> result = new ArrayList<>(jobs.size());
-        for(int i = 0; i < jobs.size(); i++) {
-            final JsonNode jobJsonNode = jobs.get(i);
-            final JobLaunchingData e = getJobLaunchingData(payload, jobJsonNode);
-            result.add(e);
+    private static List<JobLaunchingData> buildJobLaunchingDataList(final JsonNode payloadJson) {
+        final ArrayNode jobsJson = (ArrayNode) payloadJson.get("jobs");
+        final List<JobLaunchingData> jobLaunchingData = new ArrayList<>(jobsJson.size());
+        for (int i = 0; i < jobsJson.size(); i++) {
+            jobLaunchingData.add(buildJobLaunchingData(jobsJson.get(i)));
         }
-        return result;
+        return jobLaunchingData;
     }
 
-    private static JobLaunchingData getJobLaunchingData(final JsonNode payload, final JsonNode jobJsonNode) {
-        final String jobName = jobJsonNode.get("name").asText();
+    private static JobLaunchingData buildJobLaunchingData(final JsonNode jobJson) {
+        final String jobName = jobJson.get("name").asText();
         final JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
-        final JsonNode commercetools = payload.get("commercetools");
-        commercetools.fields().forEachRemaining(stringJsonNodeEntry -> {
-            jobParametersBuilder.addString("commercetools." + stringJsonNodeEntry.getKey(), stringJsonNodeEntry.getValue().asText());
-        });
-        jobJsonNode.fields().forEachRemaining(jobField -> {
-            //TODO prepare for other classes
+        jobJson.fields().forEachRemaining(jobField -> {
             if (jobField.getValue() instanceof TextNode) {
                 jobParametersBuilder.addString(jobField.getKey(), jobField.getValue().asText());
             } else if (jobField.getValue() instanceof IntNode || jobField.getValue() instanceof LongNode) {
                 jobParametersBuilder.addLong(jobField.getKey(), jobField.getValue().asLong());
+            } else {
+                System.err.println(String.format("Ignored job parameter \"%s\" because it could not be parsed", jobField));
             }
         });
         return new JobLaunchingData(jobName, jobParametersBuilder.toJobParameters());

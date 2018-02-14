@@ -1,15 +1,18 @@
 package com.commercetools.dataimport.channels;
 
-import com.commercetools.dataimport.CommercetoolsJobConfiguration;
 import com.commercetools.dataimport.JsonUtils;
 import io.sphere.sdk.channels.ChannelDraft;
 import io.sphere.sdk.channels.commands.ChannelCreateCommand;
 import io.sphere.sdk.client.BlockingSphereClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +21,17 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 
 @Configuration
-public class ChannelsImportJobConfiguration extends CommercetoolsJobConfiguration {
+@EnableBatchProcessing
+public class ChannelsImportJobConfiguration {
+
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private BlockingSphereClient sphereClient;
 
     @Bean
     public Job channelsImportJob(final Step channelsImportStep) {
@@ -28,12 +41,11 @@ public class ChannelsImportJobConfiguration extends CommercetoolsJobConfiguratio
     }
 
     @Bean
-    public Step channelsImportStep(final ItemReader<ChannelDraft> channelsImportReader,
-                                   final ItemWriter<ChannelDraft> channelsImportWriter) {
+    public Step channelsImportStep(final ItemReader<ChannelDraft> channelsImportReader) {
         return stepBuilderFactory.get("channelsImportStep")
                 .<ChannelDraft, ChannelDraft>chunk(1)
                 .reader(channelsImportReader)
-                .writer(channelsImportWriter)
+                .writer(writer())
                 .build();
     }
 
@@ -43,8 +55,7 @@ public class ChannelsImportJobConfiguration extends CommercetoolsJobConfiguratio
         return JsonUtils.createJsonListReader(resource, ChannelDraft.class);
     }
 
-    @Bean
-    public ItemWriter<ChannelDraft> channelsImportWriter(final BlockingSphereClient sphereClient) {
+    private ItemWriter<ChannelDraft> writer() {
         return items -> items.forEach(channelDraft -> sphereClient.executeBlocking(ChannelCreateCommand.of(channelDraft)));
     }
 }

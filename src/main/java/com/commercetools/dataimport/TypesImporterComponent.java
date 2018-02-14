@@ -9,10 +9,12 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-public abstract class TypesImportJobConfiguration extends CommercetoolsJobConfiguration {
+@Component
+public class TypesImporterComponent {
 
     @Bean
     @StepScope

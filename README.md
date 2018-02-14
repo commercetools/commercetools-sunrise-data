@@ -58,7 +58,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
 3. Adapt the file with your commercetools project credentials.
 4. Run the following command:
     ```bash
-    export PAYLOAD_FILE=payload-channels.json && mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+    ./mvnw spring-boot:run -Drun.arguments=payload-channels.json
     ```
 
 ### 3. Import catalog
@@ -90,7 +90,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
 2. Adapt the file with your commercetools project credentials.
 3. Run the following command:
     ```bash
-    export PAYLOAD_FILE=payload-orders.json && mvn spring-boot:run -Dstart-class=com.commercetools.dataimport.all.PayloadJobMain
+    ./mvnw spring-boot:run -Drun.arguments=payload-orders.json
     ```
     
 ## How to use the application
@@ -178,6 +178,5 @@ You can combine as many jobs as you need in your payload file. They will be exec
 ### Run the application
 Run the application with maven:
 ```bash
-export PAYLOAD_FILE=path/to/payload/file
-./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.PayloadJobMain
+./mvnw spring-boot:run -Drun.arguments=path/to/payload/file.json
 ``` 

@@ -1,6 +1,5 @@
 package com.commercetools.dataimport.products;
 
-import com.commercetools.dataimport.CommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.products.Product;
@@ -12,66 +11,73 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ProductsDeleteJobConfiguration extends CommercetoolsJobConfiguration {
+@EnableBatchProcessing
+public class ProductsDeleteJobConfiguration {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ProductsDeleteJobConfiguration.class);
 
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private BlockingSphereClient sphereClient;
+
     @Bean
-    public Job productsDeleteJob(final Step productsUnpublishStep, final Step productsDeleteStep) {
+    public Job productsDeleteJob() {
         return jobBuilderFactory.get("productsDeleteJob")
-                .start(productsUnpublishStep)
-                .next(productsDeleteStep)
+                .start(productsUnpublishStep())
+                .next(productsDeleteStep())
                 .build();
     }
 
     @Bean
-    protected Step productsUnpublishStep(final ItemReader<Product> productsUnpublishReader,
-                                         final ItemWriter<Product> productsUnpublishWriter) {
+    public Step productsUnpublishStep() {
         return stepBuilderFactory.get("unpublishProductsStep")
                 .<Product, Product>chunk(50)
-                .reader(productsUnpublishReader)
-                .writer(productsUnpublishWriter)
+                .reader(unpublishReader())
+                .writer(unpublishWriter())
                 .build();
     }
 
     @Bean
-    public ItemStreamReader<Product> productsUnpublishReader(final BlockingSphereClient sphereClient) {
+    public Step productsDeleteStep() {
+        return stepBuilderFactory.get("productsDeleteStep")
+                .<Product, Product>chunk(50)
+                .reader(deleteReader())
+                .writer(deleteWriter())
+                .build();
+    }
+
+    private ItemStreamReader<Product> unpublishReader() {
         final ProductQuery query = ProductQuery.of().withPredicates(m -> m.masterData().isPublished().is(true));
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, query);
     }
 
-    @Bean
-    public ItemWriter<Product> productsUnpublishWriter(final BlockingSphereClient sphereClient) {
+    private ItemWriter<Product> unpublishWriter() {
         return items -> items.stream()
                 .peek(element -> LOGGER.debug("Attempting to delete product " + element.getId()))
                 .map(product -> ProductUpdateCommand.of(product, Unpublish.of()))
                 .forEach(sphereClient::executeBlocking);
     }
 
-    @Bean
-    protected Step productsDeleteStep(final ItemReader<Product> productsDeleteReader,
-                                      final ItemWriter<Product> productsDeleteWriter) {
-        return stepBuilderFactory.get("productsDeleteStep")
-                .<Product, Product>chunk(50)
-                .reader(productsDeleteReader)
-                .writer(productsDeleteWriter)
-                .build();
-    }
-
-    @Bean
-    public ItemStreamReader<Product> productsDeleteReader(final BlockingSphereClient sphereClient) {
+    private ItemStreamReader<Product> deleteReader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, ProductQuery.of());
     }
 
-    @Bean
-    public ItemWriter<Product> productsDeleteWriter(final BlockingSphereClient sphereClient) {
+    private ItemWriter<Product> deleteWriter() {
         return items -> items.forEach(item -> sphereClient.execute(ProductDeleteCommand.of(item)));
     }
 }

@@ -1,6 +1,5 @@
 package com.commercetools.dataimport.categories;
 
-import com.commercetools.dataimport.CommercetoolsJobConfiguration;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.commands.CategoryDeleteCommand;
@@ -8,55 +7,63 @@ import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class CategoriesDeleteJobConfiguration extends CommercetoolsJobConfiguration {
+@EnableBatchProcessing
+public class CategoriesDeleteJobConfiguration {
+
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private BlockingSphereClient sphereClient;
 
     @Bean
-    public Job categoriesDeleteJob(final Step rootCategoriesDeleteStep, final Step remainingCategoriesDeleteStep) {
+    public Job categoriesDeleteJob() {
         return jobBuilderFactory.get("categoriesDeleteJob")
-                .start(rootCategoriesDeleteStep)
-                .next(remainingCategoriesDeleteStep)
+                .start(rootCategoriesDeleteStep())
+                .next(remainingCategoriesDeleteStep())
                 .build();
     }
 
     @Bean
-    public Step rootCategoriesDeleteStep(final ItemReader<Category> rootCategoriesDeleteReader,
-                                         final ItemWriter<Category> categoriesDeleteWriter) {
+    public Step rootCategoriesDeleteStep() {
         return stepBuilderFactory.get("rootCategoriesDeleteStep")
                 .<Category, Category>chunk(1)
-                .reader(rootCategoriesDeleteReader)
-                .writer(categoriesDeleteWriter)
+                .reader(rootReader())
+                .writer(writer())
                 .build();
     }
 
     @Bean
-    public Step remainingCategoriesDeleteStep(final ItemReader<Category> remainingCategoriesDeleteReader,
-                                              final ItemWriter<Category> categoriesDeleteWriter) {
+    public Step remainingCategoriesDeleteStep() {
         return stepBuilderFactory.get("remainingCategoriesDeleteStep")
                 .<Category, Category>chunk(1)
-                .reader(remainingCategoriesDeleteReader)
-                .writer(categoriesDeleteWriter)
+                .reader(remainingReader())
+                .writer(writer())
                 .build();
     }
 
-    @Bean
-    public ItemStreamReader<Category> rootCategoriesDeleteReader(final BlockingSphereClient sphereClient) {
+    private ItemStreamReader<Category> rootReader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of().byIsRoot());
     }
 
-    @Bean
-    public ItemStreamReader<Category> remainingCategoriesDeleteReader(final BlockingSphereClient sphereClient) {
+    private ItemStreamReader<Category> remainingReader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of());
     }
 
-    @Bean
-    public ItemWriter<Category> categoriesDeleteWriter(final BlockingSphereClient sphereClient) {
+    private ItemWriter<Category> writer() {
         return items -> items.forEach(item -> sphereClient.executeBlocking(CategoryDeleteCommand.of(item)));
     }
 }

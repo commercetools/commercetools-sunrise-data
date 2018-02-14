@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.commercetools.dataimport.TestUtils.*;
-import static com.commercetools.dataimport.channels.PreferredChannels.CHANNEL_KEYS;
+import static com.commercetools.dataimport.inventoryentries.PreferredChannels.CHANNEL_KEYS;
 import static com.commercetools.dataimport.inventoryentries.InventoryEntryGenerationJobConfiguration.*;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

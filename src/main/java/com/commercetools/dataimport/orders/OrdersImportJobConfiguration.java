@@ -1,6 +1,5 @@
 package com.commercetools.dataimport.orders;
 
-import com.commercetools.dataimport.CommercetoolsJobConfiguration;
 import com.commercetools.dataimport.orders.cvsline.OrderCsvLineValue;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.models.LocalizedString;
@@ -10,15 +9,18 @@ import io.sphere.sdk.products.Price;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.SingleItemPeekableItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,9 +32,19 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @Configuration
-public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration {
+@EnableBatchProcessing
+public class OrdersImportJobConfiguration {
 
     private static final String[] ORDER_CSV_HEADER_NAMES = new String[]{"customerEmail", "orderNumber", "lineitems.variant.sku", "lineitems.price", "lineitems.quantity", "totalPrice"};
+
+    @Autowired
+    private JobBuilderFactory jobBuilderFactory;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    private BlockingSphereClient sphereClient;
 
     @Bean
     public Job ordersImportJob(final Step ordersImportStep) {
@@ -42,20 +54,18 @@ public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration 
     }
 
     @Bean
-    public Step ordersImportStep(final ItemReader<List<OrderCsvLineValue>> ordersImportReader,
-                                 final ItemProcessor<List<OrderCsvLineValue>, OrderImportDraft> ordersImportProcessor,
-                                 final ItemWriter<OrderImportDraft> ordersImportWriter) {
+    public Step ordersImportStep(final OrderImportItemReader orderImportItemReader) {
         return stepBuilderFactory.get("ordersImportStep")
                 .<List<OrderCsvLineValue>, OrderImportDraft>chunk(1)
-                .reader(ordersImportReader)
-                .processor(ordersImportProcessor)
-                .writer(ordersImportWriter)
+                .reader(orderImportItemReader)
+                .processor(processor())
+                .writer(writer())
                 .build();
     }
 
     @Bean
     @StepScope
-    public OrderImportItemReader ordersImportReader(@Value("#{jobParameters['resource']}") final Resource resource) {
+    public OrderImportItemReader orderImportItemReader(@Value("#{jobParameters['resource']}") final Resource resource) {
         final OrderImportItemReader reader = new OrderImportItemReader();
         final SingleItemPeekableItemReader<OrderCsvLineValue> itemReader = new SingleItemPeekableItemReader<>();
         itemReader.setDelegate(flatFileItemReader(resource));
@@ -63,8 +73,7 @@ public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration 
         return reader;
     }
 
-    @Bean
-    public ItemProcessor<List<OrderCsvLineValue>, OrderImportDraft> ordersImportProcessor() {
+    private ItemProcessor<List<OrderCsvLineValue>, OrderImportDraft> processor() {
         return items -> {
             if (!items.isEmpty()) {
                 final OrderCsvLineValue firstCsvLine = items.get(0);
@@ -82,8 +91,7 @@ public class OrdersImportJobConfiguration extends CommercetoolsJobConfiguration 
         };
     }
 
-    @Bean
-    public ItemWriter<OrderImportDraft> ordersImportWriter(final BlockingSphereClient sphereClient) {
+    private ItemWriter<OrderImportDraft> writer() {
         return items -> items.stream()
                 .map(OrderImportCommand::of)
                 .forEach(sphereClient::executeBlocking);
