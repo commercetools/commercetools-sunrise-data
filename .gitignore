@@ -10,3 +10,4 @@ travis-payload.json
 iron.json
 payload*.json
 integrationtest.properties
+credentials.properties
