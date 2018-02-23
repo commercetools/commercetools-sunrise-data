@@ -5,6 +5,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -30,6 +31,7 @@ public class CustomerTypesImportJobConfiguration {
     }
 
     @Bean
+    @JobScope
     public Step customerTypesImportStep(final ItemReader<TypeDraft> typeImportReader,
                                         final ItemWriter<TypeDraft> typeImportWriter) {
         return stepBuilderFactory.get("customerTypesImportStep")

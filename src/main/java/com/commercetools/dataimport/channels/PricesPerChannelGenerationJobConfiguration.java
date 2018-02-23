@@ -22,6 +22,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -66,6 +67,7 @@ public class PricesPerChannelGenerationJobConfiguration {
     }
 
     @Bean
+    @JobScope
     public Step pricesPerChannelGenerationStep() {
         return stepBuilderFactory.get("pricesPerChannelGenerationStep")
                 .<ProductProjection, ProductUpdateCommand>chunk(20)
@@ -79,7 +81,13 @@ public class PricesPerChannelGenerationJobConfiguration {
     }
 
     private ItemReader<ProductProjection> reader() {
-        return createProductReader(sphereClient);
+        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
+        final Long productsCount = sphereClient.executeBlocking(baseQuery.withLimit(0)).getTotal();
+        final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
+        final ProductProjectionQuery productProjectionQuery = lastProductWithJoyrideChannel
+                .map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThan(product.getId())))
+                .orElse(baseQuery);
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
     }
 
     private ItemProcessor<ProductProjection, ProductUpdateCommand> processor() {
@@ -97,16 +105,6 @@ public class PricesPerChannelGenerationJobConfiguration {
 
     private ItemWriter<ProductUpdateCommand> writer() {
         return updates -> updates.forEach(sphereClient::executeBlocking);
-    }
-
-    static ItemReader<ProductProjection> createProductReader(final BlockingSphereClient sphereClient) {
-        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
-        final Long productsCount = sphereClient.executeBlocking(baseQuery.withLimit(0)).getTotal();
-        final Optional<ProductProjection> lastProductWithJoyrideChannel = findLastProductWithJoyrideChannel(sphereClient, 0L, productsCount - 1);
-        final ProductProjectionQuery productProjectionQuery = lastProductWithJoyrideChannel
-                        .map(product -> baseQuery.plusPredicates(m -> m.id().isGreaterThan(product.getId())))
-                        .orElse(baseQuery);
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
     }
 
     private ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
@@ -141,7 +139,7 @@ public class PricesPerChannelGenerationJobConfiguration {
                 .orElseGet(Stream::empty);
     }
 
-    static PriceDraftDsl randomPriceDraft(final ProductVariant productVariant, final Channel channel, final Price price) {
+    private static PriceDraftDsl randomPriceDraft(final ProductVariant productVariant, final Channel channel, final Price price) {
         final Random random = new Random(productVariant.getSku().hashCode() + channel.getKey().hashCode());
         final double factor = randInt(random, 90, 110) * 0.01;
         final MonetaryAmount newAmount = price.getValue().multiply(factor);
@@ -165,7 +163,7 @@ public class PricesPerChannelGenerationJobConfiguration {
         return sphereClient.executeBlocking(productQuery).head();
     }
 
-    public static Optional<ProductProjection> findLastProductWithJoyrideChannel(final BlockingSphereClient sphereClient, final Long startProductIndex, final Long lastProductIndex) {
+    private static Optional<ProductProjection> findLastProductWithJoyrideChannel(final BlockingSphereClient sphereClient, final Long startProductIndex, final Long lastProductIndex) {
         final boolean startProductIsProcessed = productIsProcessed(sphereClient, startProductIndex);
         final boolean lastProductIsProcessed = productIsProcessed(sphereClient, lastProductIndex);
         final boolean allProductsProcessed = startProductIsProcessed && lastProductIsProcessed;

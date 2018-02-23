@@ -20,6 +20,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -61,6 +62,7 @@ public class InventoryEntryGenerationJobConfiguration {
     }
 
     @Bean
+    @JobScope
     public Step inventoryEntryGenerationStep() {
         return stepBuilderFactory.get("inventoryEntryGenerationStep")
                 .<ProductProjection, List<InventoryEntryDraft>>chunk(1)
@@ -74,7 +76,12 @@ public class InventoryEntryGenerationJobConfiguration {
     }
 
     private ItemReader<ProductProjection> reader() {
-        return createProductReader(sphereClient);
+        final Optional<ProductProjection> lastProductWithInventory = findLastProductWithInventory(sphereClient);
+        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
+        final ProductProjectionQuery productProjectionQuery = lastProductWithInventory
+                .map(productProjection -> baseQuery.withPredicates(product -> product.id().isGreaterThan(productProjection.getId())))
+                .orElse(baseQuery);
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
     }
 
     private ItemProcessor<ProductProjection, List<InventoryEntryDraft>> processor() {
@@ -87,15 +94,6 @@ public class InventoryEntryGenerationJobConfiguration {
                 .peek(draft -> LOGGER.info("attempting to create inventory entry sku {}, channel {}", draft.getSku(), draft.getSupplyChannel().getId()))
                 .map(InventoryEntryCreateCommand::of)
                 .forEach(sphereClient::execute);
-    }
-
-    static ItemReader<ProductProjection> createProductReader(final BlockingSphereClient sphereClient) {
-        final Optional<ProductProjection> lastProductWithInventory = findLastProductWithInventory(sphereClient);
-        final ProductProjectionQuery baseQuery = ProductProjectionQuery.ofCurrent();
-        final ProductProjectionQuery productProjectionQuery = lastProductWithInventory
-                .map(productProjection -> baseQuery.withPredicates(product -> product.id().isGreaterThan(productProjection.getId())))
-                .orElse(baseQuery);
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, productProjectionQuery, ResourceView::getId);
     }
 
     private ChannelListHolder channelListHolder(final BlockingSphereClient sphereClient) {
@@ -113,7 +111,7 @@ public class InventoryEntryGenerationJobConfiguration {
                 .collect(Collectors.toList());
     }
 
-    static InventoryEntryDraft createInventoryEntryDraftForProductVariant(final Channel channel, final ProductVariant productVariant) {
+    private static InventoryEntryDraft createInventoryEntryDraftForProductVariant(final Channel channel, final ProductVariant productVariant) {
         final Random random = new Random(productVariant.getSku().hashCode() + channel.getKey().hashCode());
         final int bucket = randomInt(random, 0, 99);
         final long quantityOnStock;
@@ -132,7 +130,7 @@ public class InventoryEntryGenerationJobConfiguration {
         return random.nextInt((max - min) + 1) + min;
     }
 
-    static Optional<ProductProjection> findLastProductWithInventory(final BlockingSphereClient sphereClient) {
+    private static Optional<ProductProjection> findLastProductWithInventory(final BlockingSphereClient sphereClient) {
         final InventoryEntryQuery inventoryEntryQuery = InventoryEntryQuery.of().withSort(m -> m.lastModifiedAt().sort().desc()).withLimit(1L);
         final Optional<InventoryEntry> inventoryEntryOptional = sphereClient.execute(inventoryEntryQuery).toCompletableFuture().join().head();
         return inventoryEntryOptional.map(inventoryEntry -> {

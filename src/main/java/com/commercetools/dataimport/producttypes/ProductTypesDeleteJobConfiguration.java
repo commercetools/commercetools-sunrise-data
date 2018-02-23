@@ -9,6 +9,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
@@ -37,6 +38,7 @@ public class ProductTypesDeleteJobConfiguration {
     }
 
     @Bean
+    @JobScope
     public Step productTypesDeleteStep() {
         return stepBuilderFactory.get("productTypesDeleteStep")
                 .<ProductType, ProductType>chunk(1)

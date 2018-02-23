@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.orders;
+package com.commercetools.dataimport.customers;
 
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
@@ -21,7 +21,7 @@ import static java.util.Collections.singletonList;
 
 @Configuration
 @EnableBatchProcessing
-public class OrderTypesDeleteJobConfiguration {
+public class CustomerTypesDeleteJobConfiguration {
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -33,16 +33,16 @@ public class OrderTypesDeleteJobConfiguration {
     private BlockingSphereClient sphereClient;
 
     @Bean
-    public Job orderTypesDeleteJob() {
-        return jobBuilderFactory.get("orderTypesDeleteJob")
-                .start(orderTypesDeleteStep())
+    public Job customerTypesDeleteJob() {
+        return jobBuilderFactory.get("customerTypesDeleteJob")
+                .start(customerTypesDeleteStep())
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step orderTypesDeleteStep() {
-        return stepBuilderFactory.get("orderTypesDeleteStep")
+    public Step customerTypesDeleteStep() {
+        return stepBuilderFactory.get("customerTypesDeleteStep")
                 .<Type, Type>chunk(1)
                 .reader(reader())
                 .writer(writer())
@@ -51,7 +51,7 @@ public class OrderTypesDeleteJobConfiguration {
 
     private ItemReader<Type> reader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, TypeQuery.of()
-                .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("order"))));
+                .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("customer"))));
     }
 
     private ItemWriter<Type> writer() {

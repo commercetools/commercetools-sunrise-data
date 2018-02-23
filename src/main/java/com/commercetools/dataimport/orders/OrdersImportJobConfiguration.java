@@ -9,10 +9,7 @@ import io.sphere.sdk.products.Price;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -54,6 +51,7 @@ public class OrdersImportJobConfiguration {
     }
 
     @Bean
+    @JobScope
     public Step ordersImportStep(final OrderImportItemReader orderImportItemReader) {
         return stepBuilderFactory.get("ordersImportStep")
                 .<List<OrderCsvLineValue>, OrderImportDraft>chunk(1)

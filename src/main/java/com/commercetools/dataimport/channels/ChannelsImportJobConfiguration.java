@@ -6,10 +6,7 @@ import io.sphere.sdk.channels.commands.ChannelCreateCommand;
 import io.sphere.sdk.client.BlockingSphereClient;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,17 +38,18 @@ public class ChannelsImportJobConfiguration {
     }
 
     @Bean
-    public Step channelsImportStep(final ItemReader<ChannelDraft> channelsImportReader) {
+    @JobScope
+    public Step channelsImportStep(final ItemReader<ChannelDraft> reader) {
         return stepBuilderFactory.get("channelsImportStep")
                 .<ChannelDraft, ChannelDraft>chunk(1)
-                .reader(channelsImportReader)
+                .reader(reader)
                 .writer(writer())
                 .build();
     }
 
     @Bean
     @StepScope
-    public ItemReader<ChannelDraft> channelsImportReader(@Value("#{jobParameters['resource']}") final Resource resource) throws IOException {
+    public ItemReader<ChannelDraft> reader(@Value("#{jobParameters['resource']}") final Resource resource) throws IOException {
         return JsonUtils.createJsonListReader(resource, ChannelDraft.class);
     }
 

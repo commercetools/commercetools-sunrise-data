@@ -26,7 +26,7 @@ import java.util.concurrent.TimeoutException;
 @ComponentScan("com.commercetools.dataimport")
 @EnableBatchProcessing
 @EnableAutoConfiguration
-public class PayloadJobMain {
+public class App {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -48,7 +48,7 @@ public class PayloadJobMain {
     }
 
     private static void run(final String[] args, final JsonNode payloadJson) throws Exception {
-        try (final ConfigurableApplicationContext context = SpringApplication.run(PayloadJobMain.class, args)) {
+        try (final ConfigurableApplicationContext context = SpringApplication.run(App.class, args)) {
             final List<JobLaunchingData> jobLaunchingDataList = buildJobLaunchingDataList(payloadJson);
             final JobLauncher jobLauncher = context.getBean(JobLauncher.class);
             for (final JobLaunchingData jobLaunchingData : jobLaunchingDataList) {

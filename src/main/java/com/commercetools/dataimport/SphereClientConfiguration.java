@@ -6,14 +6,14 @@ import io.sphere.sdk.client.SphereClientConfig;
 import io.sphere.sdk.client.SphereClientFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-@Component
-@PropertySource(value="classpath:credentials.properties")
-public class SphereClientComponent {
+@Configuration
+@PropertySource(value = "classpath:credentials.properties")
+public class SphereClientConfiguration {
 
     @Value("${ctp.projectKey}")
     private String projectKey;

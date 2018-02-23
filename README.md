@@ -36,26 +36,9 @@ Before starting the import, make sure you have access to the [Admin Center](http
         
 ### 2. Import channels
 1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository to your computer.
-2. Go to the root folder of the cloned project and create a file named `payload-channels.json` with the following content:
-    ```json
-    {
-      "commercetools": {
-        "projectKey": "your-project-key",
-        "clientId": "your-client-id",
-        "clientSecret": "your-client-secret",
-        "authUrl": "https://auth.sphere.io",
-        "apiUrl": "https://api.sphere.io"
-      },
-      "jobs": [
-        {
-          "name": "importJoyrideChannelsJob",
-          "channelsResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/channels.json",
-          "typesResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/types.json"
-        }
-      ]
-    }
-    ```
 3. Adapt the file with your commercetools project credentials.
+
+2. Go to the root folder and run the following command:
 4. Run the following command:
     ```bash
     ./mvnw spring-boot:run -Drun.arguments=payload-channels.json
