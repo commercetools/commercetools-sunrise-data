@@ -7,6 +7,8 @@ import io.sphere.sdk.orders.*;
 import io.sphere.sdk.orders.commands.OrderImportCommand;
 import io.sphere.sdk.products.Price;
 import io.sphere.sdk.utils.MoneyImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.*;
@@ -32,6 +34,7 @@ import static java.util.stream.Collectors.toList;
 @EnableBatchProcessing
 public class OrdersImportJobConfiguration {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrdersImportJobConfiguration.class);
     private static final String[] ORDER_CSV_HEADER_NAMES = new String[]{"customerEmail", "orderNumber", "lineitems.variant.sku", "lineitems.price", "lineitems.quantity", "totalPrice"};
 
     @Autowired
@@ -92,7 +95,10 @@ public class OrdersImportJobConfiguration {
     private ItemWriter<OrderImportDraft> writer() {
         return items -> items.stream()
                 .map(OrderImportCommand::of)
-                .forEach(sphereClient::executeBlocking);
+                .forEach(command -> {
+                    final Order order = sphereClient.executeBlocking(command);
+                    LOGGER.debug("Created order \"{}\"", order.getOrderNumber());
+                });
     }
 
     private LineItemImportDraft lineItemToDraft(final OrderCsvLineValue item) {

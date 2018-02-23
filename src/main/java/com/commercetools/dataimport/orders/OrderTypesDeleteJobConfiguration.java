@@ -3,7 +3,6 @@ package com.commercetools.dataimport.orders;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.types.Type;
-import io.sphere.sdk.types.commands.TypeDeleteCommand;
 import io.sphere.sdk.types.queries.TypeQuery;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -33,28 +32,24 @@ public class OrderTypesDeleteJobConfiguration {
     private BlockingSphereClient sphereClient;
 
     @Bean
-    public Job orderTypesDeleteJob() {
+    public Job orderTypesDeleteJob(final Step orderTypesDeleteStep) {
         return jobBuilderFactory.get("orderTypesDeleteJob")
-                .start(orderTypesDeleteStep())
+                .start(orderTypesDeleteStep)
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step orderTypesDeleteStep() {
+    public Step orderTypesDeleteStep(final ItemWriter<Type> typeDeleteWriter) {
         return stepBuilderFactory.get("orderTypesDeleteStep")
                 .<Type, Type>chunk(1)
                 .reader(reader())
-                .writer(writer())
+                .writer(typeDeleteWriter)
                 .build();
     }
 
     private ItemReader<Type> reader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, TypeQuery.of()
                 .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("order"))));
-    }
-
-    private ItemWriter<Type> writer() {
-        return items -> items.forEach(item -> sphereClient.executeBlocking(TypeDeleteCommand.of(item)));
     }
 }

@@ -81,6 +81,9 @@ public class ProductsDeleteJobConfiguration {
     }
 
     private ItemWriter<Product> deleteWriter() {
-        return items -> items.forEach(item -> sphereClient.execute(ProductDeleteCommand.of(item)));
+        return items -> items.forEach(item -> {
+            final Product product = sphereClient.executeBlocking(ProductDeleteCommand.of(item));
+            LOGGER.debug("Removed product \"{}\"", product.getId());
+        });
     }
 }

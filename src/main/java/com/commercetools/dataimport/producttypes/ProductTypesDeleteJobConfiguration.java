@@ -5,6 +5,8 @@ import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.commands.ProductTypeDeleteCommand;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -20,6 +22,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableBatchProcessing
 public class ProductTypesDeleteJobConfiguration {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ProductTypesDeleteJobConfiguration.class);
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -52,6 +56,9 @@ public class ProductTypesDeleteJobConfiguration {
     }
 
     private ItemWriter<ProductType> writer() {
-        return items -> items.forEach(item -> sphereClient.executeBlocking(ProductTypeDeleteCommand.of(item)));
+        return items -> items.forEach(item -> {
+            final ProductType productType = sphereClient.executeBlocking(ProductTypeDeleteCommand.of(item));
+            LOGGER.debug("Removed product type \"{}\"", productType.getName());
+        });
     }
 }

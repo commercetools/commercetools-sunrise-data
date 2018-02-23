@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.sphere.sdk.json.SphereJsonUtils;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.core.io.Resource;
 
@@ -29,7 +28,7 @@ public final class JsonUtils {
      * @return item reader
      * @throws IOException in case the resource reading did not work or the JSON mapping
      */
-    public static <T> ItemReader<T> createJsonListReader(final Resource resource, final Class<T> clazz) throws IOException {
+    public static <T> ListItemReader<T> createJsonListReader(final Resource resource, final Class<T> clazz) throws IOException {
         final List<T> listFromJsonResource = createJsonList(resource, clazz);
         return new ListItemReader<>(listFromJsonResource);
     }

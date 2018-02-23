@@ -5,6 +5,8 @@ import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.commands.ChannelDeleteCommand;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -20,6 +22,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableBatchProcessing
 public class ChannelsDeleteJobConfiguration {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ChannelsDeleteJobConfiguration.class);
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -52,6 +56,9 @@ public class ChannelsDeleteJobConfiguration {
     }
 
     private ItemWriter<Channel> writer() {
-        return items -> items.forEach(item -> sphereClient.executeBlocking(ChannelDeleteCommand.of(item)));
+        return items -> items.forEach(item -> {
+            final Channel channel = sphereClient.executeBlocking(ChannelDeleteCommand.of(item));
+            LOGGER.debug("Removed channel \"{}\"", channel.getKey());
+        });
     }
 }

@@ -3,7 +3,6 @@ package com.commercetools.dataimport.channels;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.types.Type;
-import io.sphere.sdk.types.commands.TypeDeleteCommand;
 import io.sphere.sdk.types.queries.TypeQuery;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -33,28 +32,24 @@ public class ChannelTypesDeleteJobConfiguration {
     private BlockingSphereClient sphereClient;
 
     @Bean
-    public Job channelTypesDeleteJob() {
+    public Job channelTypesDeleteJob(final Step channelTypesDeleteStep) {
         return jobBuilderFactory.get("channelTypesDeleteJob")
-                .start(channelTypesDeleteStep())
+                .start(channelTypesDeleteStep)
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step channelTypesDeleteStep() {
+    public Step channelTypesDeleteStep(final ItemWriter<Type> typeDeleteWriter) {
         return stepBuilderFactory.get("channelTypesDeleteStep")
                 .<Type, Type>chunk(1)
                 .reader(reader())
-                .writer(writer())
+                .writer(typeDeleteWriter)
                 .build();
     }
 
     private ItemReader<Type> reader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, TypeQuery.of()
                 .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("channel"))));
-    }
-
-    private ItemWriter<Type> writer() {
-        return items -> items.forEach(item -> sphereClient.executeBlocking(TypeDeleteCommand.of(item)));
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeoutException;
 
 @ComponentScan("com.commercetools.dataimport")
 @EnableBatchProcessing
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 public class App {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -92,12 +93,14 @@ public class App {
         final String jobName = jobJson.get("name").asText();
         final JobParametersBuilder jobParametersBuilder = new JobParametersBuilder();
         jobJson.fields().forEachRemaining(jobField -> {
-            if (jobField.getValue() instanceof TextNode) {
-                jobParametersBuilder.addString(jobField.getKey(), jobField.getValue().asText());
-            } else if (jobField.getValue() instanceof IntNode || jobField.getValue() instanceof LongNode) {
-                jobParametersBuilder.addLong(jobField.getKey(), jobField.getValue().asLong());
-            } else {
-                System.err.println(String.format("Ignored job parameter \"%s\" because it could not be parsed", jobField));
+            if (!jobField.getKey().equals("name")) {
+                if (jobField.getValue() instanceof TextNode) {
+                    jobParametersBuilder.addString(jobField.getKey(), jobField.getValue().asText());
+                } else if (jobField.getValue() instanceof IntNode || jobField.getValue() instanceof LongNode) {
+                    jobParametersBuilder.addLong(jobField.getKey(), jobField.getValue().asLong());
+                } else {
+                    System.err.println(String.format("Ignored job parameter \"%s\" because it could not be parsed", jobField));
+                }
             }
         });
         return new JobLaunchingData(jobName, jobParametersBuilder.toJobParameters());

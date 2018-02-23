@@ -31,9 +31,9 @@ public class OrdersDeleteJobConfiguration {
     private BlockingSphereClient sphereClient;
 
     @Bean
-    public Job ordersDeleteJob() {
+    public Job ordersDeleteJob(final Step ordersDeleteStep) {
         return jobBuilderFactory.get("ordersDeleteJob")
-                .start(ordersDeleteStep())
+                .start(ordersDeleteStep)
                 .build();
     }
 
