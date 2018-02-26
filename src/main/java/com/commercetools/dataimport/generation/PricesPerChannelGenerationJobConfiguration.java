@@ -1,6 +1,5 @@
-package com.commercetools.dataimport.channels;
+package com.commercetools.dataimport.generation;
 
-import com.commercetools.dataimport.inventoryentries.ChannelListHolder;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.channels.Channel;
@@ -18,10 +17,7 @@ import io.sphere.sdk.products.search.PriceSelection;
 import io.sphere.sdk.queries.PagedQueryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -40,31 +36,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.commercetools.dataimport.inventoryentries.PreferredChannels.CHANNEL_KEYS;
+import static com.commercetools.dataimport.generation.PreferredChannels.CHANNEL_KEYS;
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 import static io.sphere.sdk.queries.QueryExecutionUtils.queryAll;
 
 @Configuration
-@EnableBatchProcessing
 public class PricesPerChannelGenerationJobConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PricesPerChannelGenerationJobConfiguration.class);
-
-    @Autowired
-    private JobBuilderFactory jobBuilderFactory;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
     private BlockingSphereClient sphereClient;
-
-    @Bean
-    public Job pricesPerChannelGenerationJob() {
-        return jobBuilderFactory.get("pricesPerChannelGenerationJob")
-                .start(pricesPerChannelGenerationStep())
-                .build();
-    }
 
     @Bean
     @JobScope

@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.inventoryentries;
+package com.commercetools.dataimport.generation;
 
 import java.util.List;
 

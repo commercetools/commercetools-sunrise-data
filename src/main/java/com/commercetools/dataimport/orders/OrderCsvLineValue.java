@@ -1,4 +1,4 @@
-package com.commercetools.dataimport.orders.cvsline;
+package com.commercetools.dataimport.orders;
 
 
 /**

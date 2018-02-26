@@ -1,6 +1,5 @@
 package com.commercetools.dataimport.orders;
 
-import com.commercetools.dataimport.orders.cvsline.OrderCsvLineValue;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
