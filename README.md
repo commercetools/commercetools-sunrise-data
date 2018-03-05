@@ -29,7 +29,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
             - Price: 10 EUR
         
 ### 2. Import channels
-1. Adapt the [`src/main/resources/application.properties`](src/main/resources/application.properties#L12-L14) file with your commercetools project credentials.
+1. Adapt the [`src/main/resources/application.properties`](src/main/resources/application.properties) file with your commercetools project credentials.
 2. Go to the root folder and run the following command:
     ```bash
     ./mvnw spring-boot:run
