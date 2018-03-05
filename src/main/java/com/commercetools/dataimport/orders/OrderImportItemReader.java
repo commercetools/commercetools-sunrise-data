@@ -9,10 +9,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+public class OrderImportItemReader extends AbstractItemStreamItemReader<List<OrderCsvEntry>> {
 
-public class OrderImportItemReader extends AbstractItemStreamItemReader<List<OrderCsvLineValue>> {
-
-    private SingleItemPeekableItemReader<OrderCsvLineValue> itemReader;
+    private SingleItemPeekableItemReader<OrderCsvEntry> itemReader;
 
     @Override
     public void close() throws ItemStreamException {
@@ -30,10 +29,10 @@ public class OrderImportItemReader extends AbstractItemStreamItemReader<List<Ord
     }
 
     @Override
-    public List<OrderCsvLineValue> read() throws Exception {
-        OrderCsvLineValue csvLine = this.itemReader.peek();
+    public List<OrderCsvEntry> read() throws Exception {
+        OrderCsvEntry csvLine = this.itemReader.peek();
         if (csvLine != null) {
-            final List<OrderCsvLineValue> orderLines = new ArrayList<>();
+            final List<OrderCsvEntry> orderLines = new ArrayList<>();
             final String orderId = orderId(csvLine);
             while (csvLine != null && orderId != null && orderId.equals(orderId(csvLine))) {
                 orderLines.add(itemReader.read());
@@ -44,12 +43,12 @@ public class OrderImportItemReader extends AbstractItemStreamItemReader<List<Ord
         return null;
     }
 
-    public void setItemReader(final SingleItemPeekableItemReader<OrderCsvLineValue> itemReader){
+    public void setItemReader(final SingleItemPeekableItemReader<OrderCsvEntry> itemReader){
         this.itemReader = itemReader;
     }
 
     @Nullable
-    private static String orderId(@Nullable final OrderCsvLineValue csvLine) {
+    private static String orderId(@Nullable final OrderCsvEntry csvLine) {
         return csvLine != null && csvLine.getOrderNumber() != null ? csvLine.getOrderNumber().trim() : null;
     }
 }

@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TypesImportConfiguration {
+public class TypesImportItemWriterConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TypesImportConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TypesImportItemWriterConfiguration.class);
 
     @Bean
     public ItemWriter<TypeDraft> typesImportWriter(final BlockingSphereClient sphereClient) {

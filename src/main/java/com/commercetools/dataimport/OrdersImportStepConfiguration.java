@@ -1,6 +1,6 @@
 package com.commercetools.dataimport;
 
-import com.commercetools.dataimport.orders.OrderCsvLineValue;
+import com.commercetools.dataimport.orders.OrderCsvEntry;
 import com.commercetools.dataimport.orders.OrderImportItemReader;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
@@ -14,21 +14,17 @@ import io.sphere.sdk.types.Type;
 import io.sphere.sdk.types.TypeDraft;
 import io.sphere.sdk.types.queries.TypeQuery;
 import io.sphere.sdk.utils.MoneyImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
-import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.batch.item.support.SingleItemPeekableItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,9 +40,9 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 @Configuration
+@Slf4j
 public class OrdersImportStepConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrdersImportStepConfiguration.class);
     private static final String[] ORDER_CSV_HEADER_NAMES = new String[]{"customerEmail", "orderNumber", "lineitems.variant.sku", "lineitems.price", "lineitems.quantity", "totalPrice"};
 
     @Autowired
@@ -55,12 +51,18 @@ public class OrdersImportStepConfiguration {
     @Autowired
     private BlockingSphereClient sphereClient;
 
+    @Value("${resource.orders}")
+    private Resource ordersResource;
+
+    @Value("${resource.orderType}")
+    private Resource orderTypeResource;
+
     @Bean
     @JobScope
-    public Step ordersImportStep(OrderImportItemReader ordersImportStepReader) {
+    public Step ordersImportStep() {
         return stepBuilderFactory.get("ordersImportStep")
-                .<List<OrderCsvLineValue>, OrderImportDraft>chunk(1)
-                .reader(ordersImportStepReader)
+                .<List<OrderCsvEntry>, OrderImportDraft>chunk(1)
+                .reader(ordersImportStepReader())
                 .processor(ordersImportStepProcessor())
                 .writer(ordersImportStepWriter())
                 .build();
@@ -68,10 +70,10 @@ public class OrdersImportStepConfiguration {
 
     @Bean
     @JobScope
-    public Step orderTypeImportStep(ItemReader<TypeDraft> orderTypeImportStepReader, ItemWriter<TypeDraft> typeImportWriter) {
+    public Step orderTypeImportStep(ItemWriter<TypeDraft> typeImportWriter) throws IOException {
         return stepBuilderFactory.get("orderTypeImportStep")
                 .<TypeDraft, TypeDraft>chunk(1)
-                .reader(orderTypeImportStepReader)
+                .reader(orderTypeImportStepReader())
                 .writer(typeImportWriter)
                 .build();
     }
@@ -96,23 +98,11 @@ public class OrdersImportStepConfiguration {
                 .build();
     }
 
-    @Bean
-    @StepScope
-    public OrderImportItemReader ordersImportStepReader(@Value("${resource.orders}") Resource resource) {
-        final OrderImportItemReader reader = new OrderImportItemReader();
-        final SingleItemPeekableItemReader<OrderCsvLineValue> itemReader = new SingleItemPeekableItemReader<>();
-        itemReader.setDelegate(flatFileItemReader(resource));
-        reader.setItemReader(itemReader);
-        return reader;
+    private ItemReader<TypeDraft> orderTypeImportStepReader() throws IOException {
+        return JsonUtils.createJsonListReader(orderTypeResource, TypeDraft.class);
     }
 
-    @Bean
-    @StepScope
-    public ListItemReader<TypeDraft> orderTypeImportStepReader(@Value("${resource.orderType}") Resource resource) throws IOException {
-        return JsonUtils.createJsonListReader(resource, TypeDraft.class);
-    }
-
-    private ItemStreamReader<Order> ordersDeleteStepReader() {
+    private ItemReader<Order> ordersDeleteStepReader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, OrderQuery.of());
     }
 
@@ -125,10 +115,10 @@ public class OrdersImportStepConfiguration {
                 .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("order"))));
     }
 
-    private ItemProcessor<List<OrderCsvLineValue>, OrderImportDraft> ordersImportStepProcessor() {
+    private ItemProcessor<List<OrderCsvEntry>, OrderImportDraft> ordersImportStepProcessor() {
         return items -> {
             if (!items.isEmpty()) {
-                final OrderCsvLineValue firstCsvLine = items.get(0);
+                final OrderCsvEntry firstCsvLine = items.get(0);
                 final MonetaryAmount totalPrice = centAmountToMoney(firstCsvLine.getTotalPrice());
                 final OrderState state = OrderState.COMPLETE;
                 final List<LineItemImportDraft> lineItemImportDrafts = items.stream()
@@ -143,16 +133,7 @@ public class OrdersImportStepConfiguration {
         };
     }
 
-    private ItemWriter<OrderImportDraft> ordersImportStepWriter() {
-        return items -> items.stream()
-                .map(OrderImportCommand::of)
-                .forEach(command -> {
-                    final Order order = sphereClient.executeBlocking(command);
-                    LOGGER.debug("Created order \"{}\"", order.getOrderNumber());
-                });
-    }
-
-    private LineItemImportDraft lineItemToDraft(final OrderCsvLineValue item) {
+    private LineItemImportDraft lineItemToDraft(final OrderCsvEntry item) {
         final ProductVariantImportDraft draft = ProductVariantImportDraftBuilder.ofSku(item.getLineItems().getVariant().getSku()).build();
         final long quantity = item.getLineItems().getQuantity();
         final Price price = Price.of(centAmountToMoney(item.getLineItems().getPrice()));
@@ -164,21 +145,36 @@ public class OrdersImportStepConfiguration {
         return MoneyImpl.ofCents((long) (centAmount * 100), "EUR");
     }
 
-    private static FlatFileItemReader<OrderCsvLineValue> flatFileItemReader(final Resource resource) {
-        final FlatFileItemReader<OrderCsvLineValue> flatFileItemReader = new FlatFileItemReader<>();
-        flatFileItemReader.setLineMapper(lineMapper());
-        flatFileItemReader.setLinesToSkip(1);
-        flatFileItemReader.setResource(resource);
-        return flatFileItemReader;
+    private ItemWriter<OrderImportDraft> ordersImportStepWriter() {
+        return items -> items.forEach(item -> {
+            final Order order = sphereClient.executeBlocking(OrderImportCommand.of(item));
+            log.debug("Created order \"{}\"", order.getOrderNumber());
+        });
     }
 
-    private static DefaultLineMapper<OrderCsvLineValue> lineMapper() {
-        return new DefaultLineMapper<OrderCsvLineValue>() {{
+    private ItemReader<List<OrderCsvEntry>> ordersImportStepReader() {
+        final OrderImportItemReader reader = new OrderImportItemReader();
+        final SingleItemPeekableItemReader<OrderCsvEntry> itemReader = new SingleItemPeekableItemReader<>();
+        itemReader.setDelegate(flatFileItemReader(ordersResource));
+        reader.setItemReader(itemReader);
+        return reader;
+    }
+
+    private static ItemReader<OrderCsvEntry> flatFileItemReader(final Resource resource) {
+        final FlatFileItemReader<OrderCsvEntry> reader = new FlatFileItemReader<>();
+        reader.setLineMapper(lineMapper());
+        reader.setLinesToSkip(1);
+        reader.setResource(resource);
+        return reader;
+    }
+
+    private static DefaultLineMapper<OrderCsvEntry> lineMapper() {
+        return new DefaultLineMapper<OrderCsvEntry>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(ORDER_CSV_HEADER_NAMES);
             }});
-            setFieldSetMapper(new BeanWrapperFieldSetMapper<OrderCsvLineValue>() {{
-                setTargetType(OrderCsvLineValue.class);
+            setFieldSetMapper(new BeanWrapperFieldSetMapper<OrderCsvEntry>() {{
+                setTargetType(OrderCsvEntry.class);
             }});
         }};
     }

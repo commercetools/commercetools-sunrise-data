@@ -14,16 +14,15 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class App {
 
     public static void main(String[] args) throws Exception {
-        if (args.length > 0) {
-            final ConfigurableApplicationContext ctx = SpringApplication.run(App.class, args);
+        try (final ConfigurableApplicationContext ctx = SpringApplication.run(App.class, args)) {
             final JobLauncher launcher = ctx.getBean("jobLauncher", JobLauncher.class);
-            final Job job = ctx.getBean(args[0], Job.class);
+            final Job job = ctx.getBean(jobName(args), Job.class);
             launcher.run(job, new JobParameters());
-            ctx.close();
-            System.exit(0);
-        } else {
-            System.err.println("Missing the name of the job to be executed");
-            System.exit(1);
         }
+        System.exit(0);
+    }
+
+    private static String jobName(final String[] args) {
+        return args.length > 0 ? args[0] : "dataImport";
     }
 }

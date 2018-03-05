@@ -10,16 +10,12 @@ import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.types.Type;
 import io.sphere.sdk.types.TypeDraft;
 import io.sphere.sdk.types.queries.TypeQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,15 +27,20 @@ import java.io.IOException;
 import static java.util.Collections.singletonList;
 
 @Configuration
+@Slf4j
 public class ChannelsImportStepConfiguration {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelsImportStepConfiguration.class);
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
     private BlockingSphereClient sphereClient;
+
+    @Value("${resource.channels}")
+    private Resource channelsResource;
+
+    @Value("${resource.channelType}")
+    private Resource channelTypeResource;
 
     @Bean
     @JobScope
@@ -53,21 +54,20 @@ public class ChannelsImportStepConfiguration {
 
     @Bean
     @JobScope
-    public Step channelTypeImportStep(ItemReader<TypeDraft> channelTypeImportStepReader,
-                                      ItemWriter<TypeDraft> typeImportWriter) {
+    public Step channelTypeImportStep(ItemWriter<TypeDraft> typeImportWriter) throws IOException {
         return stepBuilderFactory.get("channelTypeImportStep")
                 .<TypeDraft, TypeDraft>chunk(1)
-                .reader(channelTypeImportStepReader)
+                .reader(channelTypeImportStepReader())
                 .writer(typeImportWriter)
                 .build();
     }
 
     @Bean
     @JobScope
-    public Step channelsImportStep(ItemReader<ChannelDraft> channelsImportStepReader) {
+    public Step channelsImportStep() throws IOException {
         return stepBuilderFactory.get("channelsImportStep")
                 .<ChannelDraft, ChannelDraft>chunk(1)
-                .reader(channelsImportStepReader)
+                .reader(channelsImportStepReader())
                 .writer(channelsImportStepWriter())
                 .build();
     }
@@ -87,33 +87,29 @@ public class ChannelsImportStepConfiguration {
                 .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("channel"))));
     }
 
-    @Bean
-    @StepScope
-    public ListItemReader<ChannelDraft> channelsImportStepReader(@Value("${resource.channels}") Resource resource) throws IOException {
-        return JsonUtils.createJsonListReader(resource, ChannelDraft.class);
+    private ItemReader<ChannelDraft> channelsImportStepReader() throws IOException {
+        return JsonUtils.createJsonListReader(channelsResource, ChannelDraft.class);
     }
 
-    @Bean
-    @StepScope
-    public ListItemReader<TypeDraft> channelTypeImportStepReader(@Value("${resource.channelType}") Resource resource) throws IOException {
-        return JsonUtils.createJsonListReader(resource, TypeDraft.class);
+    private ItemReader<TypeDraft> channelTypeImportStepReader() throws IOException {
+        return JsonUtils.createJsonListReader(channelTypeResource, TypeDraft.class);
     }
 
     private ItemWriter<ChannelDraft> channelsImportStepWriter() {
         return items -> items.forEach(channelDraft -> {
             final Channel channel = sphereClient.executeBlocking(ChannelCreateCommand.of(channelDraft));
-            LOGGER.debug("Created channel \"{}\"", channel.getKey());
+            log.debug("Created channel \"{}\"", channel.getKey());
         });
     }
 
-    private ItemStreamReader<Channel> channelsDeleteStepReader() {
+    private ItemReader<Channel> channelsDeleteStepReader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, ChannelQuery.of());
     }
 
     private ItemWriter<Channel> channelsDeleteStepWriter() {
         return items -> items.forEach(item -> {
             final Channel channel = sphereClient.executeBlocking(ChannelDeleteCommand.of(item));
-            LOGGER.debug("Removed channel \"{}\"", channel.getKey());
+            log.debug("Removed channel \"{}\"", channel.getKey());
         });
     }
 }

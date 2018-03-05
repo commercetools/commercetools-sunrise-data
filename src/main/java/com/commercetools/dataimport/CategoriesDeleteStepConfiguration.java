@@ -8,7 +8,7 @@ import io.sphere.sdk.client.BlockingSphereClient;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemStreamReader;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -43,11 +43,11 @@ public class CategoriesDeleteStepConfiguration {
                 .build();
     }
 
-    private ItemStreamReader<Category> rootReader() {
+    private ItemReader<Category> rootReader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of().byIsRoot());
     }
 
-    private ItemStreamReader<Category> remainingReader() {
+    private ItemReader<Category> remainingReader() {
         return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of());
     }
 

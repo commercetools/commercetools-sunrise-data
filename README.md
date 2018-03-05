@@ -5,7 +5,8 @@
 
 ## How to create a project with Sunrise data
 
-Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com) and the [IMPEX tool](https://impex.commercetools.com/). You will also need to run the application in this repository, check that you meet the [requirements](#requirements).
+Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com) and the [IMPEX tool](https://impex.commercetools.com/). You will also need to run the application in this repository, check that you meet the [requirements](#requirements) and [clone](https://help.github.com/articles/cloning-a-repository/) this repository to your computer.
+
 
 ### 1. Set up your project
 1. Open the [Admin Center](https://admin.commercetools.com) and create an empty project (without sample data).
@@ -15,12 +16,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
         - **Countries**: Germany (DE), Austria (AT)
         - **Languages**: German (DE), English (EN)
         - **Zone**: Europe with DE, AT
-    - In the tab **`Taxes`**:
-        - **Tax Category name**: "standard"
-        - **Tax rates**:
-            - Germany: 19% incl. in price
-            - Austria: 20% incl. in price
-    - In the tab **`Shipping Methods`**:
+    - In the tab **`Shipping Methods`** (optional):
         - **Standard shipping**:
             - Name: "Standard"
             - Description: "Delivery in 5-6 working days"
@@ -31,24 +27,18 @@ Before starting the import, make sure you have access to the [Admin Center](http
             - Name: "Express"
             - Description: "Delivery the same day"
             - Price: 10 EUR
-    - In the tab **`Customer Groups`**:
-        - **Name**: "b2b"
         
 ### 2. Import channels
-1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository to your computer.
-3. Adapt the file with your commercetools project credentials.
-
+1. Adapt the [`src/main/resources/application.properties`](src/main/resources/application.properties#L12-L14) file with your commercetools project credentials.
 2. Go to the root folder and run the following command:
-4. Run the following command:
     ```bash
-    ./mvnw spring-boot:run -Drun.arguments=channelsImport
+    ./mvnw spring-boot:run
     ```
 
 ### 3. Import catalog
 1. Go to [Category import](https://impex.commercetools.com/commands/category-import) and drop the file [categories.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/categories/categories.csv) and run.
-2. Go to [Product Type import](https://impex.commercetools.com/commands/product-type-import) and drop the file [product-type-template.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/producttypes/product-type-template.csv) on "Product Type template as CSV" and [product-type-attributes.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/producttypes/product-type-attributes.csv) on "Product Type attributes as CSV", then run. 
-3. Go to [Product import](https://impex.commercetools.com/commands/product-import) and drop the file [products.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv), enable "Publish all changes immediately" and then run.
-4. Go to [Stock import](https://impex.commercetools.com/commands/stock-import) and import the file [inventory-no-stores.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory-no-stores.csv). Alternatively use the file [inventory.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory.csv), which is large but includes per-local-store inventories.
+2. Go to [Product import](https://impex.commercetools.com/commands/product-import) and drop the file [products.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv), enable "Publish all changes immediately" and then run.
+3. Go to [Stock import](https://impex.commercetools.com/commands/stock-import) and import the file [inventory-no-stores.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory-no-stores.csv). Alternatively use the file [inventory.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory.csv), which is large but includes per-local-store inventories.
 
 ### 4. Import orders
 
@@ -63,84 +53,27 @@ Before starting the import, make sure you have access to the [Admin Center](http
 
 - Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
-### Payload JSON file
+### Configuration
 
-In order to run the application, you need to define a payload file that specifies what kind of tasks it is going to execute. This file should have the following content:
+Adapt [`src/main/resources/application.properties`](src/main/resources/application.properties) with the credentials of the commercetools project where to run the import. 
 
-```
-{
-  "commercetools": {
-    "projectKey": "your-project-key",
-    "clientId": "your-client-id",
-    "clientSecret": "your-client-secret",
-    "authUrl": "https://auth.sphere.io",
-    "apiUrl": "https://api.sphere.io"
-  },
-  "jobs": [
-     /* Add desired jobs here */
-  ]
-}
-```
-Edit the project credentials and add the jobs you need to execute.
-
-#### Jobs
-
-You can combine as many jobs as you need in your payload file. They will be executed sequentially in the given order.
-
-##### Delete categories
-```json
-{
-  "name": "categoriesDeleteJob"
-}
-```
-
-##### Delete product types
-```json
-{
-  "name": "productTypesDeleteJob"
-}
-```
-
-##### Delete products
-```json
-{
-  "name": "productsDeleteJob"
-}
-```
-
-##### Import orders
-```json
-{
-  "name": "ordersCreateJob",
-  "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.json"
-}
-```
-
-##### Import channels
-```json
-{
-  "name": "importJoyrideChannelsJob",
-  "channelsResource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/channels/channels.json",
-  "typesResource": channel-types.json
-}
-```
-
-##### Generate inventory
-```json
-{
-  "name": "inventoryEntryGenerationJob"
-}
-```
-
-##### Generate prices for channels
-```json
-{
-  "name": "pricesPerChannelImportJob"
-}
-```
+In the same file you can also find the localization of all resources and modify them accordingly.
 
 ### Run the application
-Run the application with maven:
+
+Run the application with maven to run the job [`DataImportJobConfiguration`](/src/main/java/com/commercetools/dataimport/DataImportJobConfiguration.java), which imports the basic data:
 ```bash
-./mvnw spring-boot:run -Drun.arguments=path/to/payload/file.json
+./mvnw spring-boot:run
 ``` 
+
+Optionally you can run other jobs by specifying its name via run arguments:
+```bash
+./mvnw spring-boot:run -Drun.arguments=jobName
+```
+
+##### Available jobs
+
+Check the files to see in detail which steps does each job execute.
+
+- [`DataImportJobConfiguration`](/src/main/java/com/commercetools/dataimport/DataImportJobConfiguration.java)
+- [`OrdersImportJobConfiguration`](/src/main/java/com/commercetools/dataimport/OrdersImportJobConfiguration.java)

@@ -8,22 +8,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ChannelsImportJobConfiguration {
+public class DataImportJobConfiguration {
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
 
     @Bean
-    public Job channelsImport(Step productsUnpublishStep, Step productsDeleteStep, Step productTypeDeleteStep,
-                              Step orderTypeDeleteStep, Step customerTypeDeleteStep,
-                              Step channelTypeImportStep, Step channelsImportStep,
-                              Step channelTypeDeleteStep, Step channelsDeleteStep,
-                              Step customerTypeImportStep, Step orderTypeImportStep) {
-        return jobBuilderFactory.get("channelsImport")
+    public Job dataImport(Step productsUnpublishStep, Step productsDeleteStep,
+                          Step productTypeDeleteStep, Step taxCategoryDeleteStep, Step customerGroupDeleteStep,
+                          Step orderTypeDeleteStep, Step customerTypeDeleteStep,
+                          Step channelTypeImportStep, Step channelsImportStep,
+                          Step channelTypeDeleteStep, Step channelsDeleteStep,
+                          Step customerTypeImportStep, Step orderTypeImportStep,
+                          Step productTypeImportStep, Step taxCategoryImportStep, Step customerGroupImportStep) {
+        return jobBuilderFactory.get("dataImport")
                 // products (delete)
                 .start(productsUnpublishStep)
                 .next(productsDeleteStep)
                 .next(productTypeDeleteStep)
+                .next(taxCategoryDeleteStep)
+                .next(customerGroupDeleteStep)
                 // order type
                 .next(orderTypeDeleteStep)
                 .next(orderTypeImportStep)
@@ -35,6 +39,10 @@ public class ChannelsImportJobConfiguration {
                 .next(channelTypeDeleteStep)
                 .next(channelTypeImportStep)
                 .next(channelsImportStep)
+                // products (import)
+                .next(customerGroupImportStep)
+                .next(taxCategoryImportStep)
+                .next(productTypeImportStep)
                 .build();
     }
 }
