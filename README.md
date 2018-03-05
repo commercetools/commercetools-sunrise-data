@@ -41,7 +41,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
 2. Go to the root folder and run the following command:
 4. Run the following command:
     ```bash
-    ./mvnw spring-boot:run -Drun.arguments=payload-channels.json
+    ./mvnw spring-boot:run -Drun.arguments=channelsImport
     ```
 
 ### 3. Import catalog
@@ -52,28 +52,9 @@ Before starting the import, make sure you have access to the [Admin Center](http
 
 ### 4. Import orders
 
-1. Go back to the root folder of the cloned project and create another file named `payload-orders.json` with the following content:
-    ```json
-    {
-      "commercetools": {
-        "projectKey": "your-project-key",
-        "clientId": "your-client-id",
-        "clientSecret": "your-client-secret",
-        "authUrl": "https://auth.sphere.io",
-        "apiUrl": "https://api.sphere.io"
-      },
-      "jobs": [
-        {
-          "name": "ordersCreateJob",
-          "resource": "https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/orders/orders.csv"
-        }
-      ]
-    }
-    ```
-2. Adapt the file with your commercetools project credentials.
-3. Run the following command:
+1. Run the following command:
     ```bash
-    ./mvnw spring-boot:run -Drun.arguments=payload-orders.json
+    ./mvnw spring-boot:run -Drun.arguments=ordersImport
     ```
     
 ## How to use the application

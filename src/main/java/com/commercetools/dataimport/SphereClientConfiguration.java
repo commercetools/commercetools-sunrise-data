@@ -7,12 +7,10 @@ import io.sphere.sdk.client.SphereClientFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-@PropertySource(value = "classpath:credentials.properties")
 public class SphereClientConfiguration {
 
     @Value("${ctp.projectKey}")
