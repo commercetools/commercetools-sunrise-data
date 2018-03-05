@@ -65,7 +65,7 @@ public class CustomersImportStepConfiguration {
     @Bean
     @JobScope
     public Step customerGroupImportStep() throws IOException {
-        return stepBuilderFactory.get("customerTypeImportStep")
+        return stepBuilderFactory.get("customerGroupImportStep")
                 .<CustomerGroupDraft, CustomerGroupDraft>chunk(1)
                 .reader(customerGroupImportStepReader())
                 .writer(customerGroupImportStepWriter())
@@ -75,7 +75,7 @@ public class CustomersImportStepConfiguration {
     @Bean
     @JobScope
     public Step customerGroupDeleteStep() {
-        return stepBuilderFactory.get("customerTypeDeleteStep")
+        return stepBuilderFactory.get("customerGroupDeleteStep")
                 .<CustomerGroup, CustomerGroup>chunk(1)
                 .reader(customerGroupDeleteStepReader())
                 .writer(customerGroupDeleteStepWriter())
