@@ -36,9 +36,8 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```
 
 ### 3. Import catalog
-1. Go to [Category import](https://impex.commercetools.com/commands/category-import) and drop the file [categories.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/categories/categories.csv) and run.
-2. Go to [Product import](https://impex.commercetools.com/commands/product-import) and drop the file [products.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv), enable "Publish all changes immediately" and then run.
-3. Go to [Stock import](https://impex.commercetools.com/commands/stock-import) and import the file [inventory-no-stores.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory-no-stores.csv). Alternatively use the file [inventory.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory.csv), which is large but includes per-local-store inventories.
+1. Go to [Product import](https://impex.commercetools.com/commands/product-import) and drop the file [products.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/products/products.csv), enable "Publish all changes immediately" and then run.
+2. Go to [Stock import](https://impex.commercetools.com/commands/stock-import) and import the file [inventory-no-stores.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory-no-stores.csv). Alternatively use the file [inventory.csv](https://raw.githubusercontent.com/commercetools/commercetools-sunrise-data/master/data/inventory/inventory.csv), which is large but includes per-local-store inventories.
 
 ### 4. Import orders
 
@@ -61,7 +60,7 @@ In the same file you can also find the localization of all resources and modify 
 
 ### Run the application
 
-Run the application with maven to run the job [`DataImportJobConfiguration`](/src/main/java/com/commercetools/dataimport/DataImportJobConfiguration.java), which imports the basic data:
+Run the application with maven to run the job [`dataImport`](/src/main/java/com/commercetools/dataimport/DataImportJobConfiguration.java), which imports the basic data:
 ```bash
 ./mvnw spring-boot:run
 ``` 
@@ -71,9 +70,9 @@ Optionally you can run other jobs by specifying its name via run arguments:
 ./mvnw spring-boot:run -Drun.arguments=jobName
 ```
 
-##### Available jobs
+#### Available jobs
 
 Check the files to see in detail which steps does each job execute.
 
-- [`DataImportJobConfiguration`](/src/main/java/com/commercetools/dataimport/DataImportJobConfiguration.java)
-- [`OrdersImportJobConfiguration`](/src/main/java/com/commercetools/dataimport/OrdersImportJobConfiguration.java)
+- [`dataImport`](/src/main/java/com/commercetools/dataimport/DataImportJobConfiguration.java)
+- [`ordersImport`](/src/main/java/com/commercetools/dataimport/OrdersImportJobConfiguration.java)

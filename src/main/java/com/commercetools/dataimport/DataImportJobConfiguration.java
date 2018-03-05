@@ -16,31 +16,44 @@ public class DataImportJobConfiguration {
     @Bean
     public Job dataImport(Step productsUnpublishStep, Step productsDeleteStep,
                           Step productTypeDeleteStep, Step taxCategoryDeleteStep, Step customerGroupDeleteStep,
+                          Step rootCategoriesDeleteStep, Step remainingCategoriesDeleteStep,
                           Step orderTypeDeleteStep, Step customerTypeDeleteStep,
                           Step channelTypeImportStep, Step channelsImportStep,
                           Step channelTypeDeleteStep, Step channelsDeleteStep,
                           Step customerTypeImportStep, Step orderTypeImportStep,
-                          Step productTypeImportStep, Step taxCategoryImportStep, Step customerGroupImportStep) {
+                          Step productTypeImportStep, Step taxCategoryImportStep,
+                          Step customerGroupImportStep, Step categoriesImportStep) {
         return jobBuilderFactory.get("dataImport")
-                // products (delete)
+                // DELETE
+                // products
                 .start(productsUnpublishStep)
                 .next(productsDeleteStep)
                 .next(productTypeDeleteStep)
                 .next(taxCategoryDeleteStep)
+                // categories
+                .next(rootCategoriesDeleteStep)
+                .next(remainingCategoriesDeleteStep)
+                // customer group
                 .next(customerGroupDeleteStep)
-                // order type
-                .next(orderTypeDeleteStep)
-                .next(orderTypeImportStep)
-                // customer type
-                .next(customerTypeDeleteStep)
-                .next(customerTypeImportStep)
                 // channels
                 .next(channelsDeleteStep)
+                // types
+                .next(customerTypeDeleteStep)
+                .next(orderTypeDeleteStep)
                 .next(channelTypeDeleteStep)
+
+                // IMPORT
+                // types
                 .next(channelTypeImportStep)
+                .next(orderTypeImportStep)
+                .next(customerTypeImportStep)
+                // channels
                 .next(channelsImportStep)
-                // products (import)
+                // customer group
                 .next(customerGroupImportStep)
+                // categories
+                .next(categoriesImportStep)
+                // products
                 .next(taxCategoryImportStep)
                 .next(productTypeImportStep)
                 .build();

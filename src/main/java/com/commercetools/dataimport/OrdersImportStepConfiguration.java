@@ -162,20 +162,16 @@ public class OrdersImportStepConfiguration {
 
     private static ItemReader<OrderCsvEntry> flatFileItemReader(final Resource resource) {
         final FlatFileItemReader<OrderCsvEntry> reader = new FlatFileItemReader<>();
-        reader.setLineMapper(lineMapper());
-        reader.setLinesToSkip(1);
-        reader.setResource(resource);
-        return reader;
-    }
-
-    private static DefaultLineMapper<OrderCsvEntry> lineMapper() {
-        return new DefaultLineMapper<OrderCsvEntry>() {{
+        reader.setLineMapper(new DefaultLineMapper<OrderCsvEntry>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(ORDER_CSV_HEADER_NAMES);
             }});
             setFieldSetMapper(new BeanWrapperFieldSetMapper<OrderCsvEntry>() {{
                 setTargetType(OrderCsvEntry.class);
             }});
-        }};
+        }});
+        reader.setLinesToSkip(1);
+        reader.setResource(resource);
+        return reader;
     }
 }
