@@ -1,11 +1,4 @@
-sudo: required
-services:
-- docker
-before_script:
-- export ROOT_PROJ='/wd'
-- bash scripts/travis-sphere-credentials.sh
-script:
-  - docker run -v $PWD:/wd msct/jdk8 /bin/sh -c "cd /wd && export PAYLOAD_FILE=/wd/travis-payload.json && export MAVEN_OPTS='-Xmx1024m' && ./mvnw test && ./mvnw spring-boot:run -Dstart-class=com.commercetools.dataimport.all.App"
+script: ./mvnw spring-boot:run test
 notifications:
   email:
     on_success: change
