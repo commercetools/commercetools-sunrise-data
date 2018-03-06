@@ -1,0 +1,50 @@
+{
+  "name": "commercetools-sunrise-data",
+  "version": "1.0.0",
+  "description": "[![Build Status](https://travis-ci.org/commercetools/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/commercetools/commercetools-sunrise-data)",
+  "main": "index.js",
+  "credentials": {
+    "project": "",
+    "client_id": "",
+    "client_secret": ""
+  },
+  "scripts": {
+    "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
+    "credentials": "npm run build && node dist/lib/update-credentials.js --project $npm_package_credentials_project --client_id $npm_package_credentials_client_id --client_secret $npm_package_credentials_client_secret",
+    "dataImport": "./mvnw spring-boot:run",
+    "import:shippingmethods": "npm run build && node dist/lib/shipping-method.js --project $npm_package_credentials_project --client_id $npm_package_credentials_client_id --client_secret $npm_package_credentials_client_secret",
+    "product:sync": "node_modules/.bin/product-csv-sync import --matchBy sku --csv data/products/products.csv --projectKey $npm_package_credentials_project --clientId $npm_package_credentials_client_id  --clientSecret $npm_package_credentials_client_secret",
+    "ordersImport": "./mvnw spring-boot:run -Drun.arguments=ordersImport",
+    "inventory:sync": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory/inventory.csv --projectKey $npm_package_credentials_project --clientId $npm_package_credentials_client_id --clientSecret $npm_package_credentials_client_secret",
+    "start": "npm run build && npm run credentials && npm run dataImport && npm run import:shippingmethods && npm run product:sync && npm run inventory:sync && npm run ordersImport"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/commercetools/commercetools-sunrise-data.git"
+  },
+  "keywords": [
+    "sunrise",
+    "commercetools",
+    "data"
+  ],
+  "author": "Siawash Shibani",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/commercetools/commercetools-sunrise-data/issues"
+  },
+  "homepage": "https://github.com/commercetools/commercetools-sunrise-data#readme",
+  "devDependencies": {
+    "sphere-node-cli": "1.0.4",
+    "sphere-node-product-csv-sync": "0.20.4",
+    "sphere-stock-import": "1.3.1",
+    "@commercetools/api-request-builder": "3.7.0",
+    "@commercetools/sdk-client": "1.5.4",
+    "@commercetools/sdk-middleware-auth": "3.4.7",
+    "@commercetools/sdk-middleware-http": "2.2.6",
+    "babel-cli": "6.26.0",
+    "babel-preset-es2015": "6.24.1",
+    "nconf": "0.10.0",
+    "path": "0.12.7",
+    "rimraf": "2.6.2"
+  }
+}

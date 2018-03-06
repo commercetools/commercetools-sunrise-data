@@ -12,3 +12,12 @@ payload*.json
 
 application-default.properties
 application-it.properties
+
+.sphere-project-credentials
+.classpath
+.project
+.settings/
+dist/
+node_modules/
+package-lock.json
+*.log
