@@ -39,7 +39,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
 
 Note: the shipping methods above are just a suggestion, only one is required to allow placing orders with Sunrise.
 
-### 5. Import orders (optional)
+### 5. Import sample orders (optional)
 1. Run the following command:
     ```bash
     ./mvnw spring-boot:run -Drun.arguments=ordersImport
