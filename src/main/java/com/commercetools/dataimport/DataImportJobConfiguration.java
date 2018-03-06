@@ -14,7 +14,8 @@ public class DataImportJobConfiguration {
     private JobBuilderFactory jobBuilderFactory;
 
     @Bean
-    public Job dataImport(Step productsUnpublishStep, Step productsDeleteStep,
+    public Job dataImport(Step ordersDeleteStep, Step cartsDeleteStep,
+                          Step productsUnpublishStep, Step productsDeleteStep,
                           Step productTypeDeleteStep, Step taxCategoryDeleteStep, Step customerGroupDeleteStep,
                           Step rootCategoriesDeleteStep, Step remainingCategoriesDeleteStep,
                           Step orderTypeDeleteStep, Step customerTypeDeleteStep,
@@ -25,8 +26,11 @@ public class DataImportJobConfiguration {
                           Step customerGroupImportStep, Step categoriesImportStep) {
         return jobBuilderFactory.get("dataImport")
                 // DELETE
+                // orders
+                .start(ordersDeleteStep)
+                .next(cartsDeleteStep)
                 // products
-                .start(productsUnpublishStep)
+                .next(productsUnpublishStep)
                 .next(productsDeleteStep)
                 .next(productTypeDeleteStep)
                 .next(taxCategoryDeleteStep)

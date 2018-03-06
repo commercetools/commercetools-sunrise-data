@@ -3,6 +3,9 @@ package com.commercetools.dataimport;
 import com.commercetools.dataimport.orders.OrderCsvEntry;
 import com.commercetools.dataimport.orders.OrderImportItemReader;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
+import io.sphere.sdk.carts.Cart;
+import io.sphere.sdk.carts.commands.CartDeleteCommand;
+import io.sphere.sdk.carts.queries.CartQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.orders.*;
@@ -98,6 +101,16 @@ public class OrdersImportStepConfiguration {
                 .build();
     }
 
+    @Bean
+    @JobScope
+    public Step cartsDeleteStep() {
+        return stepBuilderFactory.get("cartsDeleteStep")
+                .<Cart, Cart>chunk(1)
+                .reader(cartsDeleteStepReader())
+                .writer(cartsDeleteStepWriter())
+                .build();
+    }
+
     private ItemReader<TypeDraft> orderTypeImportStepReader() throws IOException {
         return JsonUtils.createJsonListReader(orderTypeResource, TypeDraft.class);
     }
@@ -108,6 +121,14 @@ public class OrdersImportStepConfiguration {
 
     private ItemWriter<Order> ordersDeleteStepWriter() {
         return items -> items.forEach(item -> sphereClient.executeBlocking(OrderDeleteCommand.of(item)));
+    }
+
+    private ItemReader<Cart> cartsDeleteStepReader() {
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CartQuery.of());
+    }
+
+    private ItemWriter<Cart> cartsDeleteStepWriter() {
+        return items -> items.forEach(item -> sphereClient.executeBlocking(CartDeleteCommand.of(item)));
     }
 
     private ItemReader<Type> orderTypeDeleteStepReader() {
