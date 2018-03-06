@@ -8,13 +8,9 @@
 Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com) and the [IMPEX tool](https://impex.commercetools.com/). You will also need to run the application in this repository, check that you meet the [requirements](#requirements) and [clone](https://help.github.com/articles/cloning-a-repository/) this repository to your computer.
 
 
-### 1. Set up your project
+### 1. Create your project
 1. Open the [Admin Center](https://admin.commercetools.com) and create an empty project (without sample data).
-2. Select your new project and go to **`Settings`**, tab **`International`**:
-    - **Currencies**: Euro (EUR)
-    - **Countries**: Germany (DE), Austria (AT)
-    - **Languages**: German (DE), English (EN)
-    - **Zone**: Europe with DE, AT
+
         
 ### 2. Import basic data
 1. Adapt the [`src/main/resources/application.properties`](src/main/resources/application.properties) file with your commercetools project credentials.
@@ -40,6 +36,8 @@ Before starting the import, make sure you have access to the [Admin Center](http
         - Name: "Express"
         - Description: "Delivery the same day"
         - Price: 10 EUR
+
+Note: the shipping methods above are just a suggestion, only one is required to allow placing orders with Sunrise.
 
 ### 5. Import orders (optional)
 1. Run the following command:
