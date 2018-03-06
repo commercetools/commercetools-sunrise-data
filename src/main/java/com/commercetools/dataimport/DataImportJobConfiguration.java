@@ -19,6 +19,7 @@ public class DataImportJobConfiguration {
                           Step productTypeDeleteStep, Step taxCategoryDeleteStep, Step customerGroupDeleteStep,
                           Step rootCategoriesDeleteStep, Step remainingCategoriesDeleteStep,
                           Step orderTypeDeleteStep, Step customerTypeDeleteStep,
+                          Step projectSettingsStep,
                           Step channelTypeImportStep, Step channelsImportStep,
                           Step channelTypeDeleteStep, Step channelsDeleteStep,
                           Step customerTypeImportStep, Step orderTypeImportStep,
@@ -48,6 +49,8 @@ public class DataImportJobConfiguration {
                 .next(channelTypeDeleteStep)
 
                 // IMPORT
+                // project
+                .next(projectSettingsStep)
                 // types
                 .next(channelTypeImportStep)
                 .next(orderTypeImportStep)
