@@ -1,4 +1,6 @@
-script: ./mvnw spring-boot:run -Dspring.profiles.active=ci test
+language: java
+jdk: oraclejdk8
+script: ./mvnw clean test
 notifications:
   email:
     on_success: change

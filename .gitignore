@@ -11,4 +11,4 @@ iron.json
 payload*.json
 
 application-default.properties
-application-integration.properties
+application-it.properties
