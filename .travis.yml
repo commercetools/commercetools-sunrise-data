@@ -1,4 +1,4 @@
-script: ./mvnw spring-boot:run test
+script: ./mvnw spring-boot:run -Dspring.profiles.active=ci test
 notifications:
   email:
     on_success: change
