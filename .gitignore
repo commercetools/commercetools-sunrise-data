@@ -9,4 +9,6 @@ travis-payload.json
 *.zip
 iron.json
 payload*.json
-integrationtest.properties
+
+application-default.properties
+application-it.properties

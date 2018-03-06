@@ -1,0 +1,38 @@
+[
+  {
+    "key": "physicalStore",
+    "name": {
+      "de": "Ladengeschäft",
+      "en": "Physical Store"
+    },
+    "resourceTypeIds": [
+      "channel"
+    ],
+    "fieldDefinitions": [
+      {
+        "name": "imageUrl",
+        "label": {
+          "en": "Image URL",
+          "de": "Bild URL"
+        },
+        "required": true,
+        "type": {
+          "name": "String"
+        },
+        "inputHint": "SingleLine"
+      },
+      {
+        "name": "openingTimes",
+        "label": {
+          "de": "Öffnungszeiten",
+          "en": "Opening Times"
+        },
+        "required": true,
+        "type": {
+          "name": "LocalizedString"
+        },
+        "inputHint": "MultiLine"
+      }
+    ]
+  }
+]

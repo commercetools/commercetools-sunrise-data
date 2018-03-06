@@ -11,15 +11,14 @@
 
     <logger name="sphere" level="INFO"/>
     <logger name="io.sphere" level="WARN"/>
-    <logger name="sphere.categories" level="INFO"/>
-    <logger name="sphere.product-types.fixtures" level="INFO"/>
-    <logger name="sphere.products.fixtures" level="INFO"/>
-    <logger name="sphere.product-projections" level="INFO"/>
-    <logger name="sphere.products" level="INFO"/>
     <logger name="com.netty" level="WARN"/>
     <logger name="com.ning.http.client" level="WARN"/>
     <logger name="org.javamoney.moneta.DefaultMonetaryContextFactory" level="WARN"/>
     <logger name="DefaultMonetaryContextFactory" level="WARN"/>
+
+    <logger name="org.springframework.batch.core.job.SimpleStepHandler" level="WARN" />
+
+    <logger name="com.commercetools.dataimport" level="DEBUG" />
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />
