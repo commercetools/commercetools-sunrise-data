@@ -12,11 +12,12 @@
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "credentials": "npm run build && node dist/lib/update-credentials.js --project $npm_package_credentials_project --client_id $npm_package_credentials_client_id --client_secret $npm_package_credentials_client_secret",
     "dataImport": "./mvnw spring-boot:run",
+    "import:zones": "npm run build && node dist/lib/zones.js --project $npm_package_credentials_project --client_id $npm_package_credentials_client_id --client_secret $npm_package_credentials_client_secret",
     "import:shippingmethods": "npm run build && node dist/lib/shipping-method.js --project $npm_package_credentials_project --client_id $npm_package_credentials_client_id --client_secret $npm_package_credentials_client_secret",
     "product:sync": "node_modules/.bin/product-csv-sync import --matchBy sku --csv data/products/products.csv --projectKey $npm_package_credentials_project --clientId $npm_package_credentials_client_id  --clientSecret $npm_package_credentials_client_secret",
     "ordersImport": "./mvnw spring-boot:run -Drun.arguments=ordersImport",
     "inventory:sync": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory/inventory-no-stores.csv --projectKey $npm_package_credentials_project --clientId $npm_package_credentials_client_id --clientSecret $npm_package_credentials_client_secret",
-    "start": "npm run build && npm run credentials && npm run dataImport && npm run import:shippingmethods && npm run product:sync"
+    "start": "npm run build && npm run credentials && npm run dataImport && npm run import:zones && npm run import:shippingmethods && npm run product:sync"
   },
   "repository": {
     "type": "git",
