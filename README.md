@@ -50,6 +50,7 @@ Note: the shipping methods above are just a suggestion, only one is required to 
 ### Requirements
 
 - Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+- Install [Node.js] (https://nodejs.org/en/download/current/)
 
 ### Configuration
 

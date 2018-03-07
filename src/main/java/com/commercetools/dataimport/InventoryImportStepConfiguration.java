@@ -30,8 +30,8 @@ public class InventoryImportStepConfiguration {
     @Autowired
     private BlockingSphereClient sphereClient;
 
-    @Value("${resource.inventory}")
-    private Resource inventoryResource;
+//    @Value("${resource.inventory}")
+//    private Resource inventoryResource;
 
     @Bean
     @JobScope
