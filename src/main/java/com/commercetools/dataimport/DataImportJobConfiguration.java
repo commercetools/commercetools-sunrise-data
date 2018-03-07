@@ -23,13 +23,16 @@ public class DataImportJobConfiguration {
                           Step channelTypeDeleteStep, Step channelsDeleteStep,
                           Step customerTypeImportStep, Step orderTypeImportStep,
                           Step productTypeImportStep, Step taxCategoryImportStep,
-                          Step customerGroupImportStep, Step categoriesImportStep) {
+                          Step customerGroupImportStep, Step categoriesImportStep,
+                          Step inventoryDeleteStep) {
         return jobBuilderFactory.get("dataImport")
                 // DELETE
                 // orders
                 .start(ordersDeleteStep)
                 .next(cartsDeleteStep)
                 .next(shippingMethodsDeleteStep)
+                //inventory
+                .next(inventoryDeleteStep)
                 // products
                 .next(productsUnpublishStep)
                 .next(productsDeleteStep)
