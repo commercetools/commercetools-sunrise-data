@@ -1,20 +1,18 @@
 package com.commercetools.dataimport;
 
 import com.commercetools.dataimport.categories.CategoryCsvEntry;
+import com.commercetools.dataimport.categories.CategoryImportItemProcessor;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
-import io.sphere.sdk.categories.CategoryDraftBuilder;
 import io.sphere.sdk.categories.commands.CategoryCreateCommand;
 import io.sphere.sdk.categories.commands.CategoryDeleteCommand;
 import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
-import io.sphere.sdk.models.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -27,18 +25,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 @Configuration
 @Slf4j
 public class CategoriesImportStepConfiguration {
 
-    private static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"key", "externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId", "webImageUrl", "iosImageUrl"};
+    private static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"key", "externalId", "name.de", "slug.de", "name.en", "slug.en", "parentId", "webImageUrl", "iosImageUrl"};
     private static final int CHUNK_SIZE = 100;
 
     @Autowired
@@ -78,7 +69,7 @@ public class CategoriesImportStepConfiguration {
         return stepBuilderFactory.get("categoriesImportStep")
                 .<CategoryCsvEntry, CategoryDraft>chunk(1)
                 .reader(categoriesImportStepReader())
-                .processor(categoriesImportStepProcessor())
+                .processor(new CategoryImportItemProcessor())
                 .writer(categoriesImportStepWriter())
                 .build();
     }
@@ -118,46 +109,5 @@ public class CategoriesImportStepConfiguration {
             final Category category = sphereClient.executeBlocking(CategoryCreateCommand.of(draft));
             log.debug("Created category \"{}\"", category.getExternalId());
         });
-    }
-
-    private ItemProcessor<CategoryCsvEntry, CategoryDraft> categoriesImportStepProcessor() {
-        return item -> {
-            final LocalizedString name = item.getName().toLocalizedString();
-            final LocalizedString slug = item.getSlug().toLocalizedString();
-            return CategoryDraftBuilder.of(name, slug)
-                    .key(item.getKey())
-                    .externalId(item.getExternalId())
-                    .parent(resourceIdentifier(item.getParentKey()))
-                    .assets(extractAssets(item, name))
-                    .build();
-        };
-    }
-
-    private List<AssetDraft> extractAssets(final CategoryCsvEntry item, final LocalizedString name) {
-        final List<AssetDraft> assets = new ArrayList<>();
-        if (!isEmpty(item.getWebImageUrl())) {
-            final AssetSource assetSource = AssetSourceBuilder.ofUri(item.getWebImageUrl())
-                    .key("web")
-                    .build();
-            final AssetDraft assetDraft = AssetDraftBuilder.of(singletonList(assetSource), name)
-                    .tags("web")
-                    .build();
-            assets.add(assetDraft);
-        }
-        if (!isEmpty(item.getIosImageUrl())) {
-            final AssetSource assetSource = AssetSourceBuilder.ofUri(item.getIosImageUrl())
-                    .key("ios")
-                    .build();
-            final AssetDraft assetDraft = AssetDraftBuilder.of(singletonList(assetSource), name)
-                    .tags("ios")
-                    .build();
-            assets.add(assetDraft);
-        }
-        return assets;
-    }
-
-    @Nullable
-    private ResourceIdentifier<Category> resourceIdentifier(@Nullable final String key) {
-        return key != null && !key.isEmpty() ? ResourceIdentifier.ofKey(key) : null;
     }
 }

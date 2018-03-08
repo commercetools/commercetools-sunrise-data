@@ -1,5 +1,6 @@
 package com.commercetools.dataimport.categories;
 
+import com.commercetools.dataimport.LocalizedField;
 import lombok.Data;
 
 @Data

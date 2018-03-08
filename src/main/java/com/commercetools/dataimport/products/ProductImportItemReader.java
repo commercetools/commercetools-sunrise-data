@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ProductImportItemReader extends AbstractItemStreamItemReader<List<FieldSet>> {
 
-    private static final String[] PRODUCT_CSV_HEADER_NAMES = {"productType", "variantId", "sku", "prices", "tax", "categories", "images", "name.de", "name.en", "description.de", "description.en", "slug.de", "slug.en", "metaTitle.de", "metaTitle.en", "metaDescription.de", "metaDescription.en", "metaKeywords.de", "metaKeywords.en", "searchKeywords.de", "searchKeywords.en", "creationDate", "articleNumberManufacturer", "articleNumberMax", "matrixId", "baseId", "designer", "madeInItaly", "completeTheLook", "commonSize", "size", "color", "colorFreeDefinition.de", "colorFreeDefinition.en", "details.de", "details.en", "style", "gender", "season", "isOnStock", "isLook", "lookProducts", "seasonNew"};
+    private static final String[] PRODUCT_CSV_HEADER_NAMES = {"productType", "variantId", "sku", "prices", "tax", "categories", "images", "name.en", "description.en", "slug.en", "metaTitle.en", "metaDescription.en", "metaKeywords.en", "name.de", "description.de", "slug.de", "metaTitle.de", "metaDescription.de", "metaKeywords.de", "creationDate", "articleNumberManufacturer", "articleNumberMax", "matrixId", "baseId", "designer", "madeInItaly", "completeTheLook", "commonSize", "size", "color", "colorFreeDefinition.en", "colorFreeDefinition.de", "colorFreeDefinition.it", "style", "gender", "season"};
 
     private SingleItemPeekableItemReader<FieldSet> itemReader = new SingleItemPeekableItemReader<>();
 
