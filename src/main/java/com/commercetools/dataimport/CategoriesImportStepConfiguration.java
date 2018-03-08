@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Slf4j
 public class CategoriesImportStepConfiguration {
 
-    private static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId", "webImageUrl", "iosImageUrl"};
+    private static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"key", "externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId", "webImageUrl", "iosImageUrl"};
+    private static final int CHUNK_SIZE = 100;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
@@ -54,6 +56,7 @@ public class CategoriesImportStepConfiguration {
         return stepBuilderFactory.get("rootCategoriesDeleteStep")
                 .<Category, Category>chunk(1)
                 .reader(rootCategoriesDeleteStepReader())
+                .chunk(CHUNK_SIZE)
                 .writer(categoriesDeleteStepWriter())
                 .build();
     }
@@ -64,6 +67,7 @@ public class CategoriesImportStepConfiguration {
         return stepBuilderFactory.get("remainingCategoriesDeleteStep")
                 .<Category, Category>chunk(1)
                 .reader(remainingCategoriesDeleteStepReader())
+                .chunk(CHUNK_SIZE)
                 .writer(categoriesDeleteStepWriter())
                 .build();
     }
@@ -80,17 +84,17 @@ public class CategoriesImportStepConfiguration {
     }
 
     private ItemReader<Category> rootCategoriesDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of().byIsRoot());
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of().byIsRoot().withLimit(CHUNK_SIZE));
     }
 
     private ItemReader<Category> remainingCategoriesDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of());
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CategoryQuery.of().withLimit(CHUNK_SIZE));
     }
 
     private ItemWriter<Category> categoriesDeleteStepWriter() {
         return items -> items.forEach(item -> {
             final Category category = sphereClient.executeBlocking(CategoryDeleteCommand.of(item));
-            log.debug("Removed category \"{}\"", category.getExternalId());
+            log.debug("Removed category \"{}\"", category.getKey());
         });
     }
 
@@ -120,13 +124,11 @@ public class CategoriesImportStepConfiguration {
         return item -> {
             final LocalizedString name = item.getName().toLocalizedString();
             final LocalizedString slug = item.getSlug().toLocalizedString();
-            final String externalId = item.getExternalId();
-            final ResourceIdentifier<Category> parent = fetchParent(item);
-            final List<AssetDraft> assets = extractAssets(item, name);
             return CategoryDraftBuilder.of(name, slug)
-                    .externalId(externalId)
-                    .parent(parent)
-                    .assets(assets)
+                    .key(item.getKey())
+                    .externalId(item.getExternalId())
+                    .parent(resourceIdentifier(item.getParentKey()))
+                    .assets(extractAssets(item, name))
                     .build();
         };
     }
@@ -154,10 +156,8 @@ public class CategoriesImportStepConfiguration {
         return assets;
     }
 
-    private ResourceIdentifier<Category> fetchParent(final CategoryCsvEntry categoryCsvEntry) {
-        final String parentId = categoryCsvEntry.getParentId();
-        return parentId == null ? null : sphereClient.executeBlocking(CategoryQuery.of().byExternalId(parentId)).head()
-                .map(Referenceable::toResourceIdentifier)
-                .orElse(null);
+    @Nullable
+    private ResourceIdentifier<Category> resourceIdentifier(@Nullable final String key) {
+        return key != null && !key.isEmpty() ? ResourceIdentifier.ofKey(key) : null;
     }
 }

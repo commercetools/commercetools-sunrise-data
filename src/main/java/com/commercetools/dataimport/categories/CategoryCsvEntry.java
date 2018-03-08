@@ -7,7 +7,8 @@ public class CategoryCsvEntry {
 
     private LocalizedField name = new LocalizedField();
     private LocalizedField slug = new LocalizedField();
-    private String parentId;
+    private String parentKey;
+    private String key;
     private String externalId;
     private String webImageUrl;
     private String iosImageUrl;

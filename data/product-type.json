@@ -1420,25 +1420,6 @@
         "displayGroup": "Other"
       },
       {
-        "name": "details",
-        "label": {
-          "it": "Details",
-          "de": "Details",
-          "en": "Details"
-        },
-        "isRequired": false,
-        "type": {
-          "name": "set",
-          "elementType": {
-            "name": "ltext"
-          }
-        },
-        "attributeConstraint": "None",
-        "isSearchable": false,
-        "inputHint": "SingleLine",
-        "displayGroup": "Other"
-      },
-      {
         "name": "style",
         "label": {
           "en": "Style",
@@ -1507,73 +1488,6 @@
         },
         "attributeConstraint": "SameForAll",
         "isSearchable": false,
-        "inputHint": "SingleLine",
-        "displayGroup": "Other"
-      },
-      {
-        "name": "isOnStock",
-        "label": {
-          "it": "isOnStock",
-          "de": "isOnStock",
-          "en": "isOnStock"
-        },
-        "isRequired": false,
-        "type": {
-          "name": "boolean"
-        },
-        "attributeConstraint": "None",
-        "isSearchable": true,
-        "inputHint": "SingleLine",
-        "displayGroup": "Other"
-      },
-      {
-        "name": "isLook",
-        "label": {
-          "en": "isLook",
-          "de": "isLook",
-          "it": "isLook"
-        },
-        "isRequired": false,
-        "type": {
-          "name": "boolean"
-        },
-        "attributeConstraint": "None",
-        "isSearchable": true,
-        "inputHint": "SingleLine",
-        "displayGroup": "Other"
-      },
-      {
-        "name": "lookProducts",
-        "label": {
-          "en": "Lookproducts",
-          "de": "Lookprodukte",
-          "it": "Lookproducts"
-        },
-        "isRequired": false,
-        "type": {
-          "name": "set",
-          "elementType": {
-            "name": "text"
-          }
-        },
-        "attributeConstraint": "SameForAll",
-        "isSearchable": false,
-        "inputHint": "SingleLine",
-        "displayGroup": "Other"
-      },
-      {
-        "name": "seasonNew",
-        "label": {
-          "de": "seasonNew",
-          "it": "seasonNew",
-          "en": "seasonNew"
-        },
-        "isRequired": false,
-        "type": {
-          "name": "text"
-        },
-        "attributeConstraint": "SameForAll",
-        "isSearchable": true,
         "inputHint": "SingleLine",
         "displayGroup": "Other"
       },

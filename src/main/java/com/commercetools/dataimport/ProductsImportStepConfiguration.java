@@ -1,8 +1,12 @@
 package com.commercetools.dataimport;
 
+import com.commercetools.dataimport.products.ProductImportItemProcessor;
+import com.commercetools.dataimport.products.ProductImportItemReader;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.products.Product;
+import io.sphere.sdk.products.ProductDraft;
+import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.products.commands.ProductDeleteCommand;
 import io.sphere.sdk.products.commands.ProductUpdateCommand;
 import io.sphere.sdk.products.commands.updateactions.Unpublish;
@@ -23,6 +27,7 @@ import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +35,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.util.List;
 
 @Configuration
 @Slf4j
@@ -39,6 +45,9 @@ public class ProductsImportStepConfiguration {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
+    private CachedResources cachedResources;
+
+    @Autowired
     private BlockingSphereClient sphereClient;
 
     @Value("${resource.productType}")
@@ -46,6 +55,9 @@ public class ProductsImportStepConfiguration {
 
     @Value("${resource.taxCategory}")
     private Resource taxCategoryResource;
+
+    @Value("${resource.products}")
+    private Resource productsResource;
 
     @Bean
     @JobScope
@@ -117,6 +129,17 @@ public class ProductsImportStepConfiguration {
                 .build();
     }
 
+    @Bean
+    @JobScope
+    public Step productsImportStep() {
+        return stepBuilderFactory.get("productsImportStep")
+                .<List<FieldSet>, ProductDraft>chunk(1)
+                .reader(new ProductImportItemReader(productsResource))
+                .processor(new ProductImportItemProcessor(cachedResources))
+                .writer(productsImportStepWriter())
+                .build();
+    }
+
     private ItemReader<ProductTypeDraft> productTypeImportStepReader() throws IOException {
         return JsonUtils.createJsonListReader(productTypeResource, ProductTypeDraft.class);
     }
@@ -181,6 +204,13 @@ public class ProductsImportStepConfiguration {
         return items -> items.forEach(item -> {
             final TaxCategory taxCategory = sphereClient.executeBlocking(TaxCategoryDeleteCommand.of(item));
             log.debug("Removed tax category \"{}\"", taxCategory.getName());
+        });
+    }
+
+    private ItemWriter<ProductDraft> productsImportStepWriter() {
+        return items -> items.forEach(draft -> {
+            final Product product = sphereClient.executeBlocking(ProductCreateCommand.of(draft));
+            log.debug("Created category \"{}\"", product.getId());
         });
     }
 }

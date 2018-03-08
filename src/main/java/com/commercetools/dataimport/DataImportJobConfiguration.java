@@ -16,7 +16,8 @@ public class DataImportJobConfiguration {
     @Bean
     public Job dataImport(Step ordersDeleteStep, Step cartsDeleteStep, Step shippingMethodsDeleteStep,
                           Step productsUnpublishStep, Step productsDeleteStep,
-                          Step productTypeDeleteStep, Step taxCategoryDeleteStep, Step customerGroupDeleteStep,
+                          Step productTypeDeleteStep, Step inventoryDeleteStep,
+                          Step taxCategoryDeleteStep, Step customerGroupDeleteStep,
                           Step rootCategoriesDeleteStep, Step remainingCategoriesDeleteStep,
                           Step orderTypeDeleteStep, Step customerTypeDeleteStep,
                           Step projectSettingsStep,
@@ -24,7 +25,8 @@ public class DataImportJobConfiguration {
                           Step channelTypeDeleteStep, Step channelsDeleteStep,
                           Step customerTypeImportStep, Step orderTypeImportStep,
                           Step productTypeImportStep, Step taxCategoryImportStep,
-                          Step customerGroupImportStep, Step categoriesImportStep) {
+                          Step customerGroupImportStep, Step categoriesImportStep,
+                          Step productsImportStep, Step inventoryImportStep) {
         return jobBuilderFactory.get("dataImport")
                 // DELETE
                 // orders
@@ -32,6 +34,7 @@ public class DataImportJobConfiguration {
                 .next(cartsDeleteStep)
                 .next(shippingMethodsDeleteStep)
                 // products
+                .next(inventoryDeleteStep)
                 .next(productsUnpublishStep)
                 .next(productsDeleteStep)
                 .next(productTypeDeleteStep)
@@ -64,6 +67,8 @@ public class DataImportJobConfiguration {
                 // products
                 .next(taxCategoryImportStep)
                 .next(productTypeImportStep)
+                .next(productsImportStep)
+                .next(inventoryImportStep)
                 .build();
     }
 }

@@ -2,8 +2,13 @@ package com.commercetools.dataimport.orders;
 
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.AbstractItemStreamItemReader;
 import org.springframework.batch.item.support.SingleItemPeekableItemReader;
+import org.springframework.core.io.Resource;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -11,7 +16,28 @@ import java.util.List;
 
 public class OrderImportItemReader extends AbstractItemStreamItemReader<List<OrderCsvEntry>> {
 
-    private SingleItemPeekableItemReader<OrderCsvEntry> itemReader;
+    private static final String[] ORDER_CSV_HEADER_NAMES = new String[]{"customerEmail", "orderNumber", "lineitems.variant.sku", "lineitems.price", "lineitems.quantity", "totalPrice"};
+
+    private SingleItemPeekableItemReader<OrderCsvEntry> itemReader = new SingleItemPeekableItemReader<>();
+
+    public OrderImportItemReader(final Resource resource) {
+        itemReader.setDelegate(createFlatFileItemReader(resource));
+    }
+
+    private static FlatFileItemReader<OrderCsvEntry> createFlatFileItemReader(final Resource resource) {
+        final FlatFileItemReader<OrderCsvEntry> reader = new FlatFileItemReader<>();
+        reader.setLineMapper(new DefaultLineMapper<OrderCsvEntry>() {{
+            setLineTokenizer(new DelimitedLineTokenizer() {{
+                setNames(ORDER_CSV_HEADER_NAMES);
+            }});
+            setFieldSetMapper(new BeanWrapperFieldSetMapper<OrderCsvEntry>() {{
+                setTargetType(OrderCsvEntry.class);
+            }});
+        }});
+        reader.setLinesToSkip(1);
+        reader.setResource(resource);
+        return reader;
+    }
 
     @Override
     public void close() throws ItemStreamException {
@@ -30,7 +56,7 @@ public class OrderImportItemReader extends AbstractItemStreamItemReader<List<Ord
 
     @Override
     public List<OrderCsvEntry> read() throws Exception {
-        OrderCsvEntry csvLine = this.itemReader.peek();
+        OrderCsvEntry csvLine = itemReader.peek();
         if (csvLine != null) {
             final List<OrderCsvEntry> orderLines = new ArrayList<>();
             final String orderId = orderId(csvLine);
@@ -41,10 +67,6 @@ public class OrderImportItemReader extends AbstractItemStreamItemReader<List<Ord
             return orderLines;
         }
         return null;
-    }
-
-    public void setItemReader(final SingleItemPeekableItemReader<OrderCsvEntry> itemReader){
-        this.itemReader = itemReader;
     }
 
     @Nullable
