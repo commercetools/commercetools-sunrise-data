@@ -38,7 +38,7 @@ public class InventoryImportStepConfiguration {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    private CachedResources cachedResources;
+    private CtpResourceRepository ctpResourceRepository;
 
     @Autowired
     private BlockingSphereClient sphereClient;
@@ -96,7 +96,7 @@ public class InventoryImportStepConfiguration {
     private ItemProcessor<InventoryCsvEntry, InventoryEntryDraft> inventoryImportStepProcessor() {
         return item -> {
             final String channelKey = item.getSupplyChannel();
-            final Reference<Channel> channelRef = channelKey != null ? cachedResources.fetchChannelRef(channelKey) : null;
+            final Reference<Channel> channelRef = channelKey != null ? ctpResourceRepository.fetchChannelRef(channelKey) : null;
             return InventoryEntryDraftBuilder.of(item.getSku(), item.getQuantityOnStock())
                     .supplyChannel(channelRef)
                     .build();

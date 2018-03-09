@@ -109,7 +109,10 @@ public class OrdersImportStepConfiguration {
     }
 
     private ItemWriter<Order> ordersDeleteStepWriter() {
-        return items -> items.forEach(item -> sphereClient.executeBlocking(OrderDeleteCommand.of(item)));
+        return items -> items.forEach(item -> {
+            final Order order = sphereClient.executeBlocking(OrderDeleteCommand.of(item));
+            log.debug("Removed order \"{}\"", order.getOrderNumber());
+        });
     }
 
     private ItemReader<Cart> cartsDeleteStepReader() {
@@ -117,7 +120,10 @@ public class OrdersImportStepConfiguration {
     }
 
     private ItemWriter<Cart> cartsDeleteStepWriter() {
-        return items -> items.forEach(item -> sphereClient.executeBlocking(CartDeleteCommand.of(item)));
+        return items -> items.forEach(item -> {
+            final Cart cart = sphereClient.executeBlocking(CartDeleteCommand.of(item));
+            log.debug("Removed cart \"{}\"", cart.getId());
+        });
     }
 
     private ItemReader<Type> orderTypeDeleteStepReader() {

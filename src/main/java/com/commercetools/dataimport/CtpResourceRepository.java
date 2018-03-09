@@ -19,7 +19,7 @@ import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.time.Duration;
@@ -27,16 +27,14 @@ import java.util.List;
 
 import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 
-@Configuration
+@Component
 @Slf4j
-public class CachedResources {
-
-    private static final String CTP_CACHE = "ctp";
+public class CtpResourceRepository {
 
     @Autowired
     private BlockingSphereClient sphereClient;
 
-    @Cacheable(CTP_CACHE)
+    @Cacheable("channels")
     @Nullable
     public Reference<Channel> fetchChannelRef(final String key) {
         final ChannelQuery query = ChannelQuery.of().withPredicates(channel -> channel.key().is(key));
@@ -44,28 +42,28 @@ public class CachedResources {
         return channel != null ? Channel.referenceOfId(channel.getId()) : null;
     }
 
-    @Cacheable(CTP_CACHE)
+    @Cacheable("customerGroups")
     @Nullable
     public String fetchCustomerGroupId(final String name) {
         final CustomerGroup customerGroup = fetchResource(CustomerGroupQuery.of().byName(name));
         return customerGroup != null ? customerGroup.getId() : null;
     }
 
-    @Cacheable(CTP_CACHE)
+    @Cacheable("taxCategories")
     @Nullable
     public String fetchTaxCategoryId(final String name) {
         final TaxCategory taxCategory = fetchResource(TaxCategoryQuery.of().byName(name));
         return taxCategory != null ? taxCategory.getId() : null;
     }
 
-    @Cacheable(CTP_CACHE)
+    @Cacheable("productTypes")
     @Nullable
     public ProductType fetchProductType(final String name) {
         final ProductTypeQuery query = ProductTypeQuery.of().byName(name);
         return fetchResource(query);
     }
 
-    @Cacheable(CTP_CACHE)
+    @Cacheable("categoryTree")
     @Nullable
     public CategoryTree fetchCategoryTree() {
         final List<Category> categories = blockingWait(QueryExecutionUtils.queryAll(sphereClient, CategoryQuery.of()), Duration.ofSeconds(30));

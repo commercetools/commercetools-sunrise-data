@@ -1,6 +1,6 @@
 package com.commercetools.dataimport.products;
 
-import com.commercetools.dataimport.CachedResources;
+import com.commercetools.dataimport.CtpResourceRepository;
 import com.neovisionaries.i18n.CountryCode;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryTree;
@@ -36,13 +36,13 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 @Slf4j
 public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>, ProductDraft> {
 
-    private static final Pattern PRICE_PATTERN = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d+)(?:|\\d+)?(?: (?<customerGroup>\\w+))?(?:#(?<channel>[\\w\\-]+))?$");
+    private static final Pattern PRICE_PATTERN = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d+)(?:\\|\\d+)?(?: (?<customerGroup>\\w+))?(?:#(?<channel>[\\w\\-]+))?$");
 
-    private final CachedResources cachedResources;
+    private final CtpResourceRepository ctpResourceRepository;
     private final CategoryTree categoryTree;
 
-    public ProductImportItemProcessor(final CachedResources cachedResources, final CategoryTree categoryTree) {
-        this.cachedResources = cachedResources;
+    public ProductImportItemProcessor(final CtpResourceRepository ctpResourceRepository, final CategoryTree categoryTree) {
+        this.ctpResourceRepository = ctpResourceRepository;
         this.categoryTree = categoryTree;
     }
 
@@ -51,7 +51,7 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
         if (!items.isEmpty()) {
             final FieldSet productLine = items.get(0);
             final ProductCsvEntry productEntry = lineToCsvEntry(productLine);
-            final ProductType productType = cachedResources.fetchProductType(productEntry.getProductType());
+            final ProductType productType = ctpResourceRepository.fetchProductType(productEntry.getProductType());
             if (productType != null) {
                 final List<ProductVariantDraft> variantDrafts = variantLinesToDrafts(items, productType);
                 return productLineToDraft(productEntry, productType, variantDrafts);
@@ -104,7 +104,7 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
     }
 
     private Referenceable<TaxCategory> parseTaxCategory(final ProductCsvEntry entry) {
-        final String taxCategoryId = cachedResources.fetchTaxCategoryId(entry.getTax());
+        final String taxCategoryId = ctpResourceRepository.fetchTaxCategoryId(entry.getTax());
         return taxCategoryId != null ? TaxCategory.referenceOfId(taxCategoryId) : null;
     }
 
@@ -182,12 +182,12 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
 
     private String extractCustomerGroupId(final Matcher matcher) {
         final String customerGroup = matcher.group("customerGroup");
-        return customerGroup != null ? cachedResources.fetchCustomerGroupId(customerGroup) : null;
+        return customerGroup != null ? ctpResourceRepository.fetchCustomerGroupId(customerGroup) : null;
     }
 
     private Reference<Channel> extractChannelRef(final Matcher matcher) {
         final String channel = matcher.group("channel");
-        return channel != null ? cachedResources.fetchChannelRef(channel) : null;
+        return channel != null ? ctpResourceRepository.fetchChannelRef(channel) : null;
     }
 
     private List<AttributeDraft> parseAttributes(final FieldSet line, final ProductType productType) {
@@ -197,6 +197,7 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
                 .collect(toList());
     }
 
+    @Nullable
     private AttributeDraft parseAttribute(final FieldSet line, final AttributeDefinition attr) {
         final AttributeType attributeType = attr.getAttributeType();
         if (attributeType instanceof DateTimeAttributeType || attributeType instanceof StringAttributeType
@@ -223,6 +224,7 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
         }
     }
 
+    @Nullable
     private AttributeDraft extractLocalizedStringAttributeDraft(final FieldSet line, final String attrName) {
         final LocalizedString localizedString = streamOfLocalizedFields(line, attrName)
                 .map(columnName -> {
@@ -232,7 +234,7 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
                 })
                 .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
                 .collect(LocalizedString.streamCollector());
-        return AttributeDraft.of(attrName, localizedString);
+        return localizedString.getLocales().isEmpty() ? null : AttributeDraft.of(attrName, localizedString);
     }
 
     @Nullable

@@ -46,7 +46,7 @@ public class ProductsImportStepConfiguration {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    private CachedResources cachedResources;
+    private CtpResourceRepository ctpResourceRepository;
 
     @Autowired
     private BlockingSphereClient sphereClient;
@@ -133,11 +133,11 @@ public class ProductsImportStepConfiguration {
     @Bean
     @JobScope
     public Step productsImportStep() {
-        final CategoryTree categoryTree = cachedResources.fetchCategoryTree();
+        final CategoryTree categoryTree = ctpResourceRepository.fetchCategoryTree();
         return stepBuilderFactory.get("productsImportStep")
                 .<List<FieldSet>, ProductDraft>chunk(1)
                 .reader(new ProductImportItemReader(productsResource))
-                .processor(new ProductImportItemProcessor(cachedResources, categoryTree))
+                .processor(new ProductImportItemProcessor(ctpResourceRepository, categoryTree))
                 .writer(productsImportStepWriter())
                 .build();
     }
@@ -212,7 +212,7 @@ public class ProductsImportStepConfiguration {
     private ItemWriter<ProductDraft> productsImportStepWriter() {
         return items -> items.forEach(draft -> {
             final Product product = sphereClient.executeBlocking(ProductCreateCommand.of(draft));
-            log.debug("Created category \"{}\"", product.getId());
+            log.debug("Created product \"{}\"", product.getId());
         });
     }
 }
