@@ -3,6 +3,7 @@ package com.commercetools.dataimport;
 import com.commercetools.dataimport.products.ProductImportItemProcessor;
 import com.commercetools.dataimport.products.ProductImportItemReader;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
+import io.sphere.sdk.categories.CategoryTree;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.products.Product;
 import io.sphere.sdk.products.ProductDraft;
@@ -132,10 +133,11 @@ public class ProductsImportStepConfiguration {
     @Bean
     @JobScope
     public Step productsImportStep() {
+        final CategoryTree categoryTree = cachedResources.fetchCategoryTree();
         return stepBuilderFactory.get("productsImportStep")
                 .<List<FieldSet>, ProductDraft>chunk(1)
                 .reader(new ProductImportItemReader(productsResource))
-                .processor(new ProductImportItemProcessor(cachedResources))
+                .processor(new ProductImportItemProcessor(cachedResources, categoryTree))
                 .writer(productsImportStepWriter())
                 .build();
     }

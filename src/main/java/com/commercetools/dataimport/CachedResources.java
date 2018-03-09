@@ -1,5 +1,8 @@
 package com.commercetools.dataimport;
 
+import io.sphere.sdk.categories.Category;
+import io.sphere.sdk.categories.CategoryTree;
+import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.channels.queries.ChannelQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
@@ -10,12 +13,19 @@ import io.sphere.sdk.models.Reference;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.producttypes.queries.ProductTypeQuery;
 import io.sphere.sdk.queries.Query;
+import io.sphere.sdk.queries.QueryExecutionUtils;
+import io.sphere.sdk.taxcategories.TaxCategory;
+import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
+import java.util.List;
+
+import static io.sphere.sdk.client.SphereClientUtils.blockingWait;
 
 @Configuration
 @Slf4j
@@ -43,9 +53,24 @@ public class CachedResources {
 
     @Cacheable(CTP_CACHE)
     @Nullable
+    public String fetchTaxCategoryId(final String name) {
+        final TaxCategory taxCategory = fetchResource(TaxCategoryQuery.of().byName(name));
+        return taxCategory != null ? taxCategory.getId() : null;
+    }
+
+    @Cacheable(CTP_CACHE)
+    @Nullable
     public ProductType fetchProductType(final String name) {
         final ProductTypeQuery query = ProductTypeQuery.of().byName(name);
         return fetchResource(query);
+    }
+
+    @Cacheable(CTP_CACHE)
+    @Nullable
+    public CategoryTree fetchCategoryTree() {
+        final List<Category> categories = blockingWait(QueryExecutionUtils.queryAll(sphereClient, CategoryQuery.of()), Duration.ofSeconds(30));
+        log.debug("Fetched category tree with {} categories", categories.size());
+        return CategoryTree.of(categories);
     }
 
     @Nullable

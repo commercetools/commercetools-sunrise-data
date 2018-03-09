@@ -2,13 +2,14 @@ package com.commercetools.dataimport.products;
 
 import com.commercetools.dataimport.CachedResources;
 import com.neovisionaries.i18n.CountryCode;
+import io.sphere.sdk.categories.Category;
+import io.sphere.sdk.categories.CategoryTree;
 import io.sphere.sdk.channels.Channel;
-import io.sphere.sdk.models.LocalizedString;
-import io.sphere.sdk.models.LocalizedStringEntry;
-import io.sphere.sdk.models.Reference;
+import io.sphere.sdk.models.*;
 import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.attributes.*;
 import io.sphere.sdk.producttypes.ProductType;
+import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.utils.MoneyImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
@@ -26,18 +27,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static java.util.Collections.emptySet;
+import static java.util.Locale.ENGLISH;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @Slf4j
 public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>, ProductDraft> {
 
     private static final Pattern PRICE_PATTERN = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d+)(?:|\\d+)?(?: (?<customerGroup>\\w+))?(?:#(?<channel>[\\w\\-]+))?$");
 
-    private CachedResources cachedResources;
+    private final CachedResources cachedResources;
+    private final CategoryTree categoryTree;
 
-    public ProductImportItemProcessor(final CachedResources cachedResources) {
+    public ProductImportItemProcessor(final CachedResources cachedResources, final CategoryTree categoryTree) {
         this.cachedResources = cachedResources;
+        this.categoryTree = categoryTree;
     }
 
     @Override
@@ -59,7 +65,8 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
         final LocalizedString name = productEntry.getName().toLocalizedString();
         final LocalizedString slug = productEntry.getSlug().toLocalizedString();
         return ProductDraftBuilder.of(productType, name, slug, variantDrafts)
-                // TODO add categories, tax categories, etc.
+                .categories(parseCategories(productEntry))
+                .taxCategory(parseTaxCategory(productEntry))
                 .build();
     }
 
@@ -94,6 +101,38 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
             setStrict(false);
         }};
         return fieldSetMapper.mapFieldSet(line);
+    }
+
+    private Referenceable<TaxCategory> parseTaxCategory(final ProductCsvEntry entry) {
+        final String taxCategoryId = cachedResources.fetchTaxCategoryId(entry.getTax());
+        return taxCategoryId != null ? TaxCategory.referenceOfId(taxCategoryId) : null;
+    }
+
+    private Set<ResourceIdentifier<Category>> parseCategories(final ProductCsvEntry entry) {
+        final String categories = entry.getCategories();
+        if (isNotEmpty(categories)) {
+            return Stream.of(categories.split(";"))
+                    .map(this::findCategory)
+                    .filter(Objects::nonNull)
+                    .map(Category::toReference)
+                    .collect(toSet());
+        }
+        return emptySet();
+    }
+
+    @Nullable
+    private Category findCategory(final String path) {
+        CategoryTree subtree = categoryTree;
+        Category matchingCategory = null;
+        for (final String categoryName : path.split(">")) {
+            matchingCategory = subtree.getSubtreeRoots().stream()
+                    .filter(category -> categoryName.equals(category.getName().get(ENGLISH)))
+                    .findAny()
+                    .orElse(null);
+            if (matchingCategory == null) break;
+            subtree = subtree.getSubtree(subtree.findChildren(matchingCategory));
+        }
+        return matchingCategory;
     }
 
     @Nullable
