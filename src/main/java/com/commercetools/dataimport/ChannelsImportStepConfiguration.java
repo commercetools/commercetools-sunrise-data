@@ -12,7 +12,6 @@ import io.sphere.sdk.types.TypeDraft;
 import io.sphere.sdk.types.queries.TypeQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -43,7 +42,6 @@ public class ChannelsImportStepConfiguration {
     private Resource channelTypeResource;
 
     @Bean
-    @JobScope
     public Step channelTypeDeleteStep(ItemWriter<Type> typeDeleteWriter) {
         return stepBuilderFactory.get("channelTypeDeleteStep")
                 .<Type, Type>chunk(1)
@@ -53,7 +51,6 @@ public class ChannelsImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step channelTypeImportStep(ItemWriter<TypeDraft> typeImportWriter) throws IOException {
         return stepBuilderFactory.get("channelTypeImportStep")
                 .<TypeDraft, TypeDraft>chunk(1)
@@ -63,7 +60,6 @@ public class ChannelsImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step channelsImportStep() throws IOException {
         return stepBuilderFactory.get("channelsImportStep")
                 .<ChannelDraft, ChannelDraft>chunk(1)
@@ -73,7 +69,6 @@ public class ChannelsImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step channelsDeleteStep() {
         return stepBuilderFactory.get("channelsDeleteStep")
                 .<Channel, Channel>chunk(1)

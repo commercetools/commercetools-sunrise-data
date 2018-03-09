@@ -18,7 +18,6 @@ import io.sphere.sdk.types.TypeDraft;
 import io.sphere.sdk.types.queries.TypeQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -50,7 +49,6 @@ public class OrdersImportStepConfiguration {
     private Resource orderTypeResource;
 
     @Bean
-    @JobScope
     public Step ordersImportStep() {
         return stepBuilderFactory.get("ordersImportStep")
                 .<List<OrderCsvEntry>, OrderImportDraft>chunk(1)
@@ -61,7 +59,6 @@ public class OrdersImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step orderTypeImportStep(ItemWriter<TypeDraft> typeImportWriter) throws IOException {
         return stepBuilderFactory.get("orderTypeImportStep")
                 .<TypeDraft, TypeDraft>chunk(1)
@@ -71,7 +68,6 @@ public class OrdersImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step orderTypeDeleteStep(ItemWriter<Type> typeDeleteWriter) {
         return stepBuilderFactory.get("orderTypeDeleteStep")
                 .<Type, Type>chunk(1)
@@ -81,7 +77,6 @@ public class OrdersImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step ordersDeleteStep() {
         return stepBuilderFactory.get("ordersDeleteStep")
                 .<Order, Order>chunk(1)
@@ -91,7 +86,6 @@ public class OrdersImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step cartsDeleteStep() {
         return stepBuilderFactory.get("cartsDeleteStep")
                 .<Cart, Cart>chunk(1)

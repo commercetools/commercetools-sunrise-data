@@ -11,8 +11,9 @@ import io.sphere.sdk.categories.queries.CategoryQuery;
 import io.sphere.sdk.client.BlockingSphereClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -30,7 +31,7 @@ import org.springframework.core.io.Resource;
 public class CategoriesImportStepConfiguration {
 
     private static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"key", "externalId", "name.de", "slug.de", "name.en", "slug.en", "parentId", "webImageUrl", "iosImageUrl"};
-    private static final int CHUNK_SIZE = 100;
+    private static final int CHUNK_SIZE = 200;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
@@ -42,8 +43,14 @@ public class CategoriesImportStepConfiguration {
     private Resource categoriesResource;
 
     @Bean
-    @JobScope
-    public Step rootCategoriesDeleteStep() {
+    public Flow categoriesDeleteFlow() {
+        return new FlowBuilder<Flow>("categoriesDeleteFlow")
+                .start(rootCategoriesDeleteStep())
+                .next(remainingCategoriesDeleteStep())
+                .build();
+    }
+
+    private Step rootCategoriesDeleteStep() {
         return stepBuilderFactory.get("rootCategoriesDeleteStep")
                 .<Category, Category>chunk(1)
                 .reader(rootCategoriesDeleteStepReader())
@@ -52,9 +59,7 @@ public class CategoriesImportStepConfiguration {
                 .build();
     }
 
-    @Bean
-    @JobScope
-    public Step remainingCategoriesDeleteStep() {
+    private Step remainingCategoriesDeleteStep() {
         return stepBuilderFactory.get("remainingCategoriesDeleteStep")
                 .<Category, Category>chunk(1)
                 .reader(remainingCategoriesDeleteStepReader())
@@ -64,7 +69,6 @@ public class CategoriesImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step categoriesImportStep() {
         return stepBuilderFactory.get("categoriesImportStep")
                 .<CategoryCsvEntry, CategoryDraft>chunk(1)

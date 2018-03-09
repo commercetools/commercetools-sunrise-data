@@ -12,7 +12,6 @@ import io.sphere.sdk.types.TypeDraft;
 import io.sphere.sdk.types.queries.TypeQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -43,7 +42,6 @@ public class CustomersImportStepConfiguration {
     private Resource customerGroupResource;
 
     @Bean
-    @JobScope
     public Step customerTypeImportStep(ItemWriter<TypeDraft> typeImportWriter) throws IOException {
         return stepBuilderFactory.get("customerTypeImportStep")
                 .<TypeDraft, TypeDraft>chunk(1)
@@ -53,7 +51,6 @@ public class CustomersImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step customerTypeDeleteStep(final ItemWriter<Type> typeDeleteWriter) {
         return stepBuilderFactory.get("customerTypeDeleteStep")
                 .<Type, Type>chunk(1)
@@ -63,7 +60,6 @@ public class CustomersImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step customerGroupImportStep() throws IOException {
         return stepBuilderFactory.get("customerGroupImportStep")
                 .<CustomerGroupDraft, CustomerGroupDraft>chunk(1)
@@ -73,7 +69,6 @@ public class CustomersImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step customerGroupDeleteStep() {
         return stepBuilderFactory.get("customerGroupDeleteStep")
                 .<CustomerGroup, CustomerGroup>chunk(1)

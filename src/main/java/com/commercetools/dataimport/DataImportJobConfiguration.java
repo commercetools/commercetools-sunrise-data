@@ -3,6 +3,10 @@ package com.commercetools.dataimport;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.FlowExecutionStatus;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,65 +14,75 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DataImportJobConfiguration {
 
+    private static final String EXECUTE = "EXECUTE";
+
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
 
     @Bean
-    public Job dataImport(Step ordersDeleteStep, Step cartsDeleteStep, Step shippingMethodsDeleteStep,
-                          Step productsUnpublishStep, Step productsDeleteStep,
-                          Step productTypeDeleteStep, Step inventoryDeleteStep,
-                          Step taxCategoryDeleteStep, Step customerGroupDeleteStep,
-                          Step rootCategoriesDeleteStep, Step remainingCategoriesDeleteStep,
-                          Step orderTypeDeleteStep, Step customerTypeDeleteStep,
-                          Step projectSettingsStep,
-                          Step channelTypeImportStep, Step channelsImportStep,
-                          Step channelTypeDeleteStep, Step channelsDeleteStep,
-                          Step customerTypeImportStep, Step orderTypeImportStep,
-                          Step productTypeImportStep, Step taxCategoryImportStep,
-                          Step customerGroupImportStep, Step categoriesImportStep,
-                          Step productsImportStep, Step inventoryImportStep) {
+    public Job job(Flow projectCleanUpFlow, Flow catalogImportFlow, Step customerTypeImportStep,
+                   Flow reserveInStoreImportFlow, Step ordersImportStep) {
         return jobBuilderFactory.get("dataImport")
-                // DELETE
-                // orders
-                .start(ordersDeleteStep)
-                .next(cartsDeleteStep)
-                .next(shippingMethodsDeleteStep)
-                // products
-                .next(inventoryDeleteStep)
-                .next(productsUnpublishStep)
-                .next(productsDeleteStep)
-                .next(productTypeDeleteStep)
-                .next(taxCategoryDeleteStep)
-                // categories
-                .next(rootCategoriesDeleteStep)
-                .next(remainingCategoriesDeleteStep)
-                // customer group
-                .next(customerGroupDeleteStep)
-                // channels
-                .next(channelsDeleteStep)
-                // types
-                .next(customerTypeDeleteStep)
-                .next(orderTypeDeleteStep)
-                .next(channelTypeDeleteStep)
-
-                // IMPORT
-                // project
-                .next(projectSettingsStep)
-                // types
-                .next(channelTypeImportStep)
-                .next(orderTypeImportStep)
+                .start(projectCleanUpFlow)
+                .next(catalogImportFlow)
                 .next(customerTypeImportStep)
-                // channels
+                .next(isFlagEnabled("reserveInStore")).on(EXECUTE).to(reserveInStoreImportFlow)
+                .next(isFlagEnabled("orders")).on(EXECUTE).to(ordersImportStep)
+                .end()
+                .build();
+    }
+
+    @Bean
+    public Flow reserveInStoreImportFlow(Step orderTypeImportStep, Step channelTypeImportStep, Step channelsImportStep,
+                                         Step inventoryStoresImportStep) {
+        return new FlowBuilder<Flow>("reserveInStoreImportFlow")
+                .next(orderTypeImportStep)
+                .next(channelTypeImportStep)
                 .next(channelsImportStep)
-                // customer group
+                .next(inventoryStoresImportStep)
+                .build();
+    }
+
+    @Bean
+    public Flow catalogImportFlow(Step projectSettingsStep, Step productTypeImportStep, Step taxCategoryImportStep,
+                                  Step customerGroupImportStep, Step categoriesImportStep, Step productsImportStep,
+                                  Step inventoryImportStep) {
+        return new FlowBuilder<Flow>("catalogImportFlow")
+                .start(projectSettingsStep)
                 .next(customerGroupImportStep)
-                // categories
                 .next(categoriesImportStep)
-                // products
                 .next(taxCategoryImportStep)
                 .next(productTypeImportStep)
                 .next(productsImportStep)
                 .next(inventoryImportStep)
                 .build();
+    }
+
+    @Bean
+    public Flow projectCleanUpFlow(Step ordersDeleteStep, Step cartsDeleteStep, Step shippingMethodsDeleteStep,
+                                   Flow productsDeleteFlow, Step productTypeDeleteStep, Step inventoryDeleteStep,
+                                   Step taxCategoryDeleteStep, Step customerGroupDeleteStep, Flow categoriesDeleteFlow,
+                                   Step orderTypeDeleteStep, Step customerTypeDeleteStep, Step channelTypeDeleteStep,
+                                   Step channelsDeleteStep) {
+        return new FlowBuilder<Flow>("projectCleanUpFlow")
+                .start(ordersDeleteStep)
+                .next(cartsDeleteStep)
+                .next(shippingMethodsDeleteStep)
+                .next(inventoryDeleteStep)
+                .next(productsDeleteFlow)
+                .next(productTypeDeleteStep)
+                .next(taxCategoryDeleteStep)
+                .next(categoriesDeleteFlow)
+                .next(customerGroupDeleteStep)
+                .next(channelsDeleteStep)
+                .next(customerTypeDeleteStep)
+                .next(orderTypeDeleteStep)
+                .next(channelTypeDeleteStep)
+                .build();
+    }
+
+    private JobExecutionDecider isFlagEnabled(final String flag) {
+        return (j, s) -> j.getJobParameters().getString(flag) != null ? new FlowExecutionStatus(EXECUTE) : FlowExecutionStatus.STOPPED;
+
     }
 }

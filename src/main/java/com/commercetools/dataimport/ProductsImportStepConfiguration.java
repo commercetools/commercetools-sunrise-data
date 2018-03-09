@@ -26,6 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.transform.FieldSet;
@@ -61,8 +63,14 @@ public class ProductsImportStepConfiguration {
     private Resource productsResource;
 
     @Bean
-    @JobScope
-    public Step productsUnpublishStep() {
+    public Flow productsDeleteFlow() {
+        return new FlowBuilder<Flow>("productsDeleteFlow")
+                .start(productsUnpublishStep())
+                .next(productsDeleteStep())
+                .build();
+    }
+
+    private Step productsUnpublishStep() {
         return stepBuilderFactory.get("unpublishProductsStep")
                 .<Product, Product>chunk(50)
                 .reader(productsUnpublishStepReader())
@@ -70,9 +78,7 @@ public class ProductsImportStepConfiguration {
                 .build();
     }
 
-    @Bean
-    @JobScope
-    public Step productsDeleteStep() {
+    private Step productsDeleteStep() {
         return stepBuilderFactory.get("productsDeleteStep")
                 .<Product, Product>chunk(50)
                 .reader(productsDeleteStepReader())
@@ -81,7 +87,6 @@ public class ProductsImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step productTypeDeleteStep() {
         return stepBuilderFactory.get("productTypeDeleteStep")
                 .<ProductType, ProductType>chunk(1)
@@ -91,7 +96,6 @@ public class ProductsImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step productTypeImportStep() throws IOException {
         return stepBuilderFactory.get("productTypeImportStep")
                 .<ProductTypeDraft, ProductTypeDraft>chunk(1)
@@ -101,7 +105,6 @@ public class ProductsImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step taxCategoryImportStep() throws IOException {
         return stepBuilderFactory.get("taxCategoryImportStep")
                 .<TaxCategoryDraft, TaxCategoryDraft>chunk(1)
@@ -111,18 +114,7 @@ public class ProductsImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step taxCategoryDeleteStep() {
-        return stepBuilderFactory.get("taxCategoryDeleteStep")
-                .<TaxCategory, TaxCategory>chunk(1)
-                .reader(taxCategoryDeleteStepReader())
-                .writer(taxCategoryDeleteStepWriter())
-                .build();
-    }
-
-    @Bean
-    @JobScope
-    public Step productDeleteStep() {
         return stepBuilderFactory.get("taxCategoryDeleteStep")
                 .<TaxCategory, TaxCategory>chunk(1)
                 .reader(taxCategoryDeleteStepReader())

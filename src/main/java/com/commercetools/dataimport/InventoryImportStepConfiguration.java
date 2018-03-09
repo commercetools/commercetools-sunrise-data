@@ -13,7 +13,6 @@ import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
 import io.sphere.sdk.models.Reference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -33,6 +32,7 @@ import org.springframework.core.io.Resource;
 public class InventoryImportStepConfiguration {
 
     private static final String[] INVENTORY_CSV_HEADER_NAMES = new String[]{"sku", "quantityOnStock", "supplyChannel"};
+    private static final int INVENTORY_CHUNK = 200;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
@@ -46,29 +46,41 @@ public class InventoryImportStepConfiguration {
     @Value("${resource.inventory}")
     private Resource inventoryResource;
 
+    @Value("${resource.inventoryStores}")
+    private Resource inventoryStoresResource;
+
     @Bean
-    @JobScope
     public Step inventoryDeleteStep() {
         return stepBuilderFactory.get("inventoryDeleteStep")
-                .<InventoryEntry, InventoryEntry>chunk(50)
+                .<InventoryEntry, InventoryEntry>chunk(1)
                 .reader(inventoryDeleteStepReader())
+                .chunk(INVENTORY_CHUNK)
                 .writer(inventoryDeleteStepWriter())
                 .build();
     }
 
     @Bean
-    @JobScope
     public Step inventoryImportStep() {
-        return stepBuilderFactory.get("productTypeImportStep")
+        return stepBuilderFactory.get("inventoryImportStep")
                 .<InventoryCsvEntry, InventoryEntryDraft>chunk(1)
-                .reader(inventoryImportStepReader())
+                .reader(inventoryImportStepReader(inventoryResource))
+                .processor(inventoryImportStepProcessor())
+                .writer(inventoryImportStepWriter())
+                .build();
+    }
+
+    @Bean
+    public Step inventoryStoresImportStep() {
+        return stepBuilderFactory.get("inventoryStoresImportStep")
+                .<InventoryCsvEntry, InventoryEntryDraft>chunk(1)
+                .reader(inventoryImportStepReader(inventoryStoresResource))
                 .processor(inventoryImportStepProcessor())
                 .writer(inventoryImportStepWriter())
                 .build();
     }
 
     private ItemReader<InventoryEntry> inventoryDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, InventoryEntryQuery.of());
+        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, InventoryEntryQuery.of().withLimit(INVENTORY_CHUNK));
     }
 
     private ItemWriter<InventoryEntry> inventoryDeleteStepWriter() {
@@ -78,9 +90,9 @@ public class InventoryImportStepConfiguration {
         });
     }
 
-    private ItemReader<InventoryCsvEntry> inventoryImportStepReader() {
+    private ItemReader<InventoryCsvEntry> inventoryImportStepReader(final Resource resource) {
         final FlatFileItemReader<InventoryCsvEntry> reader = new FlatFileItemReader<>();
-        reader.setResource(inventoryResource);
+        reader.setResource(resource);
         reader.setLineMapper(new DefaultLineMapper<InventoryCsvEntry>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(INVENTORY_CSV_HEADER_NAMES);

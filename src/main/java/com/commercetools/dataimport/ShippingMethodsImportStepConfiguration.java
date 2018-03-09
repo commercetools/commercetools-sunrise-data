@@ -7,7 +7,6 @@ import io.sphere.sdk.shippingmethods.commands.ShippingMethodDeleteCommand;
 import io.sphere.sdk.shippingmethods.queries.ShippingMethodQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -26,7 +25,6 @@ public class ShippingMethodsImportStepConfiguration {
     private BlockingSphereClient sphereClient;
 
     @Bean
-    @JobScope
     public Step shippingMethodsDeleteStep() {
         return stepBuilderFactory.get("shippingMethodsDeleteStep")
                 .<ShippingMethod, ShippingMethod>chunk(1)

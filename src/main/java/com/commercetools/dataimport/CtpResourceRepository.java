@@ -63,8 +63,6 @@ public class CtpResourceRepository {
         return fetchResource(query);
     }
 
-    @Cacheable("categoryTree")
-    @Nullable
     public CategoryTree fetchCategoryTree() {
         final List<Category> categories = blockingWait(QueryExecutionUtils.queryAll(sphereClient, CategoryQuery.of()), Duration.ofSeconds(30));
         log.debug("Fetched category tree with {} categories", categories.size());
