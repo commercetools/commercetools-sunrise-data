@@ -3,7 +3,6 @@ package com.commercetools.dataimport;
 import com.commercetools.dataimport.products.ProductImportItemProcessor;
 import com.commercetools.dataimport.products.ProductImportItemReader;
 import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
-import io.sphere.sdk.categories.CategoryTree;
 import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.products.Product;
 import io.sphere.sdk.products.ProductDraft;
@@ -24,7 +23,6 @@ import io.sphere.sdk.taxcategories.commands.TaxCategoryDeleteCommand;
 import io.sphere.sdk.taxcategories.queries.TaxCategoryQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
@@ -123,13 +121,11 @@ public class ProductsImportStepConfiguration {
     }
 
     @Bean
-    @JobScope
     public Step productsImportStep() {
-        final CategoryTree categoryTree = ctpResourceRepository.fetchCategoryTree();
         return stepBuilderFactory.get("productsImportStep")
                 .<List<FieldSet>, ProductDraft>chunk(1)
                 .reader(new ProductImportItemReader(productsResource))
-                .processor(new ProductImportItemProcessor(ctpResourceRepository, categoryTree))
+                .processor(new ProductImportItemProcessor(ctpResourceRepository))
                 .writer(productsImportStepWriter())
                 .build();
     }

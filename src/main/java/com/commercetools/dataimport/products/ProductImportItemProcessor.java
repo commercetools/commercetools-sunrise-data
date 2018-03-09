@@ -39,11 +39,10 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
     private static final Pattern PRICE_PATTERN = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d+)(?:\\|\\d+)?(?: (?<customerGroup>\\w+))?(?:#(?<channel>[\\w\\-]+))?$");
 
     private final CtpResourceRepository ctpResourceRepository;
-    private final CategoryTree categoryTree;
+    private CategoryTree categoryTree = null;
 
-    public ProductImportItemProcessor(final CtpResourceRepository ctpResourceRepository, final CategoryTree categoryTree) {
+    public ProductImportItemProcessor(final CtpResourceRepository ctpResourceRepository) {
         this.ctpResourceRepository = ctpResourceRepository;
-        this.categoryTree = categoryTree;
     }
 
     @Override
@@ -122,7 +121,7 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
 
     @Nullable
     private Category findCategory(final String path) {
-        CategoryTree subtree = categoryTree;
+        CategoryTree subtree = getCategoryTree();
         Category matchingCategory = null;
         for (final String categoryName : path.split(">")) {
             matchingCategory = subtree.getSubtreeRoots().stream()
@@ -133,6 +132,13 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
             subtree = subtree.getSubtree(subtree.findChildren(matchingCategory));
         }
         return matchingCategory;
+    }
+
+    private CategoryTree getCategoryTree() {
+        if (categoryTree == null) {
+            categoryTree = ctpResourceRepository.fetchCategoryTree();
+        }
+        return categoryTree;
     }
 
     @Nullable
