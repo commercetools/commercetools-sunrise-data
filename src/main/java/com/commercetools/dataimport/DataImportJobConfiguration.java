@@ -33,25 +33,24 @@ public class DataImportJobConfiguration {
     }
 
     @Bean
-    public Flow reserveInStoreImportFlow(Step orderTypeImportStep, Step channelTypeImportStep, Step channelsImportStep,
-                                         Step inventoryStoresImportStep) {
+    public Flow reserveInStoreImportFlow(Step orderTypeImportStep, Step inventoryStoresImportStep) {
         return new FlowBuilder<Flow>("reserveInStoreImportFlow")
                 .next(orderTypeImportStep)
-                .next(channelTypeImportStep)
-                .next(channelsImportStep)
                 .next(inventoryStoresImportStep)
                 .build();
     }
 
     @Bean
     public Flow catalogImportFlow(Step projectSettingsStep, Step productTypeImportStep, Step taxCategoryImportStep,
-                                  Step customerGroupImportStep, Step categoriesImportStep, Step productsImportStep,
-                                  Step inventoryImportStep) {
+                                  Step channelTypeImportStep, Step channelsImportStep, Step customerGroupImportStep,
+                                  Step categoriesImportStep, Step productsImportStep, Step inventoryImportStep) {
         return new FlowBuilder<Flow>("catalogImportFlow")
                 .start(projectSettingsStep)
                 .next(customerGroupImportStep)
                 .next(categoriesImportStep)
                 .next(taxCategoryImportStep)
+                .next(channelTypeImportStep)
+                .next(channelsImportStep)
                 .next(productTypeImportStep)
                 .next(productsImportStep)
                 .next(inventoryImportStep)
