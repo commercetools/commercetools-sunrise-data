@@ -45,4 +45,4 @@ Before starting the import, make sure you have access to the [Admin Center](http
 ### Requirements
 
 - Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- Install [Node.js] (https://nodejs.org/en/download/current/)
+- Install [Node.js](https://nodejs.org/en/download/current/)
