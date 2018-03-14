@@ -2,6 +2,7 @@ package com.commercetools.dataimport.orders;
 
 import io.sphere.sdk.models.LocalizedString;
 import io.sphere.sdk.orders.*;
+import io.sphere.sdk.orders.commands.OrderImportCommand;
 import io.sphere.sdk.products.Price;
 import io.sphere.sdk.utils.MoneyImpl;
 import org.springframework.batch.item.ItemProcessor;
@@ -11,10 +12,10 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-public class OrderImportItemProcessor implements ItemProcessor<List<OrderCsvEntry>, OrderImportDraft> {
+public class OrderImportItemProcessor implements ItemProcessor<List<OrderCsvEntry>, OrderImportCommand> {
 
     @Override
-    public OrderImportDraft process(final List<OrderCsvEntry> items) {
+    public OrderImportCommand process(final List<OrderCsvEntry> items) {
         if (!items.isEmpty()) {
             final OrderCsvEntry firstCsvLine = items.get(0);
             final MonetaryAmount totalPrice = centAmountToMoney(firstCsvLine.getTotalPrice());
@@ -22,10 +23,11 @@ public class OrderImportItemProcessor implements ItemProcessor<List<OrderCsvEntr
             final List<LineItemImportDraft> lineItemImportDrafts = items.stream()
                     .map(this::lineItemToDraft)
                     .collect(toList());
-            return OrderImportDraftBuilder.ofLineItems(totalPrice, state, lineItemImportDrafts)
+            final OrderImportDraft draft = OrderImportDraftBuilder.ofLineItems(totalPrice, state, lineItemImportDrafts)
                     .customerEmail(firstCsvLine.getCustomerEmail())
                     .orderNumber(firstCsvLine.getOrderNumber())
                     .build();
+            return OrderImportCommand.of(draft);
         }
         return null;
     }

@@ -3,34 +3,28 @@ package com.commercetools.dataimport;
 import com.commercetools.dataimport.orders.OrderCsvEntry;
 import com.commercetools.dataimport.orders.OrderImportItemProcessor;
 import com.commercetools.dataimport.orders.OrderImportItemReader;
-import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
 import io.sphere.sdk.carts.Cart;
 import io.sphere.sdk.carts.commands.CartDeleteCommand;
 import io.sphere.sdk.carts.queries.CartQuery;
-import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.orders.Order;
-import io.sphere.sdk.orders.OrderImportDraft;
 import io.sphere.sdk.orders.commands.OrderDeleteCommand;
 import io.sphere.sdk.orders.commands.OrderImportCommand;
 import io.sphere.sdk.orders.queries.OrderQuery;
 import io.sphere.sdk.types.Type;
 import io.sphere.sdk.types.TypeDraft;
-import io.sphere.sdk.types.queries.TypeQuery;
+import io.sphere.sdk.types.commands.TypeCreateCommand;
+import io.sphere.sdk.types.commands.TypeDeleteCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
-import java.io.IOException;
 import java.util.List;
-
-import static java.util.Collections.singletonList;
+import java.util.concurrent.Future;
 
 @Configuration
 @Slf4j
@@ -40,7 +34,7 @@ public class OrdersImportStepConfiguration {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    private BlockingSphereClient sphereClient;
+    private CtpBatch ctpBatch;
 
     @Value("${resource.orders}")
     private Resource ordersResource;
@@ -49,86 +43,52 @@ public class OrdersImportStepConfiguration {
     private Resource orderTypeResource;
 
     @Bean
-    public Step ordersImportStep() {
+    public Step ordersImportStep() throws Exception {
         return stepBuilderFactory.get("ordersImportStep")
-                .<List<OrderCsvEntry>, OrderImportDraft>chunk(1)
+                .<List<OrderCsvEntry>, Future<OrderImportCommand>>chunk(1)
                 .reader(new OrderImportItemReader(ordersResource))
-                .processor(new OrderImportItemProcessor())
-                .writer(ordersImportStepWriter())
+                .processor(ctpBatch.asyncProcessor(new OrderImportItemProcessor()))
+                .writer(ctpBatch.asyncWriter())
                 .build();
     }
 
     @Bean
-    public Step orderTypeImportStep(ItemWriter<TypeDraft> typeImportWriter) throws IOException {
+    public Step orderTypeImportStep() throws Exception {
         return stepBuilderFactory.get("orderTypeImportStep")
-                .<TypeDraft, TypeDraft>chunk(1)
-                .reader(orderTypeImportStepReader())
-                .writer(typeImportWriter)
+                .<TypeDraft, Future<TypeCreateCommand>>chunk(1)
+                .reader(ctpBatch.jsonReader(orderTypeResource, TypeDraft.class))
+                .processor(ctpBatch.asyncProcessor(TypeCreateCommand::of))
+                .writer(ctpBatch.asyncWriter())
                 .build();
     }
 
     @Bean
-    public Step orderTypeDeleteStep(ItemWriter<Type> typeDeleteWriter) {
+    public Step orderTypeDeleteStep() throws Exception {
         return stepBuilderFactory.get("orderTypeDeleteStep")
-                .<Type, Type>chunk(1)
-                .reader(orderTypeDeleteStepReader())
-                .writer(typeDeleteWriter)
+                .<Type, Future<TypeDeleteCommand>>chunk(1)
+                .reader(ctpBatch.typeQueryReader("order"))
+                .processor(ctpBatch.asyncProcessor(TypeDeleteCommand::of))
+                .writer(ctpBatch.asyncWriter())
                 .build();
     }
 
     @Bean
-    public Step ordersDeleteStep() {
+    public Step ordersDeleteStep() throws Exception {
         return stepBuilderFactory.get("ordersDeleteStep")
-                .<Order, Order>chunk(1)
-                .reader(ordersDeleteStepReader())
-                .writer(ordersDeleteStepWriter())
+                .<Order, Future<OrderDeleteCommand>>chunk(1)
+                .reader(ctpBatch.queryReader(OrderQuery.of()))
+                .processor(ctpBatch.asyncProcessor(OrderDeleteCommand::of))
+                .writer(ctpBatch.asyncWriter())
                 .build();
     }
 
     @Bean
-    public Step cartsDeleteStep() {
+    public Step cartsDeleteStep() throws Exception {
         return stepBuilderFactory.get("cartsDeleteStep")
-                .<Cart, Cart>chunk(1)
-                .reader(cartsDeleteStepReader())
-                .writer(cartsDeleteStepWriter())
+                .<Cart, Future<CartDeleteCommand>>chunk(1)
+                .reader(ctpBatch.queryReader(CartQuery.of()))
+                .processor(ctpBatch.asyncProcessor(CartDeleteCommand::of))
+                .writer(ctpBatch.asyncWriter())
                 .build();
-    }
-
-    private ItemReader<TypeDraft> orderTypeImportStepReader() throws IOException {
-        return JsonUtils.createJsonListReader(orderTypeResource, TypeDraft.class);
-    }
-
-    private ItemReader<Order> ordersDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, OrderQuery.of());
-    }
-
-    private ItemWriter<Order> ordersDeleteStepWriter() {
-        return items -> items.forEach(item -> {
-            final Order order = sphereClient.executeBlocking(OrderDeleteCommand.of(item));
-            log.debug("Removed order \"{}\"", order.getOrderNumber());
-        });
-    }
-
-    private ItemReader<Cart> cartsDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CartQuery.of());
-    }
-
-    private ItemWriter<Cart> cartsDeleteStepWriter() {
-        return items -> items.forEach(item -> {
-            final Cart cart = sphereClient.executeBlocking(CartDeleteCommand.of(item));
-            log.debug("Removed cart \"{}\"", cart.getId());
-        });
-    }
-
-    private ItemReader<Type> orderTypeDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, TypeQuery.of()
-                .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("order"))));
-    }
-
-    private ItemWriter<OrderImportDraft> ordersImportStepWriter() {
-        return items -> items.forEach(item -> {
-            final Order order = sphereClient.executeBlocking(OrderImportCommand.of(item));
-            log.debug("Created order \"{}\"", order.getOrderNumber());
-        });
     }
 }

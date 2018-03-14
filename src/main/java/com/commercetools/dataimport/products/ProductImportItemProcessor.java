@@ -8,6 +8,7 @@ import io.sphere.sdk.channels.Channel;
 import io.sphere.sdk.models.*;
 import io.sphere.sdk.products.*;
 import io.sphere.sdk.products.attributes.*;
+import io.sphere.sdk.products.commands.ProductCreateCommand;
 import io.sphere.sdk.producttypes.ProductType;
 import io.sphere.sdk.taxcategories.TaxCategory;
 import io.sphere.sdk.utils.MoneyImpl;
@@ -34,7 +35,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @Slf4j
-public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>, ProductDraft> {
+public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>, ProductCreateCommand> {
 
     private static final Pattern PRICE_PATTERN = Pattern.compile("(?:(?<country>\\w{2})-)?(?<currency>\\w{3}) (?<centAmount>\\d+)(?:\\|\\d+)?(?: (?<customerGroup>\\w+))?(?:#(?<channel>[\\w\\-]+))?$");
 
@@ -46,14 +47,15 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
     }
 
     @Override
-    public ProductDraft process(final List<FieldSet> items) throws Exception {
+    public ProductCreateCommand process(final List<FieldSet> items) throws Exception {
         if (!items.isEmpty()) {
             final FieldSet productLine = items.get(0);
             final ProductCsvEntry productEntry = lineToCsvEntry(productLine);
             final ProductType productType = ctpResourceRepository.fetchProductType(productEntry.getProductType());
             if (productType != null) {
                 final List<ProductVariantDraft> variantDrafts = variantLinesToDrafts(items, productType);
-                return productLineToDraft(productEntry, productType, variantDrafts);
+                final ProductDraft draft = productLineToDraft(productEntry, productType, variantDrafts);
+                return ProductCreateCommand.of(draft);
             }
         }
         return null;

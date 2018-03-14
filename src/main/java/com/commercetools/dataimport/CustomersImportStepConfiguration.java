@@ -1,7 +1,5 @@
 package com.commercetools.dataimport;
 
-import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
-import io.sphere.sdk.client.BlockingSphereClient;
 import io.sphere.sdk.customergroups.CustomerGroup;
 import io.sphere.sdk.customergroups.CustomerGroupDraft;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
@@ -9,21 +7,18 @@ import io.sphere.sdk.customergroups.commands.CustomerGroupDeleteCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
 import io.sphere.sdk.types.Type;
 import io.sphere.sdk.types.TypeDraft;
-import io.sphere.sdk.types.queries.TypeQuery;
+import io.sphere.sdk.types.commands.TypeCreateCommand;
+import io.sphere.sdk.types.commands.TypeDeleteCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
-import java.io.IOException;
-
-import static java.util.Collections.singletonList;
+import java.util.concurrent.Future;
 
 @Configuration
 @Slf4j
@@ -33,7 +28,7 @@ public class CustomersImportStepConfiguration {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    private BlockingSphereClient sphereClient;
+    private CtpBatch ctpBatch;
 
     @Value("${resource.customerType}")
     private Resource customerTypeResource;
@@ -42,69 +37,42 @@ public class CustomersImportStepConfiguration {
     private Resource customerGroupResource;
 
     @Bean
-    public Step customerTypeImportStep(ItemWriter<TypeDraft> typeImportWriter) throws IOException {
+    public Step customerTypeImportStep() throws Exception {
         return stepBuilderFactory.get("customerTypeImportStep")
-                .<TypeDraft, TypeDraft>chunk(1)
-                .reader(customerTypeImportStepReader())
-                .writer(typeImportWriter)
+                .<TypeDraft, Future<TypeCreateCommand>>chunk(1)
+                .reader(ctpBatch.jsonReader(customerTypeResource, TypeDraft.class))
+                .processor(ctpBatch.asyncProcessor(TypeCreateCommand::of))
+                .writer(ctpBatch.asyncWriter())
                 .build();
     }
 
     @Bean
-    public Step customerTypeDeleteStep(final ItemWriter<Type> typeDeleteWriter) {
+    public Step customerTypeDeleteStep() throws Exception {
         return stepBuilderFactory.get("customerTypeDeleteStep")
-                .<Type, Type>chunk(1)
-                .reader(customerTypeDeleteStepReader())
-                .writer(typeDeleteWriter)
+                .<Type, Future<TypeDeleteCommand>>chunk(1)
+                .reader(ctpBatch.typeQueryReader("customer"))
+                .processor(ctpBatch.asyncProcessor(TypeDeleteCommand::of))
+                .writer(ctpBatch.asyncWriter())
                 .build();
     }
 
     @Bean
-    public Step customerGroupImportStep() throws IOException {
+    public Step customerGroupImportStep() throws Exception {
         return stepBuilderFactory.get("customerGroupImportStep")
-                .<CustomerGroupDraft, CustomerGroupDraft>chunk(1)
-                .reader(customerGroupImportStepReader())
-                .writer(customerGroupImportStepWriter())
+                .<CustomerGroupDraft, Future<CustomerGroupCreateCommand>>chunk(1)
+                .reader(ctpBatch.jsonReader(customerGroupResource, CustomerGroupDraft.class))
+                .processor(ctpBatch.asyncProcessor(CustomerGroupCreateCommand::of))
+                .writer(ctpBatch.asyncWriter())
                 .build();
     }
 
     @Bean
-    public Step customerGroupDeleteStep() {
+    public Step customerGroupDeleteStep() throws Exception {
         return stepBuilderFactory.get("customerGroupDeleteStep")
-                .<CustomerGroup, CustomerGroup>chunk(1)
-                .reader(customerGroupDeleteStepReader())
-                .writer(customerGroupDeleteStepWriter())
+                .<CustomerGroup, Future<CustomerGroupDeleteCommand>>chunk(1)
+                .reader(ctpBatch.queryReader(CustomerGroupQuery.of()))
+                .processor(ctpBatch.asyncProcessor(CustomerGroupDeleteCommand::of))
+                .writer(ctpBatch.asyncWriter())
                 .build();
-    }
-
-    private ItemReader<TypeDraft> customerTypeImportStepReader() throws IOException {
-        return JsonUtils.createJsonListReader(customerTypeResource, TypeDraft.class);
-    }
-
-    private ItemReader<Type> customerTypeDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, TypeQuery.of()
-                .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList("customer"))));
-    }
-
-    private ItemReader<CustomerGroupDraft> customerGroupImportStepReader() throws IOException {
-        return JsonUtils.createJsonListReader(customerGroupResource, CustomerGroupDraft.class);
-    }
-
-    private ItemWriter<CustomerGroupDraft> customerGroupImportStepWriter() {
-        return items -> items.forEach(draft -> {
-            final CustomerGroup customerGroup = sphereClient.executeBlocking(CustomerGroupCreateCommand.of(draft));
-            log.debug("Created customer group \"{}\"", customerGroup.getName());
-        });
-    }
-
-    private ItemReader<CustomerGroup> customerGroupDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, CustomerGroupQuery.of());
-    }
-
-    private ItemWriter<CustomerGroup> customerGroupDeleteStepWriter() {
-        return items -> items.forEach(item -> {
-            final CustomerGroup customerGroup = sphereClient.executeBlocking(CustomerGroupDeleteCommand.of(item));
-            log.debug("Removed tax category \"{}\"", customerGroup.getName());
-        });
     }
 }

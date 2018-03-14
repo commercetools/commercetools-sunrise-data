@@ -59,7 +59,7 @@ public class DataImportJobConfiguration {
 
     @Bean
     public Flow projectCleanUpFlow(Step ordersDeleteStep, Step cartsDeleteStep, Step shippingMethodsDeleteStep,
-                                   Flow productsDeleteFlow, Step productTypeDeleteStep, Step inventoryDeleteStep,
+                                   Step productsDeleteStep, Step productTypeDeleteStep, Step inventoryDeleteStep,
                                    Step taxCategoryDeleteStep, Step customerGroupDeleteStep, Flow categoriesDeleteFlow,
                                    Step orderTypeDeleteStep, Step customerTypeDeleteStep, Step channelTypeDeleteStep,
                                    Step channelsDeleteStep) {
@@ -68,7 +68,7 @@ public class DataImportJobConfiguration {
                 .next(cartsDeleteStep)
                 .next(shippingMethodsDeleteStep)
                 .next(inventoryDeleteStep)
-                .next(productsDeleteFlow)
+                .next(productsDeleteStep)
                 .next(productTypeDeleteStep)
                 .next(taxCategoryDeleteStep)
                 .next(categoriesDeleteFlow)

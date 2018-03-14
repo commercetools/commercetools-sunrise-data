@@ -3,6 +3,7 @@ package com.commercetools.dataimport.categories;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.categories.CategoryDraftBuilder;
+import io.sphere.sdk.categories.commands.CategoryCreateCommand;
 import io.sphere.sdk.models.*;
 import org.springframework.batch.item.ItemProcessor;
 
@@ -13,18 +14,19 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-public class CategoryImportItemProcessor implements ItemProcessor<CategoryCsvEntry, CategoryDraft> {
+public class CategoryImportItemProcessor implements ItemProcessor<CategoryCsvEntry, CategoryCreateCommand> {
 
     @Override
-    public CategoryDraft process(final CategoryCsvEntry item) {
+    public CategoryCreateCommand process(final CategoryCsvEntry item) {
         final LocalizedString name = item.getName().toLocalizedString();
         final LocalizedString slug = item.getSlug().toLocalizedString();
-        return CategoryDraftBuilder.of(name, slug)
+        final CategoryDraft draft = CategoryDraftBuilder.of(name, slug)
                 .key(item.getKey())
                 .externalId(item.getExternalId())
                 .parent(resourceIdentifier(item.getParentKey()))
                 .assets(extractAssets(item, name))
                 .build();
+        return CategoryCreateCommand.of(draft);
     }
 
     private List<AssetDraft> extractAssets(final CategoryCsvEntry item, final LocalizedString name) {

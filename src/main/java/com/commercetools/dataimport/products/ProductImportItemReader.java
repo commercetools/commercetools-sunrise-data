@@ -26,6 +26,7 @@ public class ProductImportItemReader extends AbstractItemStreamItemReader<List<F
 
     private static FlatFileItemReader<FieldSet> createFlatFileItemReader(final Resource resource) {
         final FlatFileItemReader<FieldSet> reader = new FlatFileItemReader<>();
+        reader.setResource(resource);
         reader.setLineMapper(new DefaultLineMapper<FieldSet>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
                 setNames(PRODUCT_CSV_HEADER_NAMES);
@@ -34,7 +35,6 @@ public class ProductImportItemReader extends AbstractItemStreamItemReader<List<F
             setFieldSetMapper(new PassThroughFieldSetMapper());
         }});
         reader.setLinesToSkip(1);
-        reader.setResource(resource);
         return reader;
     }
 
