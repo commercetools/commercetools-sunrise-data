@@ -3,24 +3,22 @@
   "version": "1.0.0",
   "description": "[![Build Status](https://travis-ci.org/commercetools/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/commercetools/commercetools-sunrise-data)",
   "main": "index.js",
-  "credentials": {
-    "project": "",
-    "client_id": "",
-    "client_secret": "",
+  "config": {
     "authUrl": "https://auth.commercetools.com",
     "apiUrl": "https://api.commercetools.com"
   },
   "scripts": {
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
-    "credentials": "npm run build && node dist/lib/update-credentials.js --project $npm_package_credentials_project --client_id $npm_package_credentials_client_id --client_secret $npm_package_credentials_client_secret --apiUrl $npm_package_credentials_apiUrl --authUrl $npm_package_credentials_authUrl",
+    "credentials": "npm run build && node dist/lib/update-credentials.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "import:data": "./mvnw spring-boot:run",
-    "import:zones": "npm run build && node dist/lib/zones.js --project $npm_package_credentials_project --client_id $npm_package_credentials_client_id --client_secret $npm_package_credentials_client_secret --apiUrl $npm_package_credentials_apiUrl --authUrl $npm_package_credentials_authUrl",
-    "import:shippingmethods": "npm run build && node dist/lib/shipping-method.js --project $npm_package_credentials_project --client_id $npm_package_credentials_client_id --client_secret $npm_package_credentials_client_secret --apiUrl $npm_package_credentials_apiUrl --authUrl $npm_package_credentials_authUrl",
-    "sync:product": "node_modules/.bin/product-csv-sync import --matchBy sku --csv data/products/products.csv --projectKey $npm_package_credentials_project --clientId $npm_package_credentials_client_id  --clientSecret $npm_package_credentials_client_secret --sphereProtocol https --sphereAuthProtocol https",
+    "import:zones": "npm run build && node dist/lib/zones.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
+    "import:shippingmethods": "npm run build && node dist/lib/shipping-method.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
+    "sync:product": "node_modules/.bin/product-csv-sync import --matchBy sku --csv data/products/products.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id  --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
     "import:order": "./mvnw spring-boot:run -Drun.arguments=ordersImport",
-    "sync:inventory-no-stores": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory/inventory-no-stores.csv --projectKey $npm_package_credentials_project --clientId $npm_package_credentials_client_id --clientSecret $npm_package_credentials_client_secret --sphereProtocol https --sphereAuthProtocol https",
-    "sync:inventory": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory/inventory.csv --projectKey $npm_package_credentials_project --clientId $npm_package_credentials_client_id --clientSecret $npm_package_credentials_client_secret --sphereProtocol https --sphereAuthProtocol https",
-    "start": "npm run build && npm run credentials && npm run import:data && npm run import:zones && npm run import:shippingmethods && npm run sync:product"
+    "sync:inventory-no-stores": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory/inventory-no-stores.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
+    "sync:inventory": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory/inventory.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
+    "start": "npm run build && npm run credentials && npm run import:data && npm run import:zones && npm run import:shippingmethods && npm run sync:product",
+    "states": "npm run build && node dist/lib/machine-states.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl"
   },
   "repository": {
     "type": "git",
