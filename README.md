@@ -19,9 +19,9 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```
 3. Set commercetools project credentials as npm config values:
     <pre>
-        npm config set commercetools-sunrise-data:project <i>projectKey</i>
-        npm config set commercetools-sunrise-data:client_id <i>clientId</i>
-        npm config set commercetools-sunrise-data:client_secret <i>clientSecret</i>
+        npm run set:projectkey <i>projectKey</i>
+        npm rum set:clientId <i>clientId</i>
+        npm run set:clientSecret <i>clientSecret</i>
     </pre>
 
 ### 3. Import basic data
