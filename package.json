@@ -12,6 +12,8 @@
     "set:clientId": "npm config set commercetools-sunrise-data:client_id",
     "set:clientSecret": "npm config set commercetools-sunrise-data:client_secret",
     "get:projectkey": "npm config get commercetools-sunrise-data:project",
+    "get:clientId": "npm config get commercetools-sunrise-data:client_id",
+    "get:clientSecret": "npm config get commercetools-sunrise-data:client_secret",
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "credentials": "npm run build && node dist/lib/update-credentials.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "import:data": "./mvnw spring-boot:run -Dctp.projectKey=$npm_package_config_project -Dctp.clientId=$npm_package_config_client_id -Dctp.clientSecret=$npm_package_config_client_secret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
