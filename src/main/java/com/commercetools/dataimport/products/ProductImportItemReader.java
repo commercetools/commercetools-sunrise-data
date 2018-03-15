@@ -60,7 +60,7 @@ public class ProductImportItemReader extends AbstractItemStreamItemReader<List<F
             final List<FieldSet> lines = new ArrayList<>();
             lines.add(line);
             line = itemReader.peek();
-            while (line != null && !isProductLine(line)) {
+            while (line != null && isVariantLine(line)) {
                 lines.add(itemReader.read());
                 line = itemReader.peek();
             }
@@ -69,7 +69,8 @@ public class ProductImportItemReader extends AbstractItemStreamItemReader<List<F
         return null;
     }
 
-    private boolean isProductLine(final FieldSet line) {
-        return line.getProperties().getProperty("productType") != null;
+    private boolean isVariantLine(final FieldSet line) {
+        final String productType = line.getProperties().getProperty("productType");
+        return productType == null || productType.isEmpty();
     }
 }

@@ -46,6 +46,7 @@ public class ProjectSettingsStepConfiguration {
     public Step projectSettingsStep() {
         return stepBuilderFactory.get("projectSettingsStep")
                 .tasklet(projectSettingsStepTasklet())
+                .listener(new DurationStepListener())
                 .build();
     }
 

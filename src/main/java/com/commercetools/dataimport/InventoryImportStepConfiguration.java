@@ -32,6 +32,12 @@ public class InventoryImportStepConfiguration {
     @Autowired
     private CtpBatch ctpBatch;
 
+    @Value("${chunkSize}")
+    private int chunkSize;
+
+    @Value("${maxThreads}")
+    private int maxThreads;
+
     @Value("${resource.inventory}")
     private Resource inventoryResource;
 
@@ -41,30 +47,39 @@ public class InventoryImportStepConfiguration {
     @Bean
     public Step inventoryDeleteStep() throws Exception {
         return stepBuilderFactory.get("inventoryDeleteStep")
-                .<InventoryEntry, Future<InventoryEntryDeleteCommand>>chunk(1)
+                .<InventoryEntry, Future<InventoryEntryDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(InventoryEntryQuery.of()))
                 .processor(ctpBatch.asyncProcessor(InventoryEntryDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step inventoryImportStep() throws Exception {
         return stepBuilderFactory.get("inventoryImportStep")
-                .<InventoryCsvEntry, Future<InventoryEntryCreateCommand>>chunk(1)
+                .<InventoryCsvEntry, Future<InventoryEntryCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.csvReader(inventoryResource, INVENTORY_CSV_HEADER_NAMES, InventoryCsvEntry.class))
                 .processor(ctpBatch.asyncProcessor(new InventoryItemProcessor(ctpResourceRepository)))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step inventoryStoresImportStep() throws Exception {
         return stepBuilderFactory.get("inventoryStoresImportStep")
-                .<InventoryCsvEntry, Future<InventoryEntryCreateCommand>>chunk(1)
+                .<InventoryCsvEntry, Future<InventoryEntryCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.csvReader(inventoryStoresResource, INVENTORY_CSV_HEADER_NAMES, InventoryCsvEntry.class))
                 .processor(ctpBatch.asyncProcessor(new InventoryItemProcessor(ctpResourceRepository)))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 }

@@ -31,6 +31,12 @@ public class CategoriesImportStepConfiguration {
     @Autowired
     private CtpBatch ctpBatch;
 
+    @Value("${chunkSize}")
+    private int chunkSize;
+
+    @Value("${maxThreads}")
+    private int maxThreads;
+
     @Value("${resource.categories}")
     private Resource categoriesResource;
 
@@ -44,29 +50,38 @@ public class CategoriesImportStepConfiguration {
 
     private Step rootCategoriesDeleteStep() throws Exception {
         return stepBuilderFactory.get("rootCategoriesDeleteStep")
-                .<Category, Future<CategoryDeleteCommand>>chunk(1)
+                .<Category, Future<CategoryDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(CategoryQuery.of().byIsRoot()))
                 .processor(ctpBatch.asyncProcessor(CategoryDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     private Step remainingCategoriesDeleteStep() throws Exception {
         return stepBuilderFactory.get("remainingCategoriesDeleteStep")
-                .<Category, Future<CategoryDeleteCommand>>chunk(1)
+                .<Category, Future<CategoryDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(CategoryQuery.of()))
                 .processor(ctpBatch.asyncProcessor(CategoryDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step categoriesImportStep() throws Exception {
         return stepBuilderFactory.get("categoriesImportStep")
-                .<CategoryCsvEntry, Future<CategoryCreateCommand>>chunk(1)
+                .<CategoryCsvEntry, Future<CategoryCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.csvReader(categoriesResource, CATEGORY_CSV_HEADER_NAMES, CategoryCsvEntry.class))
                 .processor(ctpBatch.asyncProcessor(new CategoryImportItemProcessor()))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 }

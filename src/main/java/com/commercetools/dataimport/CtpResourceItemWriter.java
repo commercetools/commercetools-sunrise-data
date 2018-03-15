@@ -23,7 +23,7 @@ public class CtpResourceItemWriter<C extends Command<T>, T extends Versioned<T>>
             if (item != null) {
                 final T resource = sphereClient.executeBlocking(item);
                 if (log.isDebugEnabled()) {
-                    log.debug("Executed on \"{}\"", resource.getId());
+                    log.debug("Executed {} on \"{}\"", item.getClass().getSuperclass().getSimpleName(), resource.getId());
                 }
             }
         });

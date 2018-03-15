@@ -25,7 +25,7 @@ public final class CtpResourceItemReader<T extends Identifiable<?>, C extends Qu
 
     public CtpResourceItemReader(final BlockingSphereClient client, final QueryDsl<T, C> query) {
         this.client = client;
-        this.query = query.withSort(QuerySort.of("id asc")).withFetchTotal(false).withLimit(200);
+        this.query = query.withSort(QuerySort.of("id asc")).withFetchTotal(false).withLimit(100);
     }
 
     @Override

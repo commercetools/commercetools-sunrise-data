@@ -30,6 +30,12 @@ public class ChannelsImportStepConfiguration {
     @Autowired
     private CtpBatch ctpBatch;
 
+    @Value("${chunkSize}")
+    private int chunkSize;
+
+    @Value("${maxThreads}")
+    private int maxThreads;
+
     @Value("${resource.channels}")
     private Resource channelsResource;
 
@@ -39,40 +45,52 @@ public class ChannelsImportStepConfiguration {
     @Bean
     public Step channelTypeDeleteStep() throws Exception {
         return stepBuilderFactory.get("channelTypeDeleteStep")
-                .<Type, Future<TypeDeleteCommand>>chunk(1)
+                .<Type, Future<TypeDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.typeQueryReader("channel"))
                 .processor(ctpBatch.asyncProcessor(TypeDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step channelsDeleteStep() throws Exception {
         return stepBuilderFactory.get("channelsDeleteStep")
-                .<Channel, Future<ChannelDeleteCommand>>chunk(1)
+                .<Channel, Future<ChannelDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(ChannelQuery.of()))
                 .processor(ctpBatch.asyncProcessor(ChannelDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step channelTypeImportStep() throws Exception {
         return stepBuilderFactory.get("channelTypeImportStep")
-                .<TypeDraft, Future<TypeCreateCommand>>chunk(1)
+                .<TypeDraft, Future<TypeCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.jsonReader(channelTypeResource, TypeDraft.class))
                 .processor(ctpBatch.asyncProcessor(TypeCreateCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step channelsImportStep() throws Exception {
         return stepBuilderFactory.get("channelsImportStep")
-                .<ChannelDraft, Future<ChannelCreateCommand>>chunk(1)
+                .<ChannelDraft, Future<ChannelCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.jsonReader(channelsResource, ChannelDraft.class))
                 .processor(ctpBatch.asyncProcessor(ChannelCreateCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 }

@@ -23,7 +23,7 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -39,6 +39,9 @@ public class CtpBatch {
 
     @Autowired
     private BlockingSphereClient sphereClient;
+
+    @Autowired
+    private TaskExecutor taskExecutor;
 
     /**
      * Reads a file containing direcly an array of objects which should be converted to a list of {@code clazz} elements.
@@ -63,7 +66,7 @@ public class CtpBatch {
      * @return List
      * @throws IOException in case the resource reading did not work or the JSON mapping
      */
-    public static <T> List<T> createJsonList(final Resource resource, final Class<T> clazz) throws IOException {
+    private static <T> List<T> createJsonList(final Resource resource, final Class<T> clazz) throws IOException {
         final TypeFactory typeFactory = TypeFactory.defaultInstance();
         final JavaType javaType = typeFactory.constructCollectionType(List.class, clazz);
         final ObjectReader reader = MAPPER.readerFor(javaType);
@@ -98,7 +101,7 @@ public class CtpBatch {
     public <I, O> AsyncItemProcessor<I, O> asyncProcessor(final ItemProcessor<I, O> delegate) throws Exception {
         final AsyncItemProcessor<I, O> asyncItemProcessor = new AsyncItemProcessor<>();
         asyncItemProcessor.setDelegate(delegate);
-        asyncItemProcessor.setTaskExecutor(new SimpleAsyncTaskExecutor());
+        asyncItemProcessor.setTaskExecutor(taskExecutor);
         asyncItemProcessor.afterPropertiesSet();
         return asyncItemProcessor;
     }

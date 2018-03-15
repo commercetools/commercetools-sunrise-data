@@ -47,18 +47,37 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
     }
 
     @Override
-    public ProductCreateCommand process(final List<FieldSet> items) throws Exception {
+    public ProductCreateCommand process(final List<FieldSet> items) {
         if (!items.isEmpty()) {
-            final FieldSet productLine = items.get(0);
-            final ProductCsvEntry productEntry = lineToCsvEntry(productLine);
-            final ProductType productType = ctpResourceRepository.fetchProductType(productEntry.getProductType());
-            if (productType != null) {
-                final List<ProductVariantDraft> variantDrafts = variantLinesToDrafts(items, productType);
-                final ProductDraft draft = productLineToDraft(productEntry, productType, variantDrafts);
-                return ProductCreateCommand.of(draft);
-            }
+            return items.stream()
+                    .filter(this::containsProductType)
+                    .findAny()
+                    .map(this::lineToCsvEntry)
+                    .map(productEntry -> linesToProductCreateCommand(productEntry, items))
+                    .orElseGet(() -> {
+                        log.warn("Skipped product CSV lines without product type: {}", items);
+                        return null;
+                    });
         }
         return null;
+    }
+
+    @Nullable
+    private ProductCreateCommand linesToProductCreateCommand(final ProductCsvEntry productEntry, final List<FieldSet> items) {
+        final ProductType productType = ctpResourceRepository.fetchProductType(productEntry.getProductType());
+        if (productType != null) {
+            final List<ProductVariantDraft> variantDrafts = variantLinesToDrafts(items, productType);
+            final ProductDraft draft = productLineToDraft(productEntry, productType, variantDrafts);
+            return ProductCreateCommand.of(draft);
+        } else {
+            log.warn("Skipped product CSV lines with wrong product type: \"{}\"", productEntry.getProductType());
+            return null;
+        }
+    }
+
+    private boolean containsProductType(final FieldSet fieldSet) {
+        final String productType = fieldSet.getProperties().getProperty("productType");
+        return productType != null && !productType.isEmpty();
     }
 
     private ProductDraft productLineToDraft(final ProductCsvEntry productEntry, final ProductType productType,
@@ -74,16 +93,26 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
     private List<ProductVariantDraft> variantLinesToDrafts(final List<FieldSet> items, final ProductType productType) {
         return items.stream()
                 .map(line -> {
-                    try {
-                        final ProductCsvEntry entry = lineToCsvEntry(line);
-                        return variantLineToDraft(line, entry, productType);
-                    } catch (BindException e) {
-                        log.error("Could not parse product CSV entry", e);
-                        return null;
-                    }
+                    final ProductCsvEntry entry = lineToCsvEntry(line);
+                    return entry != null ? variantLineToDraft(line, entry, productType) : null;
                 })
                 .filter(Objects::nonNull)
                 .collect(toList());
+    }
+
+    @Nullable
+    private ProductCsvEntry lineToCsvEntry(final FieldSet line) {
+        try {
+            final FieldSetMapper<ProductCsvEntry> fieldSetMapper = new BeanWrapperFieldSetMapper<ProductCsvEntry>() {{
+                setDistanceLimit(3);
+                setTargetType(ProductCsvEntry.class);
+                setStrict(false);
+            }};
+            return fieldSetMapper.mapFieldSet(line);
+        } catch (BindException e) {
+            log.error("Could not parse product CSV entry", e);
+            return null;
+        }
     }
 
     private ProductVariantDraft variantLineToDraft(final FieldSet line, final ProductCsvEntry entry, final ProductType productType) {
@@ -93,15 +122,6 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
                 .attributes(parseAttributes(line, productType))
                 .images(parseImages(entry.getImages()))
                 .build();
-    }
-
-    private ProductCsvEntry lineToCsvEntry(final FieldSet line) throws BindException {
-        final FieldSetMapper<ProductCsvEntry> fieldSetMapper = new BeanWrapperFieldSetMapper<ProductCsvEntry>() {{
-            setDistanceLimit(3);
-            setTargetType(ProductCsvEntry.class);
-            setStrict(false);
-        }};
-        return fieldSetMapper.mapFieldSet(line);
     }
 
     private Referenceable<TaxCategory> parseTaxCategory(final ProductCsvEntry entry) {

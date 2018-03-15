@@ -30,6 +30,12 @@ public class CustomersImportStepConfiguration {
     @Autowired
     private CtpBatch ctpBatch;
 
+    @Value("${chunkSize}")
+    private int chunkSize;
+
+    @Value("${maxThreads}")
+    private int maxThreads;
+
     @Value("${resource.customerType}")
     private Resource customerTypeResource;
 
@@ -39,40 +45,52 @@ public class CustomersImportStepConfiguration {
     @Bean
     public Step customerTypeImportStep() throws Exception {
         return stepBuilderFactory.get("customerTypeImportStep")
-                .<TypeDraft, Future<TypeCreateCommand>>chunk(1)
+                .<TypeDraft, Future<TypeCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.jsonReader(customerTypeResource, TypeDraft.class))
                 .processor(ctpBatch.asyncProcessor(TypeCreateCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step customerTypeDeleteStep() throws Exception {
         return stepBuilderFactory.get("customerTypeDeleteStep")
-                .<Type, Future<TypeDeleteCommand>>chunk(1)
+                .<Type, Future<TypeDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.typeQueryReader("customer"))
                 .processor(ctpBatch.asyncProcessor(TypeDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step customerGroupImportStep() throws Exception {
         return stepBuilderFactory.get("customerGroupImportStep")
-                .<CustomerGroupDraft, Future<CustomerGroupCreateCommand>>chunk(1)
+                .<CustomerGroupDraft, Future<CustomerGroupCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.jsonReader(customerGroupResource, CustomerGroupDraft.class))
                 .processor(ctpBatch.asyncProcessor(CustomerGroupCreateCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step customerGroupDeleteStep() throws Exception {
         return stepBuilderFactory.get("customerGroupDeleteStep")
-                .<CustomerGroup, Future<CustomerGroupDeleteCommand>>chunk(1)
+                .<CustomerGroup, Future<CustomerGroupDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(CustomerGroupQuery.of()))
                 .processor(ctpBatch.asyncProcessor(CustomerGroupDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 }

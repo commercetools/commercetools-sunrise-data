@@ -4,9 +4,11 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.builder.FlowJobBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.FlowExecutionStatus;
 import org.springframework.batch.core.job.flow.JobExecutionDecider;
+import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +16,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DataImportJobConfiguration {
 
-    private static final String EXECUTE = "EXECUTE";
+    private static final String RUN = "RUN";
+    private static final String SKIP = "SKIP";
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -26,8 +29,9 @@ public class DataImportJobConfiguration {
                 .start(projectCleanUpFlow)
                 .next(catalogImportFlow)
                 .next(customerTypeImportStep)
-                .next(isFlagEnabled("reserveInStore")).on(EXECUTE).to(reserveInStoreImportFlow)
-                .next(isFlagEnabled("orders")).on(EXECUTE).to(ordersImportStep)
+                .next(isFlagEnabled("reserveInStore"))
+                    .on(RUN).to(reserveInStoreImportFlow)
+//                .next(isFlagEnabled("orders")).on(EXECUTE).to(ordersImportStep)
                 .end()
                 .build();
     }
@@ -81,7 +85,11 @@ public class DataImportJobConfiguration {
     }
 
     private JobExecutionDecider isFlagEnabled(final String flag) {
-        return (j, s) -> j.getJobParameters().getString(flag) != null ? new FlowExecutionStatus(EXECUTE) : FlowExecutionStatus.STOPPED;
+        return (j, s) -> {
+            final FlowExecutionStatus flowExecutionStatus = j.getJobParameters().getString(flag) != null ? new FlowExecutionStatus(RUN) : new FlowExecutionStatus(SKIP);
+            System.out.println(flowExecutionStatus);
+            return flowExecutionStatus;
+        };
 
     }
 }

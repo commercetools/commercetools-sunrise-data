@@ -36,6 +36,12 @@ public class OrdersImportStepConfiguration {
     @Autowired
     private CtpBatch ctpBatch;
 
+    @Value("${chunkSize}")
+    private int chunkSize;
+
+    @Value("${maxThreads}")
+    private int maxThreads;
+
     @Value("${resource.orders}")
     private Resource ordersResource;
 
@@ -45,50 +51,65 @@ public class OrdersImportStepConfiguration {
     @Bean
     public Step ordersImportStep() throws Exception {
         return stepBuilderFactory.get("ordersImportStep")
-                .<List<OrderCsvEntry>, Future<OrderImportCommand>>chunk(1)
+                .<List<OrderCsvEntry>, Future<OrderImportCommand>>chunk(chunkSize)
                 .reader(new OrderImportItemReader(ordersResource))
                 .processor(ctpBatch.asyncProcessor(new OrderImportItemProcessor()))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step orderTypeImportStep() throws Exception {
         return stepBuilderFactory.get("orderTypeImportStep")
-                .<TypeDraft, Future<TypeCreateCommand>>chunk(1)
+                .<TypeDraft, Future<TypeCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.jsonReader(orderTypeResource, TypeDraft.class))
                 .processor(ctpBatch.asyncProcessor(TypeCreateCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step orderTypeDeleteStep() throws Exception {
         return stepBuilderFactory.get("orderTypeDeleteStep")
-                .<Type, Future<TypeDeleteCommand>>chunk(1)
+                .<Type, Future<TypeDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.typeQueryReader("order"))
                 .processor(ctpBatch.asyncProcessor(TypeDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step ordersDeleteStep() throws Exception {
         return stepBuilderFactory.get("ordersDeleteStep")
-                .<Order, Future<OrderDeleteCommand>>chunk(1)
+                .<Order, Future<OrderDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(OrderQuery.of()))
                 .processor(ctpBatch.asyncProcessor(OrderDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step cartsDeleteStep() throws Exception {
         return stepBuilderFactory.get("cartsDeleteStep")
-                .<Cart, Future<CartDeleteCommand>>chunk(1)
+                .<Cart, Future<CartDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(CartQuery.of()))
                 .processor(ctpBatch.asyncProcessor(CartDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 }

@@ -47,6 +47,12 @@ public class ProductsImportStepConfiguration {
     @Autowired
     private CtpBatch ctpBatch;
 
+    @Value("${chunkSize}")
+    private int chunkSize;
+
+    @Value("${maxThreads}")
+    private int maxThreads;
+
     @Value("${resource.productType}")
     private Resource productTypeResource;
 
@@ -55,7 +61,7 @@ public class ProductsImportStepConfiguration {
 
     @Value("${resource.products}")
     private Resource productsResource;
-    
+
     @Bean
     public Step productsDeleteStep() throws Exception {
         return stepBuilderFactory.get("productsDeleteStep")
@@ -63,56 +69,74 @@ public class ProductsImportStepConfiguration {
                 .reader(ctpBatch.queryReader(ProductProjectionQuery.ofStaged()))
                 .processor(ctpBatch.asyncProcessor(new ProductDeleteItemProcessor(sphereClient)))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step productTypeDeleteStep() throws Exception {
         return stepBuilderFactory.get("productTypeDeleteStep")
-                .<ProductType, Future<ProductTypeDeleteCommand>>chunk(1)
+                .<ProductType, Future<ProductTypeDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(ProductTypeQuery.of()))
                 .processor(ctpBatch.asyncProcessor(ProductTypeDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step productTypeImportStep() throws Exception {
         return stepBuilderFactory.get("productTypeImportStep")
-                .<ProductTypeDraft, Future<ProductTypeCreateCommand>>chunk(1)
+                .<ProductTypeDraft, Future<ProductTypeCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.jsonReader(productTypeResource, ProductTypeDraft.class))
                 .processor(ctpBatch.asyncProcessor(ProductTypeCreateCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step taxCategoryImportStep() throws Exception {
         return stepBuilderFactory.get("taxCategoryImportStep")
-                .<TaxCategoryDraft, Future<TaxCategoryCreateCommand>>chunk(1)
+                .<TaxCategoryDraft, Future<TaxCategoryCreateCommand>>chunk(chunkSize)
                 .reader(ctpBatch.jsonReader(taxCategoryResource, TaxCategoryDraft.class))
                 .processor(ctpBatch.asyncProcessor(TaxCategoryCreateCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step taxCategoryDeleteStep() throws Exception {
         return stepBuilderFactory.get("taxCategoryDeleteStep")
-                .<TaxCategory, Future<TaxCategoryDeleteCommand>>chunk(1)
+                .<TaxCategory, Future<TaxCategoryDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(TaxCategoryQuery.of()))
                 .processor(ctpBatch.asyncProcessor(TaxCategoryDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
     @Bean
     public Step productsImportStep() throws Exception {
         return stepBuilderFactory.get("productsImportStep")
-                .<List<FieldSet>, Future<ProductCreateCommand>>chunk(10)
+                .<List<FieldSet>, Future<ProductCreateCommand>>chunk(chunkSize)
                 .reader(new ProductImportItemReader(productsResource))
                 .processor(ctpBatch.asyncProcessor(new ProductImportItemProcessor(ctpResourceRepository)))
                 .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 }
