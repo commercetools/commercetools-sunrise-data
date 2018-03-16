@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 @EnableBatchProcessing
@@ -14,6 +15,8 @@ import org.springframework.cache.annotation.EnableCaching;
 public class App {
 
     public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
+        try (final ConfigurableApplicationContext ctx = SpringApplication.run(App.class, args)) {
+            ctx.close();
+        }
     }
 }

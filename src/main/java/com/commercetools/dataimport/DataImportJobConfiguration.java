@@ -16,15 +16,15 @@ public class DataImportJobConfiguration {
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
 
-    @Value("${jobs.projectCleanUp}")
+    @Value("${projectCleanUp}")
     private boolean projectCleanUpFlag;
-    @Value("${jobs.projectSetUp}")
+    @Value("${projectSetUp}")
     private boolean projectSetUpFlag;
-    @Value("${jobs.catalogImport}")
+    @Value("${catalogImport}")
     private boolean catalogImportFlag;
-    @Value("${jobs.reserveInStore}")
+    @Value("${reserveInStore}")
     private boolean reserveInStoreFlag;
-    @Value("${jobs.ordersImport}")
+    @Value("${ordersImport}")
     private boolean ordersImportFlag;
 
     @Bean
