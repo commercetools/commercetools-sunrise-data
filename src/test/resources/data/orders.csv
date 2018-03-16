@@ -1,0 +1,3 @@
+customerEmail,orderNumber,lineitems.variant.sku,lineitems.price,lineitems.quantity,totalPrice
+303,1,A0E2000000021S0,148.75,1,733.75
+304,2,M0E20000000E1AZ,497.5,1,733.75
