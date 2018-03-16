@@ -27,7 +27,7 @@ public class ImportJobIntegrationTest {
     private BlockingSphereClient sphereClient;
 
     @Test
-    public void name() {
+    public void runs() {
         assertThat(fetchTotalCategories()).as("Categories are imported").isEqualTo(131);
         assertThat(fetchTotalProducts()).as("Products are imported").isEqualTo(2);
         assertThat(fetchTotalChannels()).as("Channels are imported").isEqualTo(18);
