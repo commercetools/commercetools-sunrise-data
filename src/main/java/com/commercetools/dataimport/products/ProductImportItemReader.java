@@ -16,20 +16,18 @@ import java.util.List;
 
 public class ProductImportItemReader extends AbstractItemStreamItemReader<List<FieldSet>> {
 
-    private static final String[] PRODUCT_CSV_HEADER_NAMES = {"productType", "variantId", "sku", "prices", "tax", "categories", "images", "name.en", "description.en", "slug.en", "metaTitle.en", "metaDescription.en", "metaKeywords.en", "name.de", "description.de", "slug.de", "metaTitle.de", "metaDescription.de", "metaKeywords.de", "creationDate", "articleNumberManufacturer", "articleNumberMax", "matrixId", "baseId", "designer", "madeInItaly", "completeTheLook", "commonSize", "size", "color", "colorFreeDefinition.en", "colorFreeDefinition.de", "colorFreeDefinition.it", "style", "gender", "season"};
-
     private SingleItemPeekableItemReader<FieldSet> itemReader = new SingleItemPeekableItemReader<>();
 
-    public ProductImportItemReader(final Resource resource) {
-        itemReader.setDelegate(createFlatFileItemReader(resource));
+    public ProductImportItemReader(final Resource resource, final String[] headers) {
+        this.itemReader.setDelegate(createFlatFileItemReader(resource, headers));
     }
 
-    private static FlatFileItemReader<FieldSet> createFlatFileItemReader(final Resource resource) {
+    private static FlatFileItemReader<FieldSet> createFlatFileItemReader(final Resource resource, final String[] headers) {
         final FlatFileItemReader<FieldSet> reader = new FlatFileItemReader<>();
         reader.setResource(resource);
         reader.setLineMapper(new DefaultLineMapper<FieldSet>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
-                setNames(PRODUCT_CSV_HEADER_NAMES);
+                setNames(headers);
                 setStrict(false);
             }});
             setFieldSetMapper(new PassThroughFieldSetMapper());

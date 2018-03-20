@@ -48,11 +48,14 @@ public class OrdersImportStepConfiguration {
     @Value("${resource.orderType}")
     private Resource orderTypeResource;
 
+    @Value("${headers.orders}")
+    private String[] ordersHeaders;
+
     @Bean
     public Step ordersImportStep() throws Exception {
         return stepBuilderFactory.get("ordersImportStep")
                 .<List<OrderCsvEntry>, Future<OrderImportCommand>>chunk(chunkSize)
-                .reader(new OrderImportItemReader(ordersResource))
+                .reader(new OrderImportItemReader(ordersResource, ordersHeaders))
                 .processor(ctpBatch.asyncProcessor(new OrderImportItemProcessor()))
                 .writer(ctpBatch.asyncWriter())
                 .listener(new ProcessedItemsChunkListener())

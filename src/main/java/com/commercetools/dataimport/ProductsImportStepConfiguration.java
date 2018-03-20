@@ -62,6 +62,9 @@ public class ProductsImportStepConfiguration {
     @Value("${resource.products}")
     private Resource productsResource;
 
+    @Value("${headers.products}")
+    private String[] productsHeaders;
+
     @Bean
     public Step productsDeleteStep() throws Exception {
         return stepBuilderFactory.get("productsDeleteStep")
@@ -131,7 +134,7 @@ public class ProductsImportStepConfiguration {
     public Step productsImportStep() throws Exception {
         return stepBuilderFactory.get("productsImportStep")
                 .<List<FieldSet>, Future<ProductCreateCommand>>chunk(chunkSize)
-                .reader(new ProductImportItemReader(productsResource))
+                .reader(new ProductImportItemReader(productsResource, productsHeaders))
                 .processor(ctpBatch.asyncProcessor(new ProductImportItemProcessor(ctpResourceRepository)))
                 .writer(ctpBatch.asyncWriter())
                 .listener(new ProcessedItemsChunkListener())

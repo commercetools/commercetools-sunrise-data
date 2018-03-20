@@ -21,8 +21,6 @@ import java.util.concurrent.Future;
 @Slf4j
 public class InventoryImportStepConfiguration {
 
-    private static final String[] INVENTORY_CSV_HEADER_NAMES = new String[]{"sku", "quantityOnStock", "supplyChannel"};
-
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
@@ -44,6 +42,9 @@ public class InventoryImportStepConfiguration {
     @Value("${resource.inventoryStores}")
     private Resource inventoryStoresResource;
 
+    @Value("${headers.inventory}")
+    private String[] inventoryHeaders;
+
     @Bean
     public Step inventoryDeleteStep() throws Exception {
         return stepBuilderFactory.get("inventoryDeleteStep")
@@ -61,7 +62,7 @@ public class InventoryImportStepConfiguration {
     public Step inventoryImportStep() throws Exception {
         return stepBuilderFactory.get("inventoryImportStep")
                 .<InventoryCsvEntry, Future<InventoryEntryCreateCommand>>chunk(chunkSize)
-                .reader(ctpBatch.csvReader(inventoryResource, INVENTORY_CSV_HEADER_NAMES, InventoryCsvEntry.class))
+                .reader(ctpBatch.csvReader(inventoryResource, inventoryHeaders, InventoryCsvEntry.class))
                 .processor(ctpBatch.asyncProcessor(new InventoryItemProcessor(ctpResourceRepository)))
                 .writer(ctpBatch.asyncWriter())
                 .listener(new ProcessedItemsChunkListener())
@@ -74,7 +75,7 @@ public class InventoryImportStepConfiguration {
     public Step inventoryStoresImportStep() throws Exception {
         return stepBuilderFactory.get("inventoryStoresImportStep")
                 .<InventoryCsvEntry, Future<InventoryEntryCreateCommand>>chunk(chunkSize)
-                .reader(ctpBatch.csvReader(inventoryStoresResource, INVENTORY_CSV_HEADER_NAMES, InventoryCsvEntry.class))
+                .reader(ctpBatch.csvReader(inventoryStoresResource, inventoryHeaders, InventoryCsvEntry.class))
                 .processor(ctpBatch.asyncProcessor(new InventoryItemProcessor(ctpResourceRepository)))
                 .writer(ctpBatch.asyncWriter())
                 .listener(new ProcessedItemsChunkListener())

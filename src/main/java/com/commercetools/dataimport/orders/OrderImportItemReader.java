@@ -16,19 +16,17 @@ import java.util.List;
 
 public class OrderImportItemReader extends AbstractItemStreamItemReader<List<OrderCsvEntry>> {
 
-    private static final String[] ORDER_CSV_HEADER_NAMES = new String[]{"customerEmail", "orderNumber", "lineitems.variant.sku", "lineitems.price", "lineitems.quantity", "totalPrice"};
-
     private SingleItemPeekableItemReader<OrderCsvEntry> itemReader = new SingleItemPeekableItemReader<>();
 
-    public OrderImportItemReader(final Resource resource) {
-        itemReader.setDelegate(createFlatFileItemReader(resource));
+    public OrderImportItemReader(final Resource resource, final String[] headers) {
+        itemReader.setDelegate(createFlatFileItemReader(resource, headers));
     }
 
-    private static FlatFileItemReader<OrderCsvEntry> createFlatFileItemReader(final Resource resource) {
+    private static FlatFileItemReader<OrderCsvEntry> createFlatFileItemReader(final Resource resource, final String[] headers) {
         final FlatFileItemReader<OrderCsvEntry> reader = new FlatFileItemReader<>();
         reader.setLineMapper(new DefaultLineMapper<OrderCsvEntry>() {{
             setLineTokenizer(new DelimitedLineTokenizer() {{
-                setNames(ORDER_CSV_HEADER_NAMES);
+                setNames(headers);
             }});
             setFieldSetMapper(new BeanWrapperFieldSetMapper<OrderCsvEntry>() {{
                 setTargetType(OrderCsvEntry.class);

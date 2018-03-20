@@ -29,12 +29,11 @@ public class DataImportJobConfiguration {
 
     @Bean
     public Job job(Flow projectCleanUpFlow, Flow projectSetUpFlow, Flow catalogImportFlow,
-                   Step customerTypeImportStep, Flow reserveInStoreImportFlow, Flow ordersImportFlow) {
+                   Flow reserveInStoreImportFlow, Flow ordersImportFlow) {
         return jobBuilderFactory.get("dataImport")
                 .start(projectCleanUpFlow)
                 .next(projectSetUpFlow)
                 .next(catalogImportFlow)
-                .next(customerTypeImportStep)
                 .next(reserveInStoreImportFlow)
                 .next(ordersImportFlow)
                 .end()
@@ -69,11 +68,12 @@ public class DataImportJobConfiguration {
     }
 
     @Bean
-    public Flow projectSetUpFlow(Step projectSettingsStep) {
+    public Flow projectSetUpFlow(Step projectSettingsStep, Step customerTypeImportStep) {
         final FlagFlowDecider flagFlowDecider = new FlagFlowDecider(projectSetUpFlag);
         return new FlowBuilder<Flow>("projectSetUpFlow")
                 .start(flagFlowDecider).on(FlagFlowDecider.RUN)
                     .to(projectSettingsStep)
+                    .next(customerTypeImportStep)
                 .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
                     .end()
                 .build();
@@ -112,11 +112,12 @@ public class DataImportJobConfiguration {
     }
 
     @Bean
-    public Flow ordersImportFlow(Step ordersImportStep) {
+    public Flow ordersImportFlow(Step ordersDeleteStep, Step ordersImportStep) {
         final FlagFlowDecider flagFlowDecider = new FlagFlowDecider(ordersImportFlag);
         return new FlowBuilder<Flow>("ordersImportFlow")
                 .start(flagFlowDecider).on(FlagFlowDecider.RUN)
-                    .to(ordersImportStep)
+                    .to(ordersDeleteStep)
+                    .next(ordersImportStep)
                 .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
                     .end()
                 .build();

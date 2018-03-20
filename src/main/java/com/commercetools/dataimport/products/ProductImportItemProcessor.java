@@ -229,9 +229,10 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
     private AttributeDraft parseAttribute(final FieldSet line, final AttributeDefinition attr) {
         final AttributeType attributeType = attr.getAttributeType();
         if (attributeType instanceof DateTimeAttributeType || attributeType instanceof StringAttributeType
-                || attributeType instanceof EnumAttributeType || attributeType instanceof LocalizedEnumAttributeType
-                || attributeType instanceof BooleanAttributeType) {
+                || attributeType instanceof EnumAttributeType || attributeType instanceof LocalizedEnumAttributeType) {
             return extractStringLikeAttributeDraft(line, attr.getName());
+        } else if (attributeType instanceof BooleanAttributeType) {
+            return extractBooleanAttributeDraft(line, attr.getName());
         } else if(attributeType instanceof LocalizedStringAttributeType) {
             return extractLocalizedStringAttributeDraft(line, attr.getName());
         } else if (attributeType instanceof SetAttributeType) {
@@ -241,15 +242,20 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
         }
     }
 
+    @Nullable
     private AttributeDraft extractSetAttributeDraft(final FieldSet line, final SetAttributeType attributeType, final String name) {
         final AttributeType elementType = attributeType.getElementType();
         final Properties properties = line.getProperties();
-        if (elementType instanceof StringAttributeType) {
-            final Set<String> values = Stream.of(properties.getProperty(name).split(";")).collect(toSet());
-            return AttributeDraft.of(name, values);
-        } else {
-            throw new UnsupportedOperationException("Not supported element type of attribute type " + attributeType + " for field " + name);
+        final String value = properties.getProperty(name);
+        if (value != null && !value.isEmpty()) {
+            if (elementType instanceof StringAttributeType) {
+                final Set<String> values = Stream.of(value.split(";")).collect(toSet());
+                return AttributeDraft.of(name, values);
+            } else {
+                throw new UnsupportedOperationException("Not supported element type of attribute type " + attributeType + " for field " + name);
+            }
         }
+        return null;
     }
 
     @Nullable
@@ -269,6 +275,12 @@ public class ProductImportItemProcessor implements ItemProcessor<List<FieldSet>,
     private AttributeDraft extractStringLikeAttributeDraft(final FieldSet line, final String name) {
         final String value = line.getProperties().getProperty(name);
         return value != null && !value.isEmpty() ? AttributeDraft.of(name, value) : null;
+    }
+
+    @Nullable
+    private AttributeDraft extractBooleanAttributeDraft(final FieldSet line, final String name) {
+        final String value = line.getProperties().getProperty(name);
+        return value != null && !value.isEmpty() ? AttributeDraft.of(name, Boolean.valueOf(value)) : null;
     }
 
     private Stream<String> streamOfLocalizedFields(final FieldSet line, final String attrName) {

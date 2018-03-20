@@ -23,8 +23,6 @@ import java.util.concurrent.Future;
 @Slf4j
 public class CategoriesImportStepConfiguration {
 
-    private static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"key", "externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId", "webImageUrl", "iosImageUrl"};
-
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
@@ -39,6 +37,9 @@ public class CategoriesImportStepConfiguration {
 
     @Value("${resource.categories}")
     private Resource categoriesResource;
+
+    @Value("${headers.categories}")
+    private String[] categoriesHeaders;
 
     @Bean
     public Flow categoriesDeleteFlow() throws Exception {
@@ -76,7 +77,7 @@ public class CategoriesImportStepConfiguration {
     public Step categoriesImportStep() throws Exception {
         return stepBuilderFactory.get("categoriesImportStep")
                 .<CategoryCsvEntry, Future<CategoryCreateCommand>>chunk(chunkSize)
-                .reader(ctpBatch.csvReader(categoriesResource, CATEGORY_CSV_HEADER_NAMES, CategoryCsvEntry.class))
+                .reader(ctpBatch.csvReader(categoriesResource, categoriesHeaders, CategoryCsvEntry.class))
                 .processor(ctpBatch.asyncProcessor(new CategoryImportItemProcessor()))
                 .writer(ctpBatch.asyncWriter())
                 .listener(new ProcessedItemsChunkListener())
