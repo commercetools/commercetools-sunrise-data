@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 @Slf4j
 public class CategoriesImportStepConfiguration {
 
-    private static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"key", "externalId", "name.de", "slug.de", "name.en", "slug.en", "parentId", "webImageUrl", "iosImageUrl"};
+    private static final String[] CATEGORY_CSV_HEADER_NAMES = new String[]{"key", "externalId", "name.de", "slug.de", "name.en", "slug.en", "name.it", "slug.it", "parentId", "webImageUrl", "iosImageUrl"};
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
