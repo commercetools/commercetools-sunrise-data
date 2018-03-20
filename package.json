@@ -8,7 +8,7 @@
     "apiUrl": "https://api.commercetools.com"
   },
   "scripts": {
-    "set:projectkey": "npm config set commercetools-sunrise-data:project",
+    "set:projectKey": "npm config set commercetools-sunrise-data:project",
     "set:clientId": "npm config set commercetools-sunrise-data:client_id",
     "set:clientSecret": "npm config set commercetools-sunrise-data:client_secret",
     "get:projectkey": "npm config get commercetools-sunrise-data:project",

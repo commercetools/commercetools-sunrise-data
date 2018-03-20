@@ -19,7 +19,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```
 3. Set commercetools project credentials as npm config values:
     <pre>
-        npm run set:projectkey <i>projectKey</i>
+        npm run set:projectKey <i>projectKey</i>
         npm rum set:clientId <i>clientId</i>
         npm run set:clientSecret <i>clientSecret</i>
     </pre>
