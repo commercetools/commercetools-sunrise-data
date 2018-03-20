@@ -1,0 +1,26 @@
+[
+  {
+    "key": "reservationOrder",
+    "name": {
+      "en": "Reserved Products",
+      "de": "Reservierte Produkte"
+    },
+    "resourceTypeIds": [
+      "order"
+    ],
+    "fieldDefinitions": [
+      {
+        "name": "isReservation",
+        "label": {
+          "en": "Reservation",
+          "de": "Reservierung"
+        },
+        "required": false,
+        "type": {
+          "name": "Boolean"
+        },
+        "inputHint": "SingleLine"
+      }
+    ]
+  }
+]

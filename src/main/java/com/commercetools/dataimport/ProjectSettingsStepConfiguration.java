@@ -13,7 +13,6 @@ import io.sphere.sdk.projects.commands.updateactions.ChangeLanguages;
 import io.sphere.sdk.projects.queries.ProjectGet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -44,10 +43,10 @@ public class ProjectSettingsStepConfiguration {
     private Resource projectResource;
 
     @Bean
-    @JobScope
     public Step projectSettingsStep() {
         return stepBuilderFactory.get("projectSettingsStep")
                 .tasklet(projectSettingsStepTasklet())
+                .listener(new DurationStepListener())
                 .build();
     }
 
