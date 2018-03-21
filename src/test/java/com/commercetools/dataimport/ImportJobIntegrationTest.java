@@ -1,111 +1,28 @@
 package com.commercetools.dataimport;
 
-import io.sphere.sdk.channels.queries.ChannelQuery;
-import io.sphere.sdk.client.BlockingSphereClient;
-import io.sphere.sdk.orders.queries.OrderQuery;
-import io.sphere.sdk.types.queries.TypeQuery;
-import org.junit.Ignore;
+import io.sphere.sdk.projects.Project;
+import io.sphere.sdk.projects.queries.ProjectGet;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.test.JobLauncherTestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.function.Consumer;
-
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = App.class)
-@ActiveProfiles({"ci", "it"})
-public class ImportJobIntegrationTest {
-
-    @Autowired
-    private JobLauncher jobLauncher;
-
-    @Autowired
-    private JobRepository jobRepository;
-
-    @Autowired
-    private BlockingSphereClient sphereClient;
-
-    @Autowired
-    @Qualifier("dataImport")
-    private Job channelsImport;
-
-    @Autowired
-    @Qualifier("ordersImport")
-    private Job ordersImport;
+public class ImportJobIntegrationTest extends AbstractIntegrationTest {
 
     @Test
-    public void importsChannels() throws Exception {
-        testJob(channelsImport, jobExecution -> {
-            assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
-            assertThatChannelsAreImported();
-            assertThatOrderTypeIsImported();
-            assertThatCustomerTypeIsImported();
-        });
-    }
+    public void runs() {
+        assertThat(fetchTotalCategories()).as("Categories are imported").isEqualTo(131);
+        assertThat(fetchTotalProducts()).as("Products are imported").isEqualTo(2);
+        assertThat(fetchTotalChannels()).as("Channels are imported").isEqualTo(18);
+        assertThat(fetchTotalTypes("order")).as("Order types are imported").isEqualTo(1);
+        assertThat(fetchTotalTypes("customer")).as("Customer types are imported").isEqualTo(1);
+        assertThat(fetchTotalTypes("channel")).as("Channel types are imported").isEqualTo(1);
+        assertThat(fetchTotalOrders()).as("Orders are imported").isEqualTo(2);
+        assertThat(fetchTotalInventory()).as("Inventory is imported").isEqualTo(4);
+        assertThat(fetchTotalProductTypes()).as("Product types are imported").isEqualTo(1);
 
-    @Ignore("Missing product import")
-    @Test
-    public void importsOrders() throws Exception {
-        testJob(ordersImport, jobExecution -> {
-            assertThat(jobExecution.getExitStatus()).isEqualTo(ExitStatus.COMPLETED);
-            assertThatOrdersAreImported();
-        });
-    }
-
-    private void assertThatChannelsAreImported() {
-        final ChannelQuery query = ChannelQuery.of().withLimit(0);
-        final Long totalChannels = sphereClient.executeBlocking(query).getTotal();
-        assertThat(totalChannels)
-                .as("Channels are correctly imported")
-                .isGreaterThan(0);
-    }
-
-    private void assertThatOrderTypeIsImported() {
-        final Long totalChannels = queryTotalTypes("order");
-        assertThat(totalChannels)
-                .as("Order type is correctly imported")
-                .isGreaterThan(0);
-    }
-
-    private void assertThatCustomerTypeIsImported() {
-        final Long totalChannels = queryTotalTypes("customer");
-        assertThat(totalChannels)
-                .as("Customer type is correctly imported")
-                .isGreaterThan(0);
-    }
-
-    private Long queryTotalTypes(final String resourceTypeId) {
-        final TypeQuery query = TypeQuery.of()
-                .withPredicates(type -> type.resourceTypeIds().containsAny(singletonList(resourceTypeId)))
-                .withLimit(0);
-        return sphereClient.executeBlocking(query).getTotal();
-    }
-
-    private void assertThatOrdersAreImported() {
-        final Long totalOrders = sphereClient.executeBlocking(OrderQuery.of().withLimit(0)).getTotal();
-        assertThat(totalOrders)
-                .as("Orders are correctly imported")
-                .isGreaterThan(0);
-    }
-
-    private void testJob(final Job job, final Consumer<JobExecution> jobExecutionConsumer) throws Exception {
-        final JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
-        jobLauncherTestUtils.setJobLauncher(jobLauncher);
-        jobLauncherTestUtils.setJobRepository(jobRepository);
-        jobLauncherTestUtils.setJob(job);
-        jobExecutionConsumer.accept(jobLauncherTestUtils.launchJob());
+        final Project project = sphereClient.executeBlocking(ProjectGet.of());
+        assertThat(project.getCountries()).hasSize(2);
+        assertThat(project.getCurrencies()).hasSize(1);
+        assertThat(project.getLanguages()).hasSize(2);
     }
 }

@@ -16,9 +16,9 @@
     <logger name="org.javamoney.moneta.DefaultMonetaryContextFactory" level="WARN"/>
     <logger name="DefaultMonetaryContextFactory" level="WARN"/>
 
-    <logger name="org.springframework.batch.core.job.SimpleStepHandler" level="WARN" />
+    <logger name="org.springframework.batch" level="INFO" />
 
-    <logger name="com.commercetools.dataimport" level="DEBUG" />
+    <logger name="com.commercetools.dataimport" level="INFO" />
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />

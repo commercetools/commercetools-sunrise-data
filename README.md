@@ -2,11 +2,9 @@
 
 [![Build Status](https://travis-ci.org/commercetools/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/commercetools/commercetools-sunrise-data)
 
-
 ## How to create a project with Sunrise data
 
 Before starting the import, make sure you have access to the [Admin Center](https://admin.commercetools.com). You will also need to run the application in this repository, check that you meet the [requirements](#requirements) and [clone](https://help.github.com/articles/cloning-a-repository/) this repository to your computer.
-
 
 ### 1. Create your project
 1. Open the [Admin Center](https://admin.commercetools.com) and create an empty project (without sample data).
@@ -46,3 +44,4 @@ Before starting the import, make sure you have access to the [Admin Center](http
 
 - Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 - Install [Node.js](https://nodejs.org/en/download/current/)
+

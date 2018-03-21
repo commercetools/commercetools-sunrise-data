@@ -1,24 +1,21 @@
 package com.commercetools.dataimport;
 
-
-import com.commercetools.sdk.jvm.spring.batch.item.ItemReaderFactory;
-import io.sphere.sdk.channels.Channel;
-import io.sphere.sdk.channels.commands.ChannelDeleteCommand;
-import io.sphere.sdk.client.BlockingSphereClient;
+import com.commercetools.dataimport.inventory.InventoryCsvEntry;
+import com.commercetools.dataimport.inventory.InventoryItemProcessor;
 import io.sphere.sdk.inventory.InventoryEntry;
+import io.sphere.sdk.inventory.commands.InventoryEntryCreateCommand;
 import io.sphere.sdk.inventory.commands.InventoryEntryDeleteCommand;
 import io.sphere.sdk.inventory.queries.InventoryEntryQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+
+import java.util.concurrent.Future;
 
 @Configuration
 @Slf4j
@@ -28,29 +25,62 @@ public class InventoryImportStepConfiguration {
     private StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    private BlockingSphereClient sphereClient;
+    private CtpResourceRepository ctpResourceRepository;
 
-//    @Value("${resource.inventory}")
-//    private Resource inventoryResource;
+    @Autowired
+    private CtpBatch ctpBatch;
+
+    @Value("${chunkSize}")
+    private int chunkSize;
+
+    @Value("${maxThreads}")
+    private int maxThreads;
+
+    @Value("${resource.inventory}")
+    private Resource inventoryResource;
+
+    @Value("${resource.inventoryStores}")
+    private Resource inventoryStoresResource;
+
+    @Value("${headers.inventory}")
+    private String[] inventoryHeaders;
 
     @Bean
-    @JobScope
-    public Step inventoryDeleteStep() {
+    public Step inventoryDeleteStep() throws Exception {
         return stepBuilderFactory.get("inventoryDeleteStep")
-                .<InventoryEntry, InventoryEntry>chunk(1000)
-                .reader(inventoryDeleteStepReader())
-                .writer(inventoryDeleteStepWriter())
+                .<InventoryEntry, Future<InventoryEntryDeleteCommand>>chunk(chunkSize)
+                .reader(ctpBatch.queryReader(InventoryEntryQuery.of()))
+                .processor(ctpBatch.asyncProcessor(InventoryEntryDeleteCommand::of))
+                .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
                 .build();
     }
 
-    private ItemReader<InventoryEntry> inventoryDeleteStepReader() {
-        return ItemReaderFactory.sortedByIdQueryReader(sphereClient, InventoryEntryQuery.of());
+    @Bean
+    public Step inventoryImportStep() throws Exception {
+        return stepBuilderFactory.get("inventoryImportStep")
+                .<InventoryCsvEntry, Future<InventoryEntryCreateCommand>>chunk(chunkSize)
+                .reader(ctpBatch.csvReader(inventoryResource, inventoryHeaders, InventoryCsvEntry.class))
+                .processor(ctpBatch.asyncProcessor(new InventoryItemProcessor(ctpResourceRepository)))
+                .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
+                .build();
     }
 
-    private ItemWriter<InventoryEntry> inventoryDeleteStepWriter() {
-        return items -> items.forEach(item -> {
-            final InventoryEntry inventory = sphereClient.executeBlocking(InventoryEntryDeleteCommand.of(item));
-            log.debug("Removed inventory \"{}\"", inventory.getId());
-        });
+    @Bean
+    public Step inventoryStoresImportStep() throws Exception {
+        return stepBuilderFactory.get("inventoryStoresImportStep")
+                .<InventoryCsvEntry, Future<InventoryEntryCreateCommand>>chunk(chunkSize)
+                .reader(ctpBatch.csvReader(inventoryStoresResource, inventoryHeaders, InventoryCsvEntry.class))
+                .processor(ctpBatch.asyncProcessor(new InventoryItemProcessor(ctpResourceRepository)))
+                .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
+                .build();
     }
 }
