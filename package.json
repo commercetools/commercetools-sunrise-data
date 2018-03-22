@@ -11,19 +11,21 @@
     "set:projectKey": "npm config set commercetools-sunrise-data:project",
     "set:clientId": "npm config set commercetools-sunrise-data:client_id",
     "set:clientSecret": "npm config set commercetools-sunrise-data:client_secret",
-    "get:projectkey": "npm config get commercetools-sunrise-data:project",
+    "get:projectKey": "npm config get commercetools-sunrise-data:project",
     "get:clientId": "npm config get commercetools-sunrise-data:client_id",
     "get:clientSecret": "npm config get commercetools-sunrise-data:client_secret",
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "credentials": "npm run build && node dist/lib/update-credentials.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
-    "import:data": "./mvnw spring-boot:run -Dctp.projectKey=$npm_package_config_project -Dctp.clientId=$npm_package_config_client_id -Dctp.clientSecret=$npm_package_config_client_secret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
+    "clean:data": "./mvnw spring-boot:run -DprojectCleanUp=true -DprojectSetUp=false -DchannelsImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_project -Dctp.clientId=$npm_package_config_client_id -Dctp.clientSecret=$npm_package_config_client_secret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
+    "import:projectSetup": "./mvnw spring-boot:run -DprojectCleanUp=false -DprojectSetUp=true -DchannelsImport=true -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_project -Dctp.clientId=$npm_package_config_client_id -Dctp.clientSecret=$npm_package_config_client_secret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
+    "import:catalogs": "./mvnw spring-boot:run -DprojectCleanUp=false -DprojectSetUp=false -DchannelsImport=false -DcatalogImport=true -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_project -Dctp.clientId=$npm_package_config_client_id -Dctp.clientSecret=$npm_package_config_client_secret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
+    "import:orders": "./mvnw spring-boot:run -DprojectCleanUp=false -DprojectSetUp=false -DcatalogImport=false -DreserveInStore=false -DordersImport=true -Dctp.projectKey=$npm_package_config_project -Dctp.clientId=$npm_package_config_client_id -Dctp.clientSecret=$npm_package_config_client_secret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
     "import:zones": "npm run build && node dist/lib/zones.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "import:shippingmethods": "npm run build && node dist/lib/shipping-method.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
-    "sync:product": "node_modules/.bin/product-csv-sync import --matchBy sku --csv data/products/products.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id  --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
-    "import:orders": "./mvnw spring-boot:run -Drun.arguments=ordersImport  -Dctp.projectKey=$npm_package_config_project -Dctp.clientId=$npm_package_config_client_id -Dctp.clientSecret=$npm_package_config_client_secret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
-    "sync:inventory-no-stores": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory/inventory-no-stores.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
-    "sync:inventory": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory/inventory.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
-    "start": "npm run build && npm run credentials && npm run import:data && npm run import:zones && npm run import:shippingmethods && npm run sync:product",
+    "sync:products": "node_modules/.bin/product-csv-sync import --matchBy sku --csv data/products.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id  --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
+    "sync:inventory": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
+    "sync:inventory-stores": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory-stores.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
+    "start": "npm run build && npm run credentials && npm run clean:data && npm run import:zones && npm run import:shippingmethods && npm run import:projectSetup && npm run import:catalogs && npm run sync:products",
     "states": "npm run build && node dist/lib/machine-states.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl"
   },
   "repository": {
@@ -54,5 +56,10 @@
     "nconf": "0.10.0",
     "path": "0.12.7",
     "rimraf": "2.6.2"
+  },
+  "dependencies": {
+    "npm": "5.7.1",
+    "to": "0.2.9",
+    "update": "0.7.4"
   }
 }

@@ -26,13 +26,16 @@ public class DataImportJobConfiguration {
     private boolean reserveInStoreFlag;
     @Value("${ordersImport}")
     private boolean ordersImportFlag;
+    @Value("${channelsImport}")
+    private boolean channelsImportFlag;
 
     @Bean
     public Job job(Flow projectCleanUpFlow, Flow projectSetUpFlow, Flow catalogImportFlow,
-                   Flow reserveInStoreImportFlow, Flow ordersImportFlow) {
+                   Flow reserveInStoreImportFlow, Flow ordersImportFlow, Flow channelsImportFlow) {
         return jobBuilderFactory.get("dataImport")
                 .start(projectCleanUpFlow)
                 .next(projectSetUpFlow)
+                .next(channelsImportFlow)
                 .next(catalogImportFlow)
                 .next(reserveInStoreImportFlow)
                 .next(ordersImportFlow)
@@ -68,36 +71,42 @@ public class DataImportJobConfiguration {
     }
 
     @Bean
-    public Flow projectSetUpFlow(Step projectSettingsStep, Step customerTypeImportStep) {
+    public Flow projectSetUpFlow(Step projectSettingsStep, Step customerTypeImportStep,
+                                 Step taxCategoryImportStep, Step customerGroupImportStep,
+                                 Step channelTypeImportStep, Step productTypeImportStep) {
         final FlagFlowDecider flagFlowDecider = new FlagFlowDecider(projectSetUpFlag);
         return new FlowBuilder<Flow>("projectSetUpFlow")
                 .start(flagFlowDecider).on(FlagFlowDecider.RUN)
                     .to(projectSettingsStep)
                     .next(customerTypeImportStep)
+                    .next(customerGroupImportStep)
+                    .next(taxCategoryImportStep)
+                    .next(channelTypeImportStep)
+                    .next(productTypeImportStep)
                 .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
                     .end()
                 .build();
     }
 
     @Bean
-    public Flow catalogImportFlow(Step productTypeImportStep, Step taxCategoryImportStep,
-                                  Step channelTypeImportStep, Step channelsImportStep, Step customerGroupImportStep,
-                                  Step categoriesImportStep, Step productsImportStep, Step inventoryImportStep) {
+    public Flow catalogImportFlow(Step categoriesImportStep) {
         final FlagFlowDecider flagFlowDecider = new FlagFlowDecider(catalogImportFlag);
         return new FlowBuilder<Flow>("catalogImportFlow")
                 .start(flagFlowDecider).on(FlagFlowDecider.RUN)
-                    .to(customerGroupImportStep)
-                    .next(categoriesImportStep)
-                    .next(taxCategoryImportStep)
-                    .next(channelTypeImportStep)
-                    .next(channelsImportStep)
-                    .next(productTypeImportStep)
-                    .next(productsImportStep)
-                    .next(inventoryImportStep)
+                    //.to(customerGroupImportStep)
+                    .to(categoriesImportStep)
+                    //.next(taxCategoryImportStep)
+                    //.next(channelTypeImportStep)
+                    //.next(channelsImportStep)
+                    //.next(productTypeImportStep)
+                    //.next(productsImportStep)
+                    //.next(inventoryImportStep)
                 .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
                     .end()
                 .build();
     }
+
+
 
     @Bean
     public Flow reserveInStoreImportFlow(Step orderTypeImportStep, Step inventoryStoresImportStep) {
@@ -108,6 +117,17 @@ public class DataImportJobConfiguration {
                     .next(inventoryStoresImportStep)
                 .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
                     .end()
+                .build();
+    }
+
+    @Bean
+    public Flow channelsImportFlow(Step channelsImportStep) {
+        final FlagFlowDecider flagFlowDecider = new FlagFlowDecider(channelsImportFlag);
+        return new FlowBuilder<Flow>("channelsImportFlow")
+                .start(flagFlowDecider).on(FlagFlowDecider.RUN)
+                .to(channelsImportStep)
+                .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
+                .end()
                 .build();
     }
 
