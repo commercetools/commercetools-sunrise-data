@@ -25,8 +25,9 @@
     "sync:products": "node_modules/.bin/product-csv-sync import --matchBy sku --csv data/products.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id  --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
     "sync:inventory": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
     "sync:inventory-stores": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory-stores.csv --projectKey $npm_package_config_project --clientId $npm_package_config_client_id --clientSecret $npm_package_config_client_secret --sphereProtocol https --sphereAuthProtocol https",
-    "start": "npm run build && npm run credentials && npm run clean:data && npm run import:zones && npm run import:shippingmethods && npm run import:projectSetup && npm run import:catalogs && npm run sync:products",
-    "states": "npm run build && node dist/lib/machine-states.js --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl"
+    "start": "npm run build && npm run credentials && npm run clean:data && npm run clean:states && npm run import:zones && npm run import:shippingmethods && npm run import:projectSetup && npm run import:catalogs && npm run sync:products && npm run import:states",
+    "clean:states": "npm run build && node dist/lib/machine-states.js --clean --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
+    "import:states": "npm run build && node dist/lib/machine-states.js --import --project $npm_package_config_project --client_id $npm_package_config_client_id --client_secret $npm_package_config_client_secret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl"
   },
   "repository": {
     "type": "git",
