@@ -42,22 +42,18 @@
   },
   "homepage": "https://github.com/commercetools/commercetools-sunrise-data#readme",
   "devDependencies": {
-    "sphere-node-cli": "1.0.4",
-    "sphere-node-product-csv-sync": "0.20.4",
-    "sphere-stock-import": "1.3.1",
     "@commercetools/api-request-builder": "3.7.0",
     "@commercetools/sdk-client": "1.5.4",
     "@commercetools/sdk-middleware-auth": "3.4.7",
     "@commercetools/sdk-middleware-http": "2.2.6",
     "babel-cli": "6.26.0",
-    "babel-preset-es2015": "6.24.1",
+    "babel-preset-env": "1.6.1",
     "nconf": "0.10.0",
     "path": "0.12.7",
-    "rimraf": "2.6.2"
+    "rimraf": "2.6.2",
+    "sphere-node-cli": "1.0.4",
+    "sphere-node-product-csv-sync": "0.20.4",
+    "sphere-stock-import": "1.3.1"
   },
-  "dependencies": {
-    "npm": "5.7.1",
-    "to": "0.2.9",
-    "update": "0.7.4"
-  }
+  "dependencies": {}
 }
