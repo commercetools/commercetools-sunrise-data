@@ -1,0 +1,56 @@
+[{
+    "name": "Standard",
+    "description": "Delivery in 5-6 working days",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": 0
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": 0
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "EUR",
+                        "centAmount": 300
+                    },
+                    "freeAbove": {
+                        "currencyCode": "EUR",
+                        "centAmount": 20000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": true
+}, 
+{
+    "name": "Express",
+    "description": "Same day delivery",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": 0
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": 0
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "EUR",
+                        "centAmount": 1000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": false
+}]
