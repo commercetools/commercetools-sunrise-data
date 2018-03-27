@@ -17,6 +17,7 @@ application-it.properties
 .classpath
 .project
 .settings/
+.vscode/
 dist/
 node_modules/
 package-lock.json
