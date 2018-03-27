@@ -4,6 +4,7 @@ target/
 .idea
 test.properties
 .mvn
+!/.mvn/wrapper/maven-wrapper.*
 /dev-payload*.json
 travis-payload.json
 *.zip
