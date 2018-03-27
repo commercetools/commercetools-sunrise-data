@@ -10,10 +10,10 @@ Before starting the import, make sure you have access to the [Admin Center](http
 1. Open the [Admin Center](https://admin.commercetools.com) and create an empty project (without sample data).
 
 ### 2. Prepare node environemnt for Import
-1. Go to the root of the repository, were the package.json is located.
+1. Go to the root of this project, were the package.json is located.
 2. Install all node dependencies
     ```js
-        npm intall
+        npm install
     ```
 3. Set commercetools project credentials as npm config values:
     <pre>
