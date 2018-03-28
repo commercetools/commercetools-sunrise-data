@@ -17,8 +17,8 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```
 3. Set commercetools project credentials as npm config values:
     <pre>
-        npm run set:authUrl <i>authUrl</i>
-        npm run set:apiUrl <i>apiUrl</i>
+        npm run set:authUrl <i>authUrl</i> - <i>(i.e. https://auth.commercetools.com)</i>
+        npm run set:apiUrl <i>apiUrl</i> - <i>(i.e. https://api.commercetools.com)</i>
         npm run set:projectKey <i>projectKey</i>
         npm rum set:clientId <i>clientId</i>
         npm run set:clientSecret <i>clientSecret</i>
@@ -45,5 +45,5 @@ Before starting the import, make sure you have access to the [Admin Center](http
 ### Requirements
 
 - Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- Install [Node.js](https://nodejs.org/en/download/current/)
+- Install [Node.js](https://nodejs.org/en/download/current/) > 8.2.1
 
