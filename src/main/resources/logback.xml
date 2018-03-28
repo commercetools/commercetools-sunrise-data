@@ -10,17 +10,17 @@
     </appender>
 
     <logger name="sphere" level="INFO"/>
-    <logger name="io.sphere" level="WARN"/>
+    <logger name="io.sphere" level="INFO"/>
     <logger name="com.netty" level="WARN"/>
     <logger name="com.ning.http.client" level="WARN"/>
     <logger name="org.javamoney.moneta.DefaultMonetaryContextFactory" level="WARN"/>
     <logger name="DefaultMonetaryContextFactory" level="WARN"/>
 
-    <logger name="org.springframework.batch" level="INFO" />
+    <logger name="org.springframework.batch" level="WARN" />
 
     <logger name="com.commercetools.dataimport" level="INFO" />
 
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
