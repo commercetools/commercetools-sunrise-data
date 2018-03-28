@@ -17,11 +17,11 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```
 3. Set commercetools project credentials as npm config values:
     <pre>
-        npm run set:authUrl <i>authUrl</i> - <i>(i.e. https://auth.commercetools.com)</i>
-        npm run set:apiUrl <i>apiUrl</i> - <i>(i.e. https://api.commercetools.com)</i>
-        npm run set:projectKey <i>projectKey</i>
-        npm rum set:clientId <i>clientId</i>
-        npm run set:clientSecret <i>clientSecret</i>
+        npm config set sunrise:authUrl <i>authUrl</i> - <i>(i.e. https://auth.commercetools.com)</i>
+        npm config set sunrise:apiUrl <i>apiUrl</i> - <i>(i.e. https://api.commercetools.com)</i>
+        npm config set sunrise:projectKey <i>projectKey</i>
+        npm config set sunrise:clientId <i>clientId</i>
+        npm config set sunrise:clientSecret <i>clientSecret</i>
     </pre>
 
 ### 3. Import basic data
