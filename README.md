@@ -31,11 +31,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```
 
 ### 4. Import additional data (optional)
-1. Import orders:
-    ```js
-        npm run import:orders
-    ```
-2. import inventories
+1. import inventories
     ```js
         npm run import:inventory
     ```
