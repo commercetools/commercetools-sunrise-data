@@ -14,8 +14,7 @@ public class ImportJobIntegrationTest extends AbstractIntegrationTest {
         assertThat(fetchTotalTypes("order")).as("Order types are imported").isEqualTo(1);
         assertThat(fetchTotalTypes("customer")).as("Customer types are imported").isEqualTo(1);
         assertThat(fetchTotalTypes("channel")).as("Channel types are imported").isEqualTo(1);
-// As the products are imported by the nodejs Library, the Order cant be tested, as the SKU is not available in the system.
-// assertThat(fetchTotalOrders()).as("Orders are imported").isEqualTo(2);
+        assertThat(fetchTotalOrders()).as("Orders are imported").isEqualTo(2);
         assertThat(fetchTotalProductTypes()).as("Product types are imported").isEqualTo(1);
 
         final Project project = sphereClient.executeBlocking(ProjectGet.of());
