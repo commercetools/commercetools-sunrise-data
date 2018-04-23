@@ -4,6 +4,7 @@
   "description": "[![Build Status](https://travis-ci.org/commercetools/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/commercetools/commercetools-sunrise-data)",
   "main": "index.js",
   "scripts": {
+    "test": "node_modules/.bin/standard",
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "clean:data": "./mvnw spring-boot:run -DprojectCleanUp=true -DprojectSetUp=false -DchannelsImport=false -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
     "import:projectSetup": "./mvnw spring-boot:run  -DprojectCleanUp=false -DprojectSetUp=true -DchannelsImport=true -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
@@ -21,6 +22,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/commercetools/commercetools-sunrise-data.git"
+  },
+  "standard": {
+    "ignore": [
+      "src/",
+      "node_modules/"
+    ]
   },
   "keywords": [
     "sunrise",
@@ -45,7 +52,8 @@
     "rimraf": "2.6.2",
     "sphere-node-cli": "1.0.4",
     "sphere-node-product-csv-sync": "0.20.4",
-    "sphere-stock-import": "1.3.1"
+    "sphere-stock-import": "1.3.1",
+    "standard": "11.0.1"
   },
   "dependencies": {}
 }
