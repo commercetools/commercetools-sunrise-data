@@ -10,16 +10,18 @@ Before starting the import, make sure you have access to the [Admin Center](http
 1. Open the [Admin Center](https://admin.commercetools.com) and create an empty project (without sample data).
 
 ### 2. Prepare node environemnt for Import
-1. Go to the root of the repository, were the package.json is located.
+1. Go to the root of this project, were the package.json is located.
 2. Install all node dependencies
     ```js
-        npm intall
+        npm install
     ```
 3. Set commercetools project credentials as npm config values:
     <pre>
-        npm run set:projectKey <i>projectKey</i>
-        npm rum set:clientId <i>clientId</i>
-        npm run set:clientSecret <i>clientSecret</i>
+        npm config set sunrise:authUrl <i>authUrl</i> - <i>(i.e. https://auth.commercetools.com)</i>
+        npm config set sunrise:apiUrl <i>apiUrl</i> - <i>(i.e. https://api.commercetools.com)</i>
+        npm config set sunrise:projectKey <i>projectKey</i>
+        npm config set sunrise:clientId <i>clientId</i>
+        npm config set sunrise:clientSecret <i>clientSecret</i>
     </pre>
 
 ### 3. Import basic data
@@ -29,11 +31,7 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```
 
 ### 4. Import additional data (optional)
-1. Import orders:
-    ```js
-        npm run import:orders
-    ```
-2. import inventories
+1. import inventories
     ```js
         npm run import:inventory
     ```
@@ -43,5 +41,4 @@ Before starting the import, make sure you have access to the [Admin Center](http
 ### Requirements
 
 - Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- Install [Node.js](https://nodejs.org/en/download/current/)
-
+- Install [Node.js](https://nodejs.org/en/download/current/) > 8.2.1

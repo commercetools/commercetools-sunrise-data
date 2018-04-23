@@ -22,6 +22,8 @@ public class DataImportJobConfiguration {
     private boolean projectSetUpFlag;
     @Value("${catalogImport}")
     private boolean catalogImportFlag;
+    @Value("${categoryImport}")
+    private boolean categoryImportFlag;
     @Value("${reserveInStore}")
     private boolean reserveInStoreFlag;
     @Value("${ordersImport}")
@@ -30,12 +32,13 @@ public class DataImportJobConfiguration {
     private boolean channelsImportFlag;
 
     @Bean
-    public Job job(Flow projectCleanUpFlow, Flow projectSetUpFlow, Flow catalogImportFlow,
+    public Job job(Flow projectCleanUpFlow, Flow projectSetUpFlow, Flow catalogImportFlow, Flow categoryImportFlow,
                    Flow reserveInStoreImportFlow, Flow ordersImportFlow, Flow channelsImportFlow) {
         return jobBuilderFactory.get("dataImport")
                 .start(projectCleanUpFlow)
                 .next(projectSetUpFlow)
                 .next(channelsImportFlow)
+                .next(categoryImportFlow)
                 .next(catalogImportFlow)
                 .next(reserveInStoreImportFlow)
                 .next(ordersImportFlow)
@@ -89,20 +92,33 @@ public class DataImportJobConfiguration {
     }
 
     @Bean
-    public Flow catalogImportFlow(Step categoriesImportStep) {
+    public Flow catalogImportFlow(Step taxCategoryImportStep, Step customerGroupImportStep,
+                                  Step channelTypeImportStep, Step channelsImportStep,
+                                  Step productTypeImportStep, Step productsImportStep, Step inventoryImportStep) {
         final FlagFlowDecider flagFlowDecider = new FlagFlowDecider(catalogImportFlag);
         return new FlowBuilder<Flow>("catalogImportFlow")
                 .start(flagFlowDecider).on(FlagFlowDecider.RUN)
-                    //.to(customerGroupImportStep)
-                    .to(categoriesImportStep)
-                    //.next(taxCategoryImportStep)
-                    //.next(channelTypeImportStep)
-                    //.next(channelsImportStep)
-                    //.next(productTypeImportStep)
-                    //.next(productsImportStep)
-                    //.next(inventoryImportStep)
+                    .to(customerGroupImportStep)
+                    .next(taxCategoryImportStep)
+                    .next(channelTypeImportStep)
+                    .next(channelsImportStep)
+                    .next(productTypeImportStep)
+                    .next(productsImportStep)
+                    .next(inventoryImportStep)
                 .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
                     .end()
+                .build();
+    }
+
+
+    @Bean
+    public Flow categoryImportFlow(Step categoriesImportStep) {
+        final FlagFlowDecider flagFlowDecider = new FlagFlowDecider(categoryImportFlag);
+        return new FlowBuilder<Flow>("categoryImportFlow")
+                .start(flagFlowDecider).on(FlagFlowDecider.RUN)
+                .to(categoriesImportStep)
+                .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
+                .end()
                 .build();
     }
 
