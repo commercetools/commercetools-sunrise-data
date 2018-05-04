@@ -4,6 +4,7 @@ target/
 .idea
 test.properties
 .mvn
+!/.mvn/wrapper/maven-wrapper.*
 /dev-payload*.json
 travis-payload.json
 *.zip
@@ -12,3 +13,12 @@ payload*.json
 
 application-default.properties
 application-it.properties
+
+.sphere-project-credentials
+.classpath
+.project
+.settings/
+.vscode/
+dist/
+node_modules/
+*.log

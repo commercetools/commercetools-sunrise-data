@@ -10,7 +10,8 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 @TestPropertySource(properties = {
         "catalogImport=false",
         "ordersImport=false",
-        "reserveInStore=false"
+        "reserveInStore=false",
+        "channelsImport=false"
 })
 public class DisableStepsIntegrationTest extends AbstractIntegrationTest {
 
