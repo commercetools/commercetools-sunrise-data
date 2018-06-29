@@ -1,15 +1,15 @@
 [{
-    "name": "Standard",
+    "name": "Standard EU",
     "description": "Delivery in 5-6 working days",
     "taxCategory": {
         "typeId": "tax-category",
-        "id": 0
+        "id": "EU"
     },
     "zoneRates": [
         {
             "zone": {
                 "typeId": "zone",
-                "id": 0
+                "id": "EU"
             },
             "shippingRates": [
                 {
@@ -27,9 +27,9 @@
         }
     ],
     "isDefault": true
-}, 
+},
 {
-    "name": "Express",
+    "name": "Express EU",
     "description": "Same day delivery",
     "taxCategory": {
         "typeId": "tax-category",
@@ -39,12 +39,67 @@
         {
             "zone": {
                 "typeId": "zone",
-                "id": 0
+                "id": "EU"
             },
             "shippingRates": [
                 {
                     "price": {
                         "currencyCode": "EUR",
+                        "centAmount": 1000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": false
+},{
+    "name": "Standard US",
+    "description": "Delivery in 5-6 working days",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": 1
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": "US"
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "USD",
+                        "centAmount": 300
+                    },
+                    "freeAbove": {
+                        "currencyCode": "USD",
+                        "centAmount": 20000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": false
+},
+{
+    "name": "Express US",
+    "description": "Same day delivery",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": 1
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": "US"
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "USD",
                         "centAmount": 1000
                     },
                     "tiers": []
