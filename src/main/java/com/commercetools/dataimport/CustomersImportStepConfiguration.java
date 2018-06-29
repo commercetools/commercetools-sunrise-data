@@ -5,6 +5,9 @@ import io.sphere.sdk.customergroups.CustomerGroupDraft;
 import io.sphere.sdk.customergroups.commands.CustomerGroupCreateCommand;
 import io.sphere.sdk.customergroups.commands.CustomerGroupDeleteCommand;
 import io.sphere.sdk.customergroups.queries.CustomerGroupQuery;
+import io.sphere.sdk.customers.Customer;
+import io.sphere.sdk.customers.commands.CustomerDeleteCommand;
+import io.sphere.sdk.customers.queries.CustomerQuery;
 import io.sphere.sdk.types.Type;
 import io.sphere.sdk.types.TypeDraft;
 import io.sphere.sdk.types.commands.TypeCreateCommand;
@@ -87,6 +90,19 @@ public class CustomersImportStepConfiguration {
                 .<CustomerGroup, Future<CustomerGroupDeleteCommand>>chunk(chunkSize)
                 .reader(ctpBatch.queryReader(CustomerGroupQuery.of()))
                 .processor(ctpBatch.asyncProcessor(CustomerGroupDeleteCommand::of))
+                .writer(ctpBatch.asyncWriter())
+                .listener(new ProcessedItemsChunkListener())
+                .listener(new DurationStepListener())
+                .throttleLimit(maxThreads)
+                .build();
+    }
+
+    @Bean
+    public Step customerDeleteStep() throws Exception {
+        return stepBuilderFactory.get("customerDeleteStep")
+                .<Customer, Future<CustomerDeleteCommand>>chunk(chunkSize)
+                .reader(ctpBatch.queryReader(CustomerQuery.of()))
+                .processor(ctpBatch.asyncProcessor(CustomerDeleteCommand::of))
                 .writer(ctpBatch.asyncWriter())
                 .listener(new ProcessedItemsChunkListener())
                 .listener(new DurationStepListener())

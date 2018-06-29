@@ -1,7 +1,9 @@
 {
     "name": "Europe",
     "description": "",
-    "locations": [{ "country": "AT", "state": "" },
-    { "country": "DE", "state": "" }
+    "locations": [
+        { "country": "AT", "state": "" },
+        { "country": "DE", "state": "" },
+        { "country": "NL", "state": "" }
     ]
 }

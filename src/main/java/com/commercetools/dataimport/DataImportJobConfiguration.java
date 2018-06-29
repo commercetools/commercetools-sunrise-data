@@ -51,7 +51,7 @@ public class DataImportJobConfiguration {
                                    Step productsDeleteStep, Step productTypeDeleteStep, Step inventoryDeleteStep,
                                    Step taxCategoryDeleteStep, Step customerGroupDeleteStep, Flow categoriesDeleteFlow,
                                    Step orderTypeDeleteStep, Step customerTypeDeleteStep, Step channelTypeDeleteStep,
-                                   Step channelsDeleteStep) {
+                                   Step channelsDeleteStep, Step customerDeleteStep) {
         final FlagFlowDecider flagFlowDecider = new FlagFlowDecider(projectCleanUpFlag);
         return new FlowBuilder<Flow>("projectCleanUpFlow")
                 .start(flagFlowDecider).on(FlagFlowDecider.RUN)
@@ -63,12 +63,13 @@ public class DataImportJobConfiguration {
                     .next(productTypeDeleteStep)
                     .next(taxCategoryDeleteStep)
                     .next(categoriesDeleteFlow)
+                    .next(customerDeleteStep)
                     .next(customerGroupDeleteStep)
                     .next(channelsDeleteStep)
                     .next(customerTypeDeleteStep)
                     .next(orderTypeDeleteStep)
                     .next(channelTypeDeleteStep)
-                .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
+                    .from(flagFlowDecider).on(FlagFlowDecider.SKIP)
                     .end()
                 .build();
     }

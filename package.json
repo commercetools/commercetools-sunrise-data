@@ -17,9 +17,11 @@
     "sync:products": "node_modules/.bin/product-csv-sync import --matchBy sku --publish --csv data/products.csv --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId  --clientSecret $npm_package_config_clientSecret --sphereProtocol https --sphereAuthProtocol https",
     "import:inventory": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory.csv --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --sphereProtocol https --sphereAuthProtocol https",
     "import:inventory-stores": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory-stores.csv --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --sphereProtocol https --sphereAuthProtocol https",
+    "preimport:customers": "npm run build",
+    "import:customers": "node dist/lib/customers.js --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "preimport:states": "npm run build",
     "import:states": "node dist/lib/lineitem-states.js --import --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
-    "start": "npm run clean:data && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:categories && npm run sync:products && npm run import:orders"
+    "start": "npm run clean:data && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run sync:products && npm run import:orders"
   },
   "repository": {
     "type": "git",

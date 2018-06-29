@@ -1,0 +1,162 @@
+[
+    {
+        "customerNumber": "1",
+        "email": "willy.wonka@commercetools.com",
+        "firstName": "Willy",
+        "lastName": "Wonka",
+        "title": "Head of factory",
+        "password": "p@ssword",
+        "addresses": [
+            {
+                "id": "PPM3YhMK",
+                "title": "Head of factory",
+                "firstName": "Willy",
+                "lastName": "Wonka",
+                "streetName": "Herengracht",
+                "streetNumber": "282",
+                "postalCode": "1012BE",
+                "city": "Amsterdam",
+                "state": "Noord-Holland",
+                "country": "NL",
+                "phone": "+31204347721",
+                "mobile": "+31625432945",
+                "email": "willy.wonka@commercetools.com"
+            },
+            {
+                "id": "kzVASZ9O",
+                "firstName": "Charlie",
+                "lastName": "Bucket",
+                "streetName": "Single",
+                "streetNumber": "28",
+                "postalCode": "1011BE",
+                "city": "Amsterdam",
+                "state": "Noord-Holland",
+                "country": "NL",
+                "phone": "+312072175386",
+                "mobile": "+31625290043",
+                "email": "charlie.bucket@commercetools.com"
+            },
+            {
+                "id": "whj_DLIj",
+                "firstName": "Oompa",
+                "lastName": "Loompa",
+                "streetName": "Damrak",
+                "streetNumber": "28",
+                "postalCode": "1010BE",
+                "city": "Amsterdam",
+                "state": "Noord-Holland",
+                "country": "NL",
+                "phone": "+312072136586",
+                "mobile": "+31625773043",
+                "email": "oompa.loompa@commercetools.com"
+            }
+        ],
+        "shippingAddressIds": [
+            "PPM3YhMK"
+        ],
+        "billingAddressIds": [
+            "PPM3YhMK"
+        ],
+        "isEmailVerified": true,
+        "key": "myKey",
+        "dateOfBirth": "1974-09-20"
+    },
+    {
+        "customerNumber": "3",
+        "email": "keith.richards@commercetools.com",
+        "firstName": "Keith",
+        "lastName": "Richards",
+        "title": "Mr.",
+        "password": "p@ssword",
+        "addresses": [
+            {
+                "id": "a-qURQXR",
+                "title": "guitar",
+                "firstName": "Keith",
+                "lastName": "Richard",
+                "streetName": "Keizersgracht",
+                "streetNumber": "282",
+                "postalCode": "1012BE",
+                "city": "Amsterdam",
+                "country": "NL",
+                "phone": "+31204347721",
+                "mobile": "+31625432945",
+                "email": "keith.richards@commercetools.com"
+            }
+        ],
+        "shippingAddressIds": [
+            "a-qURQXR"
+        ],
+        "billingAddressIds": [
+            "a-qURQXR"
+        ],
+        "isEmailVerified": true,
+        "key": "keithRichards",
+        "dateOfBirth": "1943-12-18",
+        "companyName": "Rolling Stnones"
+    },
+    {
+        "customerNumber": "4",
+        "email": "ronnie.wood@commercetools.com",
+        "firstName": "Ronnie",
+        "lastName": "Wood",
+        "title": "Mr.",
+        "password": "p@ssword",
+        "addresses": [],
+        "shippingAddressIds": [],
+        "billingAddressIds": [],
+        "isEmailVerified": true,
+        "key": "ronnieWood",
+        "dateOfBirth": "1947-06-01",
+        "companyName": "Rolling Stnones",
+        "lastMessageSequenceNumber": 1
+    },
+    {
+        "customerNumber": "2",
+        "email": "mick.jagger@commercetools.com",
+        "firstName": "Mick",
+        "lastName": "Jagger",
+        "title": "Mr.",
+        "password": "p@ssword",
+        "addresses": [
+            {
+                "id": "e34EURPH",
+                "title": "guitar",
+                "firstName": "Mick",
+                "lastName": "Jagger",
+                "streetName": "Keizersgracht",
+                "streetNumber": "282",
+                "postalCode": "1012BE",
+                "city": "Amsterdam",
+                "country": "NL",
+                "phone": "+31204347721",
+                "mobile": "+31625432945",
+                "email": "mick.jagger@commercetools.com"
+            },
+            {
+                "id": "oBLAUgwU",
+                "title": "guitar",
+                "firstName": "Mick",
+                "lastName": "Jagger",
+                "streetName": "Prinsengracht",
+                "streetNumber": "282",
+                "postalCode": "1012BE",
+                "city": "Amsterdam",
+                "country": "NL",
+                "phone": "+31204347721",
+                "mobile": "+31625432945",
+                "email": "mick.jagger@commercetools.com"
+            }
+        ],
+        "shippingAddressIds": [
+            "e34EURPH"
+        ],
+        "billingAddressIds": [
+            "e34EURPH"
+        ],
+        "isEmailVerified": true,
+        "key": "mickJagger",
+        "dateOfBirth": "1943-07-29",
+        "companyName": "Rolling Stones"
+    }
+]
