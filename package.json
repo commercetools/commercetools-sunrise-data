@@ -4,6 +4,7 @@
   "description": "[![Build Status](https://travis-ci.org/commercetools/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/commercetools/commercetools-sunrise-data)",
   "main": "index.js",
   "scripts": {
+    "test": "node_modules/.bin/standard --verbose | snazzy",
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "clean:data": "./mvnw spring-boot:run -DprojectCleanUp=true -DprojectSetUp=false -DchannelsImport=false -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
     "import:projectSetup": "./mvnw spring-boot:run  -DprojectCleanUp=false -DprojectSetUp=true -DchannelsImport=true -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl",
@@ -16,11 +17,21 @@
     "sync:products": "node_modules/.bin/product-csv-sync import --matchBy sku --publish --csv data/products.csv --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId  --clientSecret $npm_package_config_clientSecret --sphereProtocol https --sphereAuthProtocol https --sphereHost $npm_package_config_apiUrl --sphereAuthHost $npm_package_config_authUrl",
     "import:inventory": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory.csv --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --sphereProtocol https --sphereAuthProtocol https --sphereHost $npm_package_config_apiUrl --sphereAuthHost $npm_package_config_authUrl",
     "import:inventory-stores": "node_modules/.bin/stock-import --logLevel debug --logSilent true --file data/inventory-stores.csv --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --sphereProtocol https --sphereAuthProtocol https --sphereHost $npm_package_config_apiUrl --sphereAuthHost $npm_package_config_authUrl",
-    "start": "npm run clean:data && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:categories && npm run sync:products && npm run import:orders"
+    "preimport:customers": "npm run build",
+    "import:customers": "node dist/lib/customers.js --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
+    "preimport:states": "npm run build",
+    "import:states": "node dist/lib/lineitem-states.js --import --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
+    "start": "npm run clean:data && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run sync:products && npm run import:orders"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/commercetools/commercetools-sunrise-data.git"
+  },
+  "standard": {
+    "ignore": [
+      "src/",
+      "node_modules/"
+    ]
   },
   "keywords": [
     "sunrise",
@@ -43,9 +54,11 @@
     "nconf": "0.10.0",
     "path": "0.12.7",
     "rimraf": "2.6.2",
+    "snazzy": "7.1.1",
     "sphere-node-cli": "1.0.4",
     "sphere-node-product-csv-sync": "0.20.4",
-    "sphere-stock-import": "1.3.1"
+    "sphere-stock-import": "1.3.1",
+    "standard": "11.0.1"
   },
   "dependencies": {}
 }
