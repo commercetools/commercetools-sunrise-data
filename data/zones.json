@@ -3,16 +3,16 @@
     "name": "Europe",
     "description": "",
     "locations": [
-      { "country": "AT", "state": "" },
-      { "country": "DE", "state": "" },
-      { "country": "NL", "state": "" }
+      { "country": "AT"},
+      { "country": "DE"},
+      { "country": "NL"}
     ]
   },
   {
     "name": "United States",
     "description": "",
     "locations": [
-      { "country": "US", "state": "" }
+      { "country": "US"}
     ]
   }
 ]
