@@ -17,12 +17,13 @@ Before starting the import, make sure you have access to the [Admin Center](http
     ```
 3. Set commercetools project credentials as npm config values:
     <pre>
-        npm config set sunrise:authUrl <i>authUrl</i> - <i>(i.e. https://auth.commercetools.com)</i>
-        npm config set sunrise:apiUrl <i>apiUrl</i> - <i>(i.e. https://api.commercetools.com)</i>
+        npm config set sunrise:authUrl <i>authUrl</i> - <i>(i.e. auth.commercetools.com)</i>
+        npm config set sunrise:apiUrl <i>apiUrl</i> - <i>(i.e. api.commercetools.com)</i>
         npm config set sunrise:projectKey <i>projectKey</i>
         npm config set sunrise:clientId <i>clientId</i>
         npm config set sunrise:clientSecret <i>clientSecret</i>
     </pre>
+    *Url variables expect only the host name, not a full URL. 
 
 ### 3. Import basic data
 1. import project setting, delivery zones / tax setting, categories and products
