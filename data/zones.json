@@ -1,9 +1,18 @@
-{
+[
+  {
     "name": "Europe",
     "description": "",
     "locations": [
-        { "country": "AT" },
-        { "country": "DE" },
-        { "country": "NL" }
+      { "country": "AT"},
+      { "country": "DE"},
+      { "country": "NL"}
     ]
-}
+  },
+  {
+    "name": "United States",
+    "description": "",
+    "locations": [
+      { "country": "US"}
+    ]
+  }
+]

@@ -9,6 +9,12 @@
         "country": "AT"
       },
       {
+        "name": "10% incl.",
+        "amount": 0.1,
+        "includedInPrice": true,
+        "country": "US"
+      },
+      {
         "name": "19% incl.",
         "amount": 0.19,
         "includedInPrice": true,

@@ -30,9 +30,12 @@ public class SphereClientConfiguration {
     @Value("${ctp.apiUrl}")
     private String apiUrl;
 
+    @Value("${ctp.protocol}")
+    private String protocol;
+
     @Bean(destroyMethod = "close")
     public BlockingSphereClient sphereClient() {
-        final SphereClientConfig config = SphereClientConfig.of(projectKey, clientId, clientSecret, authUrl, apiUrl);
+        final SphereClientConfig config = SphereClientConfig.of(projectKey, clientId, clientSecret, protocol + "://" + authUrl, protocol + "://" + apiUrl);
         final SphereClient asyncClient = SphereClientFactory.of().createClient(config);
         final BlockingSphereClient sphereClient = BlockingSphereClient.of(asyncClient, 30, TimeUnit.SECONDS);
         log.debug("Created CTP client for project \"{}\"", projectKey);

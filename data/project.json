@@ -1,10 +1,12 @@
 {
   "currencies": [
-    "EUR"
+    "EUR",
+    "USD"
   ],
   "countries": [
     "DE",
     "AT",
+    "US",
     "NL"
   ],
   "languages": [
