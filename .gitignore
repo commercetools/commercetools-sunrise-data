@@ -22,3 +22,4 @@ application-it.properties
 dist/
 node_modules/
 *.log
+.factorypath
