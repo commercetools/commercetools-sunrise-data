@@ -1,6 +1,7 @@
 [
   {
     "name": "standard",
+    "key": "standard",
     "rates": [
       {
         "name": "20% incl.",
