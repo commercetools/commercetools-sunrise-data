@@ -1,5 +1,6 @@
 [{
     "name": "Standard EU",
+    "key": "std-EU",
     "description": "Delivery in 5-6 working days",
     "taxCategory": {
         "typeId": "tax-category",
@@ -9,7 +10,7 @@
         {
             "zone": {
                 "typeId": "zone",
-                "id": "EU"
+                "id": "Europe"
             },
             "shippingRates": [
                 {
@@ -30,16 +31,17 @@
 },
 {
     "name": "Express EU",
+    "key": "express-EU",
     "description": "Same day delivery",
     "taxCategory": {
         "typeId": "tax-category",
-        "id": 0
+        "id": "EU"
     },
     "zoneRates": [
         {
             "zone": {
                 "typeId": "zone",
-                "id": "EU"
+                "id": "Europe"
             },
             "shippingRates": [
                 {
@@ -55,6 +57,7 @@
     "isDefault": false
 },{
     "name": "Standard US",
+    "key": "std-US",
     "description": "Delivery in 5-6 working days",
     "taxCategory": {
         "typeId": "tax-category",
@@ -64,7 +67,7 @@
         {
             "zone": {
                 "typeId": "zone",
-                "id": "US"
+                "id": "United States"
             },
             "shippingRates": [
                 {
@@ -85,6 +88,7 @@
 },
 {
     "name": "Express US",
+    "key": "express-EU",
     "description": "Same day delivery",
     "taxCategory": {
         "typeId": "tax-category",
@@ -94,7 +98,7 @@
         {
             "zone": {
                 "typeId": "zone",
-                "id": "US"
+                "id": "United States"
             },
             "shippingRates": [
                 {
