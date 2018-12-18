@@ -6,11 +6,10 @@
   "scripts": {
     "test": "node_modules/.bin/standard --verbose | snazzy",
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
-    "clean:data": "./mvnw spring-boot:run -DprojectCleanUp=true -DprojectSetUp=false -DchannelsImport=false -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl -Dctp.protocol=https",
+    "preclean:data": "npm run build",
+    "clean:data": "node dist/lib/clear.js --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "import:projectSetup": "./mvnw spring-boot:run  -DprojectCleanUp=false -DprojectSetUp=true -DchannelsImport=true -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl -Dctp.protocol=https",
     "import:categories": "./mvnw spring-boot:run -DprojectCleanUp=false -DprojectSetUp=false -DchannelsImport=false -DcategoryImport=true -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl -Dctp.protocol=https",
-    "preimport:clear": "npm run build",
-    "import:clear": "node dist/lib/clear.js --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "import:orders": "./mvnw spring-boot:run -DprojectCleanUp=false -DprojectSetUp=false -DchannelsImport=false -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=true -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl -Dctp.protocol=https",
     "preimport:zones": "npm run build",
     "import:zones": "node dist/lib/zones.js --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
@@ -23,7 +22,7 @@
     "import:customers": "node dist/lib/customers.js --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "preimport:states": "npm run build",
     "import:states": "node dist/lib/lineitem-states.js --import --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
-    "start": "npm run clean:data && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run sync:products && npm run import:orders"
+    "start": "mvn clean && npm run clean:data && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run sync:products && npm run import:orders"
   },
   "repository": {
     "type": "git",
