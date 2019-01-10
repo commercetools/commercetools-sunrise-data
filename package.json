@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node_modules/.bin/standard --verbose | snazzy",
+    "pretty": "node_modules/prettier/bin-prettier.js lib/**",
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "clean:data": "npm run clean:categories && npm run clean:orders && npm run clean:states && npm run clean:customers && npm run clean:shippingmethods && npm run clean:zones && npm run clean:products",
     "import:projectSetup": "./mvnw spring-boot:run  -DprojectCleanUp=false -DprojectSetUp=true -DchannelsImport=true -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl -Dctp.protocol=https",
@@ -67,6 +68,7 @@
     "babel-preset-env": "1.6.1",
     "nconf": "0.10.0",
     "path": "0.12.7",
+    "prettier": "1.15.3",
     "rimraf": "2.6.2",
     "snazzy": "7.1.1",
     "sphere-node-cli": "1.0.4",
