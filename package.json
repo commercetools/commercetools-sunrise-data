@@ -6,8 +6,7 @@
   "scripts": {
     "test": "node_modules/.bin/standard --verbose | snazzy",
     "build": "rimraf dist/ && babel ./**/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
-    "preclean:data": "npm run build",
-    "clean:data": "node dist/lib/clean.js --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
+    "clean:data": "npm run clean:categories && npm run clean:orders && npm run clean:states && npm run clean:customers && npm run clean:shippingmethods && npm run clean:zones && npm run clean:products",
     "import:projectSetup": "./mvnw spring-boot:run  -DprojectCleanUp=false -DprojectSetUp=true -DchannelsImport=true -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl -Dctp.protocol=https",
     "import:categories": "./mvnw spring-boot:run -DprojectCleanUp=false -DprojectSetUp=false -DchannelsImport=false -DcategoryImport=true -DcatalogImport=false -DreserveInStore=false -DordersImport=false -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl -Dctp.protocol=https",
     "import:orders": "./mvnw spring-boot:run -DprojectCleanUp=false -DprojectSetUp=false -DchannelsImport=false -DcategoryImport=false -DcatalogImport=false -DreserveInStore=false -DordersImport=true -Dctp.projectKey=$npm_package_config_projectKey -Dctp.clientId=$npm_package_config_clientId -Dctp.clientSecret=$npm_package_config_clientSecret -Dctp.authUrl=$npm_package_config_authUrl -Dctp.apiUrl=$npm_package_config_apiUrl -Dctp.protocol=https",
@@ -24,6 +23,10 @@
     "import:states": "node dist/lib/lineitem-states.js --import --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "preclean:categories": "npm run build",
     "clean:categories": "node dist/lib/categories.js --clean --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
+    "preclean:orders": "npm run build",
+    "clean:orders": "node dist/lib/orders.js --clean --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
+    "preclean:states": "npm run build",
+    "clean:states": "node dist/lib/lineitem-states.js --clean --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "preclean:customers": "npm run build",
     "clean:customers": "node dist/lib/customers.js --clean --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "preclean:shippingmethods": "npm run build",
@@ -32,7 +35,6 @@
     "clean:zones": "node dist/lib/zones.js --clean --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
     "preclean:products": "npm run build",
     "clean:products": "node dist/lib/products.js --clean --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl",
-
     "start": "mvn clean && npm run clean:data && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run sync:products && npm run import:orders"
   },
   "repository": {
