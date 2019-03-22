@@ -81,8 +81,8 @@
   "devDependencies": {
     "@commercetools/api-request-builder": "5.0.0",
     "@commercetools/sdk-client": "2.0.0",
-    "@commercetools/sdk-middleware-auth": "5.0.0",
-    "@commercetools/sdk-middleware-http": "5.0.0",
+    "@commercetools/sdk-middleware-auth": "5.0.1",
+    "@commercetools/sdk-middleware-http": "5.1.0",
     "babel-cli": "6.26.0",
     "babel-preset-env": "1.7.0",
     "nconf": "0.10.0",
@@ -91,13 +91,13 @@
     "snazzy": "8.0.0",
     "sphere-node-cli": "^2.1.7",
     "sphere-node-product-csv-sync": "1.5.4",
-    "sphere-stock-import": "2.0.2",
+    "sphere-stock-import": "^2.1.0",
     "standard": "12.0.1"
   },
   "dependencies": {
-    "@commercetools/sdk-auth": "^2.0.0",
+    "@commercetools/sdk-auth": "^2.0.3",
     "csvtojson": "^2.0.8",
-    "es6-promise": "^4.2.5",
+    "es6-promise": "^4.2.6",
     "isomorphic-fetch": "^2.2.1",
     "sphere-category-sync": "^1.1.2"
   },
