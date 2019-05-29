@@ -88,7 +88,7 @@
 },
 {
     "name": "Express US",
-    "key": "express-EU",
+    "key": "express-US",
     "description": "Same day delivery",
     "taxCategory": {
         "typeId": "tax-category",
