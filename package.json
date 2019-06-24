@@ -10,7 +10,7 @@
     "clean:data": "npm run clean:categories && npm run clean:products && npm run clean:inventory && npm run clean:orders && npm run clean:carts && npm run clean:states && npm run clean:customers && npm run clean:shippingmethods && npm run clean:zones && npm run clean:taxCategories && npm run clean:channels && npm run clean:types",
     "preimport:projectSetup": "npm run build",
     "import:projectSetup": "cross-env-shell \"node dist/lib/project-setup.js --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl\"",
-    "import:categories": "cross-env-shell \"node_modules/.bin/category-sync import -f data/categories.csv -p $npm_package_config_projectKey --clientId $npm_package_config_clientId  --clientSecret $npm_package_config_clientSecret\"",
+    "import:categories": "cross-env-shell \"node_modules/.bin/category-sync import -f data/categories.csv -p $npm_package_config_projectKey -i $npm_package_config_clientId -s $npm_package_config_clientSecret\"",
     "preimport:orders": "npm run build",
     "import:orders": "cross-env-shell \"node dist/lib/orders.js --import --csv ./data/orders.csv --projectKey $npm_package_config_projectKey --clientId $npm_package_config_clientId --clientSecret $npm_package_config_clientSecret --apiUrl $npm_package_config_apiUrl --authUrl $npm_package_config_authUrl\"",
     "preimport:channels": "npm run build",
