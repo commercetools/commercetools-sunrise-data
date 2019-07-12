@@ -39,7 +39,6 @@ Before starting the import, make sure you have access to the [Merchant Center](h
 
 ### Requirements
 
-- Install [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 - Install [Node.js](https://nodejs.org/en/download/current/) ^8 or ^9  (node 10 is not compatible)
 
 On Issues with the node version (e.g., after switching the version), run `npm rebuild`
