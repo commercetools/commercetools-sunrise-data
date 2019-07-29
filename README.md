@@ -7,9 +7,11 @@
 Before starting the import, make sure you have access to the [Merchant Center](https://mc.commercetools.com). You will also need to run the application in this repository. Check that you meet the [requirements](#requirements) and [clone](https://help.github.com/articles/cloning-a-repository/) this repository to your computer.
 
 ### 1. Create your project
+
 1. Open the [Merchant Center](https://mc.commercetools.com) and create an empty project (without sample data).
 
 ### 2. Prepare node environemnt for Import
+
 Go to the root of this project, where the `package.json` is located and install all node dependencies:
 
 ```
@@ -17,6 +19,7 @@ npm install
 ```
       
 ### 3. Set your commercetools project credentials
+
 1. In the root of the project create a file named `.env`
 2. Set the `.env` file with your cridentials:
     ```shell
@@ -29,6 +32,7 @@ npm install
     *Url variables expect only the host name, not a full URL!*
 
 ### 4. Usage
+
 1. Clean all existing project data and import new:
 
     ```
