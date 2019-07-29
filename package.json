@@ -9,7 +9,7 @@
     "build": "rimraf dist/ && babel ./lib/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "clean:da": "npm run clean:categories && npm run clean:products && npm run clean:inventory && npm run clean:orders && npm run clean:carts && npm run clean:states && npm run clean:customers && npm run clean:shippingmethods && npm run clean:zones && npm run clean:taxCategories && npm run clean:channels && npm run clean:types",
     "clean:data": "npm run build && node dist/lib/data.js",
-    "import:data": "npm run import:types && npm run import:channels && npm run import:taxCategories && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run sync:products && npm run import:orders",
+    "import:data": "npm run import:types && npm run import:channels && npm run import:taxCategories && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run import:products && npm run import:orders",
     "preimport:projectSetup": "npm run build",
     "import:projectSetup": "node dist/lib/project-setup.js --import",
     "preimport:categories": "npm run build",
