@@ -8,7 +8,7 @@ Before starting the import, make sure you have access to the [Merchant Center](h
 
 ### 1. Create your project
 
-1. Open the [Merchant Center](https://mc.commercetools.com) and create an empty project (without sample data).
+Open the [Merchant Center](https://mc.commercetools.com) and create an empty project (without sample data).
 
 ### 2. Prepare node environemnt for Import
 
@@ -22,6 +22,7 @@ npm install
 
 1. In the root of the project create a file named `.env`
 2. Set the `.env` file with your cridentials:
+
     ```shell
       CTP_PROJECT_KEY = <your project key>
       CTP_CLIENT_ID = <your client ID>
