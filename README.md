@@ -21,7 +21,7 @@ npm install
 ### 3. Set your commercetools project credentials
 
 1. In the root of the project create a file named `.env`
-2. Set the `.env` file with your cridentials:
+2. Set the `.env` file with your credentials:
 
     ```shell
       CTP_PROJECT_KEY = <your project key>
