@@ -5,25 +5,22 @@
   "main": "index.js",
   "scripts": {
     "test": "node_modules/.bin/standard --verbose | snazzy",
-    "pretty": "node_modules/prettier/bin-prettier.js lib/**",
-    "build": "rimraf dist/ && babel ./lib/*.js --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
+    "build": "rimraf dist/ && babel ./lib/*.js --out-dir dist/lib/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "clean:data": "npm run build && node dist/lib/data.js",
     "import:data": "npm run import:types && npm run import:channels && npm run import:taxCategories && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run import:products && npm run import:orders",
-    
     "import:projectSetup": "npm run build && node dist/lib/project-setup.js --import",
-    "import:categories": "npm run build && node dist/lib/categories.js --import",
+    "import:categories": "npm run build && node dist/lib/categories.js --import --csv ./data/categories.csv",
     "import:orders": "npm run build && node dist/lib/orders.js --import --csv ./data/orders.csv",
     "import:channels": "npm run build && node dist/lib/channels.js --import",
     "import:zones": "npm run build && node dist/lib/zones.js --import",
     "import:taxCategories": "npm run build && node dist/lib/tax-categories.js --import",
     "import:shippingmethods": "npm run build && node dist/lib/shipping-method.js --import",
-    "import:products": "npm run build && node dist/lib/products.js --importtypes && node dist/lib/products.js --import",
+    "import:products": "npm run build && node dist/lib/products.js --importtypes --types ./data/product-type.json && node dist/lib/products.js --import  --categories ./data/categories.csv  --csv ./data/products.csv --types ./data/product-type.json",
     "import:inventory": "npm run build && node dist/lib/inventory.js --import",
     "import:inventory-stores": "npm run build && node dist/lib/inventory.js --import",
     "import:customers": "npm run build && node dist/lib/customers.js --import",
     "import:types": "npm run build && node dist/lib/types.js --import",
     "import:states": "npm run build && node dist/lib/lineitem-states.js --import",
-
     "clean:categories": "npm run build && node dist/lib/categories.js --clean",
     "clean:inventory": "npm run build && node dist/lib/inventory.js --clean",
     "clean:channels": "npm run build && node dist/lib/channels.js --clean",
@@ -36,7 +33,6 @@
     "clean:products": "npm run build && node dist/lib/products.js --clean",
     "clean:taxCategories": "npm run build && node dist/lib/taxCategories.js --clean",
     "clean:types": "npm run build && node dist/lib/types.js --clean",
-
     "start": "npm run clean:data && npm run import:data"
   },
   "repository": {
@@ -61,12 +57,14 @@
   },
   "homepage": "https://github.com/commercetools/commercetools-sunrise-data#readme",
   "devDependencies": {
+    "@babel/core": "^7.7.5",
+    "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
     "@commercetools/api-request-builder": "5.3.2",
     "@commercetools/sdk-client": "2.1.0",
     "@commercetools/sdk-middleware-auth": "5.1.2",
     "@commercetools/sdk-middleware-http": "5.2.1",
-    "babel-cli": "6.26.0",
-    "babel-preset-env": "1.7.0",
+    "@babel/cli": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
     "braces": "^3.0.2",
     "dotenv": "^8.0.0",
     "fstream": "^1.0.12",
@@ -74,17 +72,15 @@
     "path": "0.12.7",
     "rimraf": "2.6.3",
     "snazzy": "8.0.0",
-    "sphere-node-cli": "^3.0.0",
-    "sphere-node-product-csv-sync": "2.0.0",
-    "sphere-stock-import": "^2.1.0",
     "standard": "13.1.0"
   },
   "dependencies": {
     "@commercetools/sdk-auth": "^2.1.2",
+    "cli-progress": "^3.4.0",
     "csvtojson": "^2.0.10",
     "es6-promise": "^4.2.8",
     "isomorphic-fetch": "^2.2.1",
-    "sphere-category-sync": "^1.2.0"
+    "core-js": "3"
   },
   "engines": {
     "node": "^10"
