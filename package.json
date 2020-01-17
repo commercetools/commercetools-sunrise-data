@@ -4,10 +4,10 @@
   "description": "[![Build Status](https://travis-ci.org/commercetools/commercetools-sunrise-data.svg?branch=master)](https://travis-ci.org/commercetools/commercetools-sunrise-data)",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/standard --verbose | snazzy",
+    "test": "eslint ./lib/**",
     "build": "rimraf dist/ && babel ./lib/*.js --out-dir dist/lib/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
-    "clean:data": "npm run build && node dist/lib/data.js",
-    "import:data": "npm run import:types && npm run import:channels && npm run import:taxCategories && npm run import:zones && npm run import:projectSetup && npm run import:shippingmethods && npm run import:customers && npm run import:categories && npm run import:products && npm run import:orders",
+    "clean:data": "npm run build && node dist/lib/data.js --all:clean",
+    "import:data": "npm run build && node dist/lib/data.js --all:import",
     "import:projectSetup": "npm run build && node dist/lib/project-setup.js --import",
     "import:categories": "npm run build && node dist/lib/categories.js --import --csv ./data/categories.csv",
     "import:orders": "npm run build && node dist/lib/orders.js --import --csv ./data/orders.csv",
@@ -31,19 +31,14 @@
     "clean:shippingmethods": "npm run build && node dist/lib/shipping-method.js --clean",
     "clean:zones": "npm run build && node dist/lib/zones.js --clean",
     "clean:products": "npm run build && node dist/lib/products.js --clean",
-    "clean:taxCategories": "npm run build && node dist/lib/taxCategories.js --clean",
+    "clean:taxCategories": "npm run build && node dist/lib/tax-categories.js --clean",
     "clean:types": "npm run build && node dist/lib/types.js --clean",
-    "start": "npm run clean:data && npm run import:data"
+    "start": "npm run build && node dist/lib/data.js --start",
+    "lint": "prettier --write ./lib/** && eslint --fix ./lib/**"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/commercetools/commercetools-sunrise-data.git"
-  },
-  "standard": {
-    "ignore": [
-      "src/",
-      "node_modules/"
-    ]
   },
   "keywords": [
     "sunrise",
@@ -57,30 +52,34 @@
   },
   "homepage": "https://github.com/commercetools/commercetools-sunrise-data#readme",
   "devDependencies": {
+    "@babel/cli": "^7.7.5",
     "@babel/core": "^7.7.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
+    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
+    "@babel/preset-env": "^7.7.6",
     "@commercetools/api-request-builder": "5.3.2",
     "@commercetools/sdk-client": "2.1.0",
     "@commercetools/sdk-middleware-auth": "5.1.2",
     "@commercetools/sdk-middleware-http": "5.2.1",
-    "@babel/cli": "^7.7.5",
-    "@babel/preset-env": "^7.7.6",
+    "babel-eslint": "^10.0.3",
     "braces": "^3.0.2",
     "dotenv": "^8.0.0",
+    "eslint": "^6.8.0",
     "fstream": "^1.0.12",
     "nconf": "0.10.0",
     "path": "0.12.7",
+    "prettier": "^1.19.1",
     "rimraf": "2.6.3",
-    "snazzy": "8.0.0",
-    "standard": "13.1.0"
+    "snazzy": "8.0.0"
   },
   "dependencies": {
     "@commercetools/sdk-auth": "^2.1.2",
     "cli-progress": "^3.4.0",
+    "core-js": "3",
     "csvtojson": "^2.0.10",
     "es6-promise": "^4.2.8",
-    "isomorphic-fetch": "^2.2.1",
-    "core-js": "3"
+    "eslint-plugin-import": "^2.20.0",
+    "isomorphic-fetch": "^2.2.1"
   },
   "engines": {
     "node": "^10"
