@@ -10,7 +10,7 @@ Before starting the import, make sure you have access to the [Merchant Center](h
 
 Open the [Merchant Center](https://mc.commercetools.com) and create an empty project (without sample data).
 
-### 2. Prepare node environemnt for Import
+### 2. Prepare node environment for Import
 
 Go to the root of this project, where the `package.json` is located and install all node dependencies:
 
