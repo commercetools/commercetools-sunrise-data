@@ -20,6 +20,42 @@
         "amount": 0.19,
         "includedInPrice": true,
         "country": "DE"
+      },
+      {
+        "name": "21% incl.",
+        "amount": 0.21,
+        "includedInPrice": true,
+        "country": "NL"
+      }
+    ]
+  },
+  {
+    "name": "Low Category",
+    "key": "low",
+    "rates": [
+      {
+        "name": "20% incl.",
+        "amount": 0.07,
+        "includedInPrice": true,
+        "country": "AT"
+      },
+      {
+        "name": "10% incl.",
+        "amount": 0.08,
+        "includedInPrice": true,
+        "country": "US"
+      },
+      {
+        "name": "19% incl.",
+        "amount": 0.05,
+        "includedInPrice": true,
+        "country": "DE"
+      },
+      {
+        "name": "21% incl.",
+        "amount": 0.09,
+        "includedInPrice": true,
+        "country": "NL"
       }
     ]
   }
