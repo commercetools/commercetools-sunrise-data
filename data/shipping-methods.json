@@ -1,115 +1,234 @@
-[{
-    "name": "Standard EU",
-    "key": "std-EU",
-    "description": "Delivery in 5-6 working days",
-    "taxCategory": {
-        "typeId": "tax-category",
-        "id": "EU"
+[
+    {
+        "name": "Standard AU",
+        "key": "std-AU",
+        "description": "Delivery in 5-6 working days",
+        "taxCategory": {
+            "typeId": "tax-category",
+            "id": "AU"
+        },
+        "zoneRates": [
+            {
+                "zone": {
+                    "typeId": "zone",
+                    "id": "Australia"
+                },
+                "shippingRates": [
+                    {
+                        "price": {
+                            "currencyCode": "AUD",
+                            "centAmount": 300
+                        },
+                        "freeAbove": {
+                            "currencyCode": "AUD",
+                            "centAmount": 20000
+                        },
+                        "tiers": []
+                    }
+                ]
+            }
+        ],
+        "isDefault": true
     },
-    "zoneRates": [
-        {
-            "zone": {
-                "typeId": "zone",
-                "id": "Europe"
-            },
-            "shippingRates": [
-                {
-                    "price": {
-                        "currencyCode": "EUR",
-                        "centAmount": 300
-                    },
-                    "freeAbove": {
-                        "currencyCode": "EUR",
-                        "centAmount": 20000
-                    },
-                    "tiers": []
-                }
-            ]
-        }
-    ],
-    "isDefault": true
-},
-{
-    "name": "Express EU",
-    "key": "express-EU",
-    "description": "Same day delivery",
-    "taxCategory": {
-        "typeId": "tax-category",
-        "id": "EU"
+    {
+        "name": "Express AU",
+        "key": "express-AU",
+        "description": "Same day delivery",
+        "taxCategory": {
+            "typeId": "tax-category",
+            "id": "AU"
+        },
+        "zoneRates": [
+            {
+                "zone": {
+                    "typeId": "zone",
+                    "id": "Australia"
+                },
+                "shippingRates": [
+                    {
+                        "price": {
+                            "currencyCode": "AUD",
+                            "centAmount": 1000
+                        },
+                        "tiers": []
+                    }
+                ]
+            }
+        ],
+        "isDefault": false
     },
-    "zoneRates": [
-        {
-            "zone": {
-                "typeId": "zone",
-                "id": "Europe"
-            },
-            "shippingRates": [
-                {
-                    "price": {
-                        "currencyCode": "EUR",
-                        "centAmount": 1000
-                    },
-                    "tiers": []
-                }
-            ]
-        }
-    ],
-    "isDefault": false
-},{
-    "name": "Standard US",
-    "key": "std-US",
-    "description": "Delivery in 5-6 working days",
-    "taxCategory": {
-        "typeId": "tax-category",
-        "id": 1
+    {
+        "name": "Standard EU",
+        "key": "std-EU",
+        "description": "Delivery in 5-6 working days",
+        "taxCategory": {
+            "typeId": "tax-category",
+            "id": "EU"
+        },
+        "zoneRates": [
+            {
+                "zone": {
+                    "typeId": "zone",
+                    "id": "Europe"
+                },
+                "shippingRates": [
+                    {
+                        "price": {
+                            "currencyCode": "EUR",
+                            "centAmount": 300
+                        },
+                        "freeAbove": {
+                            "currencyCode": "EUR",
+                            "centAmount": 20000
+                        },
+                        "tiers": []
+                    }
+                ]
+            }
+        ],
+        "isDefault": true
     },
-    "zoneRates": [
-        {
-            "zone": {
-                "typeId": "zone",
-                "id": "United States"
-            },
-            "shippingRates": [
-                {
-                    "price": {
-                        "currencyCode": "USD",
-                        "centAmount": 300
-                    },
-                    "freeAbove": {
-                        "currencyCode": "USD",
-                        "centAmount": 20000
-                    },
-                    "tiers": []
-                }
-            ]
-        }
-    ],
-    "isDefault": false
-},
-{
-    "name": "Express US",
-    "key": "express-US",
-    "description": "Same day delivery",
-    "taxCategory": {
-        "typeId": "tax-category",
-        "id": 1
+    {
+        "name": "Express EU",
+        "key": "express-EU",
+        "description": "Same day delivery",
+        "taxCategory": {
+            "typeId": "tax-category",
+            "id": "EU"
+        },
+        "zoneRates": [
+            {
+                "zone": {
+                    "typeId": "zone",
+                    "id": "Europe"
+                },
+                "shippingRates": [
+                    {
+                        "price": {
+                            "currencyCode": "EUR",
+                            "centAmount": 1000
+                        },
+                        "tiers": []
+                    }
+                ]
+            }
+        ],
+        "isDefault": false
     },
-    "zoneRates": [
-        {
-            "zone": {
-                "typeId": "zone",
-                "id": "United States"
-            },
-            "shippingRates": [
-                {
-                    "price": {
-                        "currencyCode": "USD",
-                        "centAmount": 1000
-                    },
-                    "tiers": []
-                }
-            ]
-        }
-    ],
-    "isDefault": false
-}]
+    {
+        "name": "Standard US",
+        "key": "std-US",
+        "description": "Delivery in 5-6 working days",
+        "taxCategory": {
+            "typeId": "tax-category",
+            "id": 1
+        },
+        "zoneRates": [
+            {
+                "zone": {
+                    "typeId": "zone",
+                    "id": "United States"
+                },
+                "shippingRates": [
+                    {
+                        "price": {
+                            "currencyCode": "USD",
+                            "centAmount": 300
+                        },
+                        "freeAbove": {
+                            "currencyCode": "USD",
+                            "centAmount": 20000
+                        },
+                        "tiers": []
+                    }
+                ]
+            }
+        ],
+        "isDefault": false
+    },
+    {
+        "name": "Express US",
+        "key": "express-US",
+        "description": "Same day delivery",
+        "taxCategory": {
+            "typeId": "tax-category",
+            "id": 1
+        },
+        "zoneRates": [
+            {
+                "zone": {
+                    "typeId": "zone",
+                    "id": "United States"
+                },
+                "shippingRates": [
+                    {
+                        "price": {
+                            "currencyCode": "USD",
+                            "centAmount": 1000
+                        },
+                        "tiers": []
+                    }
+                ]
+            }
+        ],
+        "isDefault": false
+    },
+    {
+        "name": "Standard SG",
+        "key": "std-SG",
+        "description": "Delivery in 5-6 working days",
+        "taxCategory": {
+            "typeId": "tax-category",
+            "id": "SG"
+        },
+        "zoneRates": [
+            {
+                "zone": {
+                    "typeId": "zone",
+                    "id": "Singapore"
+                },
+                "shippingRates": [
+                    {
+                        "price": {
+                            "currencyCode": "SGD",
+                            "centAmount": 300
+                        },
+                        "freeAbove": {
+                            "currencyCode": "SGD",
+                            "centAmount": 20000
+                        },
+                        "tiers": []
+                    }
+                ]
+            }
+        ],
+        "isDefault": false
+    },
+    {
+        "name": "Express SG",
+        "key": "express-SG",
+        "description": "Same day delivery",
+        "taxCategory": {
+            "typeId": "tax-category",
+            "id": "SG"
+        },
+        "zoneRates": [
+            {
+                "zone": {
+                    "typeId": "zone",
+                    "id": "Singapore"
+                },
+                "shippingRates": [
+                    {
+                        "price": {
+                            "currencyCode": "SGD",
+                            "centAmount": 1000
+                        },
+                        "tiers": []
+                    }
+                ]
+            }
+        ],
+        "isDefault": false
+    }
+]

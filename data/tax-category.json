@@ -26,6 +26,18 @@
         "amount": 0.21,
         "includedInPrice": true,
         "country": "NL"
+      },
+      {
+        "name": "10% incl.",
+        "amount": 0.1,
+        "includedInPrice": true,
+        "country": "AU"
+      },
+      {
+        "name": "7% incl.",
+        "amount": 0.07,
+        "includedInPrice": true,
+        "country": "SG"
       }
     ]
   },

@@ -1,13 +1,17 @@
 {
   "currencies": [
+    "AUD",
     "EUR",
-    "USD"
+    "USD",
+    "SGD"
   ],
   "countries": [
+    "AU",
     "DE",
     "AT",
     "US",
-    "NL"
+    "NL",
+    "SG"
   ],
   "languages": [
     "EN",
