@@ -24,7 +24,7 @@ module.exports = {
     'no-debugger': 'error',
     'no-useless-escape': 'error',
     'spaced-comment': ['error', 'always'],
-    'import/first': 'error',
+    'import/first': ['error'],
     'space-before-function-paren': ['error', 'always'],
     semi: ['error', 'never'],
     'no-trailing-spaces': [
