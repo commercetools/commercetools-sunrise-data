@@ -66,4 +66,4 @@ npm install
 
 ### Requirements
 
-- Install [Node.js](https://nodejs.org/en/download/)
+- Install [Node.js](https://nodejs.org/en/download/) (version 10 and up)
