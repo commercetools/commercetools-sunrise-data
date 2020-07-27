@@ -8,6 +8,7 @@
     "build": "rimraf dist/ && babel ./lib/*.js --out-dir dist/lib/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "clean:data": "npm run build && node dist/lib/data.js --all:clean",
     "import:data": "npm run build && node dist/lib/data.js --all:import",
+    "ci": "npm run build && node dist/lib/ci.js --start",
     "import:projectSetup": "npm run build && node dist/lib/project-setup.js --import",
     "import:categories": "npm run build && node dist/lib/categories.js --import --csv ./data/categories.csv",
     "import:orders": "npm run build && node dist/lib/orders.js --import --csv ./data/orders.csv",
