@@ -1,5 +1,8 @@
 {
   "currencies": [
+    "AUD",
+    "NZD",
+    "SGD",
     "EUR",
     "USD"
   ],
@@ -7,10 +10,13 @@
     "DE",
     "AT",
     "US",
-    "NL"
+    "NL",
+    "AU",
+    "NZ",
+    "SG"
   ],
   "languages": [
-    "DE",
-    "EN"
+    "EN",
+    "DE"
   ]
 }

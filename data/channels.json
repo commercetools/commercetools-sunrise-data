@@ -664,5 +664,116 @@
       ],
       "type": "Point"
     }
+  },
+  {
+    "key": "sunrise-store-australia",
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Australia",
+      "de": "SUNRISE Store Australia"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
+          "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_berlin.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Unter den Linden",
+      "streetNumber": "21",
+      "postalCode": "10117",
+      "city": "Australia",
+      "country": "AU"
+    },
+    "geoLocation": {
+      "coordinates": [
+        13.3879598,
+        52.5174434
+      ],
+      "type": "Point"
+    }
+  },
+  {
+    "key": "sunrise-store-singapore",
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store Singapore",
+      "de": "SUNRISE Store Singapore"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
+          "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_berlin.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Unter den Linden",
+      "streetNumber": "21",
+      "postalCode": "10117",
+      "city": "Singapore",
+      "country": "SG"
+    },
+    "geoLocation": {
+      "coordinates": [
+        13.3879598,
+        52.5174434
+      ],
+      "type": "Point"
+    }
+  },
+  {
+    "key": "sunrise-store-newzealand",
+    "roles": [
+      "InventorySupply",
+      "ProductDistribution"
+    ],
+    "name": {
+      "en": "SUNRISE Store New Zealand",
+      "de": "SUNRISE Store New Zealand"
+    },
+    "custom": {
+      "type": {
+        "key": "physicalStore"
+      },
+      "fields": {
+        "openingTimes": {
+          "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
+          "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
+        },
+        "imageUrl": "https://commercetools-joyride.s3.amazonaws.com/channels/SUNRISE_berlin.jpg"
+      }
+    },
+    "address": {
+      "streetName": "Unter den Linden",
+      "streetNumber": "21",
+      "postalCode": "10117",
+      "city": "New Zealand",
+      "country": "NZ"
+    },
+    "geoLocation": {
+      "coordinates": [
+        13.3879598,
+        52.5174434
+      ],
+      "type": "Point"
+    }
   }
 ]

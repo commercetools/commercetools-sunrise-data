@@ -14,5 +14,24 @@
     "locations": [
       { "country": "US"}
     ]
+  },
+  {
+    "name": "Australia",
+    "description": "",
+    "locations": [
+      { "country": "AU"}
+    ]
+  },{
+    "name": "Singapore",
+    "description": "",
+    "locations": [
+      { "country": "SG"}
+    ]
+  },{
+    "name": "NewZealand",
+    "description": "",
+    "locations": [
+      { "country": "NZ"}
+    ]
   }
 ]

@@ -1,4 +1,5 @@
-[{
+[
+{
     "name": "Standard EU",
     "key": "std-EU",
     "description": "Delivery in 5-6 working days",
@@ -27,7 +28,7 @@
             ]
         }
     ],
-    "isDefault": true
+    "isDefault": false
 },
 {
     "name": "Express EU",
@@ -104,6 +105,180 @@
                 {
                     "price": {
                         "currencyCode": "USD",
+                        "centAmount": 1000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": false
+},
+{
+    "name": "Standard AU",
+    "key": "std-AU",
+    "description": "Delivery in 5-6 working days",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": "AU"
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": "Australia"
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "AUD",
+                        "centAmount": 300
+                    },
+                    "freeAbove": {
+                        "currencyCode": "AUD",
+                        "centAmount": 20000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": true
+},
+{
+    "name": "Express AU",
+    "key": "express-AU",
+    "description": "Same day delivery",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": "AU"
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": "Australia"
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "AUD",
+                        "centAmount": 1000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": false
+},
+{
+    "name": "Standard SG",
+    "key": "std-SG",
+    "description": "Delivery in 5-6 working days",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": "SG"
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": "Singapore"
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "SGD",
+                        "centAmount": 300
+                    },
+                    "freeAbove": {
+                        "currencyCode": "SGD",
+                        "centAmount": 20000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": false
+},
+{
+    "name": "Express SG",
+    "key": "express-SG",
+    "description": "Same day delivery",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": "SG"
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": "Singapore"
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "SGD",
+                        "centAmount": 1000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": false
+},
+{
+    "name": "Standard NZ",
+    "key": "std-NZ",
+    "description": "Delivery in 5-6 working days",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": "NZ"
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": "NewZealand"
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "NZD",
+                        "centAmount": 300
+                    },
+                    "freeAbove": {
+                        "currencyCode": "NZD",
+                        "centAmount": 20000
+                    },
+                    "tiers": []
+                }
+            ]
+        }
+    ],
+    "isDefault": false
+},
+{
+    "name": "Express NZ",
+    "key": "express-NZ",
+    "description": "Same day delivery",
+    "taxCategory": {
+        "typeId": "tax-category",
+        "id": "NZ"
+    },
+    "zoneRates": [
+        {
+            "zone": {
+                "typeId": "zone",
+                "id": "NewZealand"
+            },
+            "shippingRates": [
+                {
+                    "price": {
+                        "currencyCode": "NZD",
                         "centAmount": 1000
                     },
                     "tiers": []
