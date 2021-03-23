@@ -1,7 +1,10 @@
 [{
     "name": "Standard EU",
     "key": "std-EU",
-    "description": "Delivery in 5-6 working days",
+    "localizedDescription": {
+        "en":"Delivery in 5-6 working days",
+        "de":"Lieferung in 5-6 Werktagen"
+    },
     "taxCategory": {
         "typeId": "tax-category",
         "id": "EU"
@@ -32,7 +35,10 @@
 {
     "name": "Express EU",
     "key": "express-EU",
-    "description": "Same day delivery",
+    "localizedDescription": {
+        "en":"Same day delivery",
+        "de":"Lieferung am selben Tag"
+    },
     "taxCategory": {
         "typeId": "tax-category",
         "id": "EU"
@@ -58,7 +64,10 @@
 },{
     "name": "Standard US",
     "key": "std-US",
-    "description": "Delivery in 5-6 working days",
+    "localizedDescription": {
+        "en":"Delivery in 5-6 working days",
+        "de":"Lieferung in 5-6 Werktagen"
+    },
     "taxCategory": {
         "typeId": "tax-category",
         "id": 1
@@ -89,7 +98,10 @@
 {
     "name": "Express US",
     "key": "express-US",
-    "description": "Same day delivery",
+    "localizedDescription": {
+        "en":"Same day delivery",
+        "de":"Lieferung am selben Tag"
+    },
     "taxCategory": {
         "typeId": "tax-category",
         "id": 1
