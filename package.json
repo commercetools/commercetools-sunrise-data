@@ -58,20 +58,20 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
     "@babel/plugin-proposal-optional-chaining": "^7.8.3",
     "@babel/preset-env": "^7.7.6",
-    "@commercetools/api-request-builder": "5.6.1",
+    "@commercetools/api-request-builder": "5.6.3",
     "@commercetools/sdk-client": "2.1.2",
     "@commercetools/sdk-middleware-auth": "6.1.4",
-    "@commercetools/sdk-middleware-http": "6.0.7",
+    "@commercetools/sdk-middleware-http": "6.0.10",
     "babel-eslint": "^10.0.3",
     "braces": "^3.0.2",
     "dotenv": "^8.0.0",
     "eslint": "^7.3.1",
     "fstream": "^1.0.12",
-    "nconf": "0.10.0",
+    "nconf": "0.11.2",
     "path": "0.12.7",
     "prettier": "^2.0.5",
     "rimraf": "3.0.2",
-    "snazzy": "8.0.0"
+    "snazzy": "9.0.0"
   },
   "dependencies": {
     "@commercetools/sdk-auth": "^3.0.7",
@@ -80,7 +80,7 @@
     "csvtojson": "^2.0.10",
     "es6-promise": "^4.2.8",
     "eslint-plugin-import": "^2.20.0",
-    "isomorphic-fetch": "^2.2.1"
+    "isomorphic-fetch": "^3.0.0"
   },
   "engines": {
     "node": "^10"
