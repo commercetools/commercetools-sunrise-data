@@ -17,20 +17,12 @@ Go to the root of this project, where the `package.json` is located and install 
 ```
 npm install
 ```
-      
+
 ### 3. Set your commercetools project credentials
 
-1. In the root of the project create a file named `.env`
-2. Set the `.env` file with your credentials:
-
-    ```shell
-      CTP_PROJECT_KEY = <your project key>
-      CTP_CLIENT_ID = <your client ID>
-      CTP_CLIENT_SECRET = <your client secret>
-      CTP_API_URL = <your apiUrl> (i.e., api.commercetools.com)
-      CTP_AUTH_URL = <your authUrl> (i.e., auth.commercetools.com)
-    ```
-    *Url variables expect only the host name, not a full URL!*
+1. [Create API client](https://docs.commercetools.com/tutorials/getting-started#creating-an-api-client) from Merchant Center. If you do not have account [follow the steps to create a free trial account](https://docs.commercetools.com/tutorials/getting-started#first-steps).
+2. Download the `.env` file from the API details page and place it on the project's root.
+![Client credential in dot env file ](img/client-credentails-in-dotenv.png)
 
 ### 4. Usage
 
@@ -45,21 +37,21 @@ npm install
     ```
         npm run clean:data
     ```
-    
+
 3. Import project data:
 
     ```
         npm run import:data
     ```
-    
-4. Clean or import certain data *(e.g. categories, products, customers, etc.)* 
+
+4. Clean or import certain data *(e.g. categories, products, customers, etc.)*
 
     ```
         npm run clean:categories
     ```
-    
+
     or
-    
+
     ```
         npm run import:products
     ```
