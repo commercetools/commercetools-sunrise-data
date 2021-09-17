@@ -21,7 +21,7 @@ npm install
 ### 3. Set your commercetools project credentials
 
 1. [Create API client](https://docs.commercetools.com/tutorials/getting-started#creating-an-api-client) from Merchant Center. If you do not have account [follow the steps to create a free trial account](https://docs.commercetools.com/tutorials/getting-started#first-steps).
-2. Download the `.env` file from the API details page and place it on the project's root.
+2. Download the `.env` file from the API details page and place it on the project's root. It shold be named `.env`, rename if it differs.
 ![Client credential in dot env file ](img/client-credentails-in-dotenv.png)
 
 ### 4. Usage
