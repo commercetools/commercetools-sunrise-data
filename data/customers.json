@@ -9,7 +9,7 @@
         "addresses": [
             {
                 "id": "PPM3YhMK",
-                "title": "Head of factory",
+                "title": "Mrs.",
                 "firstName": "Jane",
                 "lastName": "Doe",
                 "streetName": "First Street",
@@ -17,16 +17,30 @@
                 "postalCode": "12345",
                 "city": "Example City",
                 "country": "NL",
-                "phone": "+3123234345",
-                "mobile": "+31456567678",
+                "phone": "+312345678",
+                "mobile": "+312345679",
                 "email": "jane.doe@example.com"
             },
+            {
+                "id": "kzVASZ9O",
+                "title": "Head of factory",
+                "firstName": "Jane",
+                "lastName": "Doe",
+                "streetName": "Third Street",
+                "streetNumber": "34",
+                "postalCode": "12345",
+                "city": "Example City",
+                "country": "NL",
+                "phone": "+3112345678",
+                "mobile": "+3112345679",
+                "email": "jane.doe@example.com"
+            }
         ],
         "shippingAddressIds": [
             "PPM3YhMK"
         ],
         "billingAddressIds": [
-            "PPM3YhMK"
+            "kzVASZ9O"
         ],
         "isEmailVerified": true,
         "key": "janeDoe",
@@ -50,8 +64,8 @@
                 "postalCode": "12345",
                 "city": "Example City",
                 "country": "NL",
-                "phone": "+31204347721",
-                "mobile": "+31625432945",
+                "phone": "+31123456780",
+                "mobile": "+31123456781",
                 "email": "john.doe@example.com"
             }
         ],
