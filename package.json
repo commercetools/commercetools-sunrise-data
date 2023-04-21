@@ -53,36 +53,35 @@
   },
   "homepage": "https://github.com/commercetools/commercetools-sunrise-data#readme",
   "devDependencies": {
-    "@babel/cli": "^7.7.5",
-    "@babel/core": "^7.7.5",
-    "@babel/plugin-proposal-object-rest-spread": "^7.7.4",
-    "@babel/plugin-proposal-optional-chaining": "^7.8.3",
-    "@babel/preset-env": "^7.7.6",
-    "@commercetools/api-request-builder": "5.6.3",
-    "@commercetools/sdk-client": "2.1.2",
-    "@commercetools/sdk-middleware-auth": "6.1.4",
-    "@commercetools/sdk-middleware-http": "6.0.11",
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
+    "@babel/preset-env": "^7.21.4",
+    "@commercetools/api-request-builder": "6.0.0",
+    "@commercetools/sdk-client": "3.0.0",
+    "@commercetools/sdk-middleware-auth": "7.0.1",
+    "@commercetools/sdk-middleware-http": "7.0.2",
     "babel-eslint": "^10.0.3",
     "braces": "^3.0.2",
-    "dotenv": "^10.0.0",
-    "eslint": "^7.3.1",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.38.0",
     "fstream": "^1.0.12",
-    "nconf": "^0.11.4",
+    "nconf": "^0.12.0",
     "path": "0.12.7",
-    "prettier": "^2.0.5",
-    "rimraf": "3.0.2",
+    "prettier": "^2.8.7",
+    "rimraf": "5.0.0",
     "snazzy": "9.0.0"
   },
   "dependencies": {
-    "@commercetools/sdk-auth": "^3.0.7",
-    "cli-progress": "^3.4.0",
+    "@commercetools/sdk-auth": "^4.0.1",
+    "cli-progress": "^3.12.0",
     "core-js": "3",
     "csvtojson": "^2.0.10",
     "es6-promise": "^4.2.8",
-    "eslint-plugin-import": "^2.20.0",
-    "isomorphic-fetch": "^3.0.0"
+    "eslint-plugin-import": "^2.27.5"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=18.14.0"
   }
 }
