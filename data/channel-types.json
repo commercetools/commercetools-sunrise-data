@@ -2,6 +2,7 @@
   {
     "key": "physicalStore",
     "name": {
+      "fr": "Boutique physique",
       "de": "Ladengeschäft",
       "en": "Physical Store"
     },
@@ -12,6 +13,7 @@
       {
         "name": "imageUrl",
         "label": {
+          "fr": "Image URL",
           "en": "Image URL",
           "de": "Bild URL"
         },
@@ -24,6 +26,7 @@
       {
         "name": "openingTimes",
         "label": {
+          "fr": "Horaires d'ouverture",
           "de": "Öffnungszeiten",
           "en": "Opening Times"
         },

@@ -2,6 +2,7 @@
   {
     "key": "reservationOrder",
     "name": {
+      "fr": "Produits Réservés",
       "en": "Reserved Products",
       "de": "Reservierte Produkte"
     },
@@ -12,6 +13,7 @@
       {
         "name": "isReservation",
         "label": {
+          "fr": "Reservation",
           "en": "Reservation",
           "de": "Reservierung"
         },

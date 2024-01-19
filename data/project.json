@@ -5,12 +5,14 @@
   ],
   "countries": [
     "DE",
+    "FR",
     "AT",
     "US",
     "NL"
   ],
   "languages": [
     "EN",
+    "FR",
     "DE"
   ]
 }
