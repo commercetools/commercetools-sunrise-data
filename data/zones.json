@@ -5,14 +5,15 @@
     "locations": [
       { "country": "AT"},
       { "country": "DE"},
-      { "country": "NL"}
+      { "country": "NL"},
+      { "country": "FR"}
     ]
   },
   {
     "name": "United States",
     "description": "",
     "locations": [
-      { "country": "US"}
+      { "country": "US" }
     ]
   }
 ]
