@@ -25,3 +25,10 @@ node_modules/
 .factorypath
 .env
 categories.csv-sorted
+integrationtest.properties
+project-create-client.json
+project-create-mc-client.json
+project-create-org.json
+project-create-prj.json
+project-create-user.json
+sunrise-imrt-conf.json
