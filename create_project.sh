@@ -97,7 +97,8 @@ cat > project-create-prj.json << EndOfMessage
   "owner": {"typeId": "organization", "id": "$org_id"},
   "plan": "Standard",
   "currencies": ["EUR", "USD"],
-  "messagesEnabled": true
+  "messagesEnabled": true,
+  "forceAttributeMigrationStatus": "Finished"
 }
 EndOfMessage
 
