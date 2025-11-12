@@ -43,6 +43,9 @@ echo API_URL=$API_URL
 echo AUTH_URL=$AUTH_URL
 echo CORE_URL=$CORE_URL
 
+# Optional name prefix from command line argument
+NAME_PREFIX="${1:-}"
+
 export RND_PROJECT_CMP="$(perl -e 'print int rand 1000000000000000, "\n";')"
 
 #################################################################################################
@@ -85,7 +88,7 @@ echo "Organisation ID: $org_id"
 ###########################################################################
 # Create Project
 
-prj_key="sv-poc-$RND_PROJECT_CMP"
+prj_key="sv-poc-${NAME_PREFIX:+$NAME_PREFIX-}$RND_PROJECT_CMP"
 
 cat > project-create-prj.json << EndOfMessage
 {
