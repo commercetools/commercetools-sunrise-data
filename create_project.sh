@@ -277,3 +277,49 @@ echo "export API_URL=$API_URL"
 echo "export TOKEN=$oauth_token"
 echo "export AUTH_HEADER=\"Authorization: Bearer $oauth_token\""
 echo "export PROJECT_KEY=$prj_key"
+echo
+echo "Postman environment format:"
+cat << EndOfMessage
+{
+	"id": "$(uuidgen)",
+	"name": "$prj_key",
+	"values": [
+		{
+			"key": "host",
+			"value": "$API_URL",
+			"type": "text",
+			"enabled": true
+		},
+		{
+			"key": "auth_url",
+			"value": "$AUTH_URL",
+			"type": "text",
+			"enabled": true
+		},
+		{
+			"key": "client_id",
+			"value": "$client_id",
+			"type": "text",
+			"enabled": true
+		},
+		{
+			"key": "client_secret",
+			"value": "$client_secret",
+			"type": "text",
+			"enabled": true
+		},
+		{
+			"key": "project-key",
+			"value": "$prj_key",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "ctp_access_token",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	]
+}
+EndOfMessage
