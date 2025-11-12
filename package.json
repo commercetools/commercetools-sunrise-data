@@ -33,6 +33,7 @@
     "clean:shippingmethods": "npm run build && node dist/lib/shipping-method.js --clean",
     "clean:zones": "npm run build && node dist/lib/zones.js --clean",
     "clean:products": "npm run build && node dist/lib/products.js --clean",
+    "clean:standaloneProducts": "npm run build && node dist/lib/standaloneProducts.js --clean",
     "clean:taxCategories": "npm run build && node dist/lib/tax-categories.js --clean",
     "clean:types": "npm run build && node dist/lib/types.js --clean",
     "clean:standalonePrice": "npm run build && node dist/lib/standalonePrice.js --clean",
