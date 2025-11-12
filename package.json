@@ -17,7 +17,7 @@
     "import:taxCategories": "npm run build && node dist/lib/tax-categories.js --import",
     "import:shippingmethods": "npm run build && node dist/lib/shipping-method.js --import",
     "import:products": "npm run build && node dist/lib/products.js --importtypes --types ./data/product-type.json && node dist/lib/products.js --import  --categories ./data/categories.csv  --csv ./data/products.csv --types ./data/product-type.json",
-    "import:standaloneProducts": "npm run build && node dist/lib/standaloneProducts.js --importtypes --types ./data/product-type.json && node dist/lib/standaloneProducts.js --import --categories ./data/categories.csv --csv ./data/products-standalone.csv --types ./data/product-type.json --limit ${npm_config_limit:-} && node dist/lib/standalonePrice.js --import --fromProducts --csv ./data/products-standalone.csv --limit ${npm_config_limit:-}",
+    "import:standaloneProducts": "npm run build && node dist/lib/standaloneProducts.js --importtypes --types ./data/product-type.json && node dist/lib/standaloneProducts.js --import --categories ./data/categories.csv --csv ./data/products-standalone.csv --types ./data/product-type.json && node dist/lib/standalonePrice.js --import --fromProducts --csv ./data/products-standalone.csv",
     "import:inventory": "npm run build && node dist/lib/inventory.js --import",
     "import:inventory-stores": "npm run build && node dist/lib/inventory.js --import",
     "import:customers": "npm run build && node dist/lib/customers.js --import",
