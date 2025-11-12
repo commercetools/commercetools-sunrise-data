@@ -281,6 +281,13 @@ echo "export TOKEN=$oauth_token"
 echo "export AUTH_HEADER=\"Authorization: Bearer $oauth_token\""
 echo "export PROJECT_KEY=$prj_key"
 echo
+echo "CTP environment variables:"
+echo "export CTP_PROJECT_KEY=$prj_key"
+echo "export CTP_CLIENT_ID=$client_id"
+echo "export CTP_CLIENT_SECRET=$client_secret"
+echo "export CTP_AUTH_URL=$AUTH_URL"
+echo "export CTP_API_URL=$API_URL"
+echo
 
 # Generate Postman environment
 postman_env=$(cat << EndOfMessage
