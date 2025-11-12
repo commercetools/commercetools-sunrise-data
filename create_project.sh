@@ -98,14 +98,14 @@ cat > project-create-prj.json << EndOfMessage
   "plan": "Standard",
   "currencies": ["EUR", "USD"],
   "messagesEnabled": true,
-  "forceAttributeMigrationStatus": "Finished"
+  "forceAttributeMigrationStatus": {"attributeMigrationStatus": "Finished"}
 }
 EndOfMessage
 
 echo "------| Creating project"
 cat project-create-prj.json | jq .
 
-prj_resp=`curl --insecure -s -H "Content-Type: application/json" -H "Authorization: Bearer $core_oauth_token" --data @project-create-prj.json -X POST $CORE_URL/projects`
+prj_resp=`curl --fail-with-body --insecure -s -H "Content-Type: application/json" -H "Authorization: Bearer $core_oauth_token" --data @project-create-prj.json -X POST $CORE_URL/projects`
 created_prj_key=`echo $prj_resp | jq -r .key`
 prj_id=`echo $prj_resp | jq -r .id`
 
@@ -277,4 +277,3 @@ echo "export API_URL=$API_URL"
 echo "export TOKEN=$oauth_token"
 echo "export AUTH_HEADER=\"Authorization: Bearer $oauth_token\""
 echo "export PROJECT_KEY=$prj_key"
-
