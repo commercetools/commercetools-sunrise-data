@@ -281,8 +281,9 @@ echo "export TOKEN=$oauth_token"
 echo "export AUTH_HEADER=\"Authorization: Bearer $oauth_token\""
 echo "export PROJECT_KEY=$prj_key"
 echo
-echo "Postman environment format:"
-cat << EndOfMessage
+
+# Generate Postman environment
+postman_env=$(cat << EndOfMessage
 {
 	"id": "$(uuidgen)",
 	"name": "$prj_key",
@@ -326,3 +327,14 @@ cat << EndOfMessage
 	]
 }
 EndOfMessage
+)
+
+# Save to file if NAME_PREFIX is provided, otherwise print to stdout
+if [ -n "$NAME_PREFIX" ]; then
+	postman_file="${NAME_PREFIX}.postman_environment.json"
+	echo "$postman_env" > "$postman_file"
+	echo "Postman environment saved to: $postman_file"
+else
+	echo "Postman environment format:"
+	echo "$postman_env"
+fi
