@@ -43,6 +43,9 @@ echo API_URL=$API_URL
 echo AUTH_URL=$AUTH_URL
 echo CORE_URL=$CORE_URL
 
+# Optional name prefix from command line argument
+NAME_PREFIX="${1:-}"
+
 export RND_PROJECT_CMP="$(perl -e 'print int rand 1000000000000000, "\n";')"
 
 #################################################################################################
@@ -85,7 +88,7 @@ echo "Organisation ID: $org_id"
 ###########################################################################
 # Create Project
 
-prj_key="sv-poc-$RND_PROJECT_CMP"
+prj_key="sv-poc-${NAME_PREFIX:+$NAME_PREFIX-}$RND_PROJECT_CMP"
 
 cat > project-create-prj.json << EndOfMessage
 {
@@ -277,3 +280,68 @@ echo "export API_URL=$API_URL"
 echo "export TOKEN=$oauth_token"
 echo "export AUTH_HEADER=\"Authorization: Bearer $oauth_token\""
 echo "export PROJECT_KEY=$prj_key"
+echo
+echo "CTP environment variables:"
+echo "export CTP_PROJECT_KEY=$prj_key"
+echo "export CTP_CLIENT_ID=$client_id"
+echo "export CTP_CLIENT_SECRET=$client_secret"
+echo "export CTP_AUTH_URL=$AUTH_URL"
+echo "export CTP_API_URL=$API_URL"
+echo
+
+# Generate Postman environment
+postman_env=$(cat << EndOfMessage
+{
+	"id": "$(uuidgen)",
+	"name": "$prj_key",
+	"values": [
+		{
+			"key": "host",
+			"value": "$API_URL",
+			"type": "text",
+			"enabled": true
+		},
+		{
+			"key": "auth_url",
+			"value": "$AUTH_URL",
+			"type": "text",
+			"enabled": true
+		},
+		{
+			"key": "client_id",
+			"value": "$client_id",
+			"type": "text",
+			"enabled": true
+		},
+		{
+			"key": "client_secret",
+			"value": "$client_secret",
+			"type": "text",
+			"enabled": true
+		},
+		{
+			"key": "project-key",
+			"value": "$prj_key",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "ctp_access_token",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	]
+}
+EndOfMessage
+)
+
+# Save to file if NAME_PREFIX is provided, otherwise print to stdout
+if [ -n "$NAME_PREFIX" ]; then
+	postman_file="${NAME_PREFIX}.postman_environment.json"
+	echo "$postman_env" > "$postman_file"
+	echo "Postman environment saved to: $postman_file"
+else
+	echo "Postman environment format:"
+	echo "$postman_env"
+fi
