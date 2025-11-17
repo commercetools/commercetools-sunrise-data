@@ -14,8 +14,14 @@ export CORE_CLIENT_ID=sphere-prototype-internal.1.0
 export VAULT_ADDR="https://vault.sre.europe-west1.gcp.commercetools.com"
 export CORE_CLIENT_SECRET=$(vault kv get --field=SPHERE_PROTOTYPE_INTERNAL_1_0_TRUSTED_CLIENT_SECRET kv2/repositories/ctp-prototype/ctp-prototype-v1/static-secrets)
 
-bash create_project.sh
+bash create_project.sh $PROJECT_NAME
 ```
+
+This creates a project with a name like
+`sv-poc-$PROJECT_NAME-868148896451206` and saves the credentials in
+Postman format in file `$PROJECT_NAME.postman_environment.json`. (The
+project name param is optional, if you leave it out the credentials
+will just be printed.)
 
 Save the output: **Project Key**, **Client ID**, and **Client Secret**.
 
