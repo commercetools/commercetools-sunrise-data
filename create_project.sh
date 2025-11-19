@@ -44,9 +44,20 @@ echo AUTH_URL=$AUTH_URL
 echo CORE_URL=$CORE_URL
 
 # Optional name prefix from command line argument
-NAME_PREFIX="${1:-}"
+ORIGINAL_ARG="${1:-}"
+NAME_PREFIX="$ORIGINAL_ARG"
 
 export RND_PROJECT_CMP="$(perl -e 'print int rand 1000000000000000, "\n";')"
+
+# Truncate NAME_PREFIX if needed to keep final project key under 36 chars
+# Format: "sv-poc-${NAME_PREFIX}-${RND_PROJECT_CMP}"
+# sv-poc- = 7 chars, RND_PROJECT_CMP = 15 chars, dashes = 2 chars = 24 chars reserved
+# So NAME_PREFIX can be max 36 - 24 = 12 chars
+if [ -n "$NAME_PREFIX" ] && [ ${#NAME_PREFIX} -gt 12 ]; then
+  echo "Warning: Argument '$ORIGINAL_ARG' (${#ORIGINAL_ARG} chars) is too long. Truncating to 12 chars..."
+  NAME_PREFIX="${NAME_PREFIX:0:12}"
+  echo "Truncated to: '$NAME_PREFIX'"
+fi
 
 #################################################################################################
 # Create one oauth token for core
@@ -109,6 +120,14 @@ echo "------| Creating project"
 cat project-create-prj.json | jq .
 
 prj_resp=`curl --fail-with-body --insecure -s -H "Content-Type: application/json" -H "Authorization: Bearer $core_oauth_token" --data @project-create-prj.json -X POST $CORE_URL/projects`
+
+# Check if response contains an error
+if echo "$prj_resp" | jq -e '.errors' > /dev/null 2>&1; then
+  echo "Error creating project:"
+  echo "$prj_resp" | jq .
+  exit 1
+fi
+
 created_prj_key=`echo $prj_resp | jq -r .key`
 prj_id=`echo $prj_resp | jq -r .id`
 
