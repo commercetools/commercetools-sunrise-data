@@ -147,6 +147,7 @@ cat > project-create-client.json << EndOfMessage
     {"key": "manage_my_profile", "projectKey" : "$prj_key"},
     {"key": "manage_subscriptions", "projectKey" : "$prj_key"},
     {"key": "manage_api_clients", "projectKey" : "$prj_key"},
+    {"key": "view_api_clients", "projectKey" : "$prj_key"},
 
     {"key": "manage_orders", "projectKey" : "$prj_key"},
     {"key": "manage_my_orders", "projectKey" : "$prj_key"},
@@ -163,6 +164,7 @@ cat > project-create-client.json << EndOfMessage
 
     {"key": "manage_products", "projectKey" : "$prj_key"},
     {"key": "view_products", "projectKey" : "$prj_key"},
+    {"key": "view_published_products", "projectKey" : "$prj_key"},
 
     {"key": "manage_tax_categories", "projectKey" : "$prj_key"},
     {"key": "view_tax_categories", "projectKey" : "$prj_key"},
