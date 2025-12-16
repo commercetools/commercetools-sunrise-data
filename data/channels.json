@@ -1,5 +1,20 @@
 [
   {
+    "key": "dach",
+    "roles": ["InventorySupply"],
+    "name": {
+      "en": "DACH Supply",
+      "de": "DACH Lager"
+    }
+  },
+  {
+    "key": "uk",
+    "roles": ["InventorySupply"],
+    "name": {
+      "en": "UK Supply"
+    }
+  },
+  {
     "key": "sunrise-store-sanfrancisco",
     "roles": [
       "InventorySupply",

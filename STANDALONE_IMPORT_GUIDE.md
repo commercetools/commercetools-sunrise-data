@@ -40,9 +40,11 @@ export CTP_API_URL=https://prototype-64-api.prototype.europe-west1.gcp.commercet
 ## Step 3: Import Data
 
 ```bash
+npm run import:types
 npm run import:categories
 npm run import:taxCategories
-npm run import:standaloneProducts --limit=100
+npm run import:channels
+npm run import:standaloneProducts
 ```
 
 ## Verify Import
