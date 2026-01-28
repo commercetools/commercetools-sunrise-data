@@ -112,7 +112,8 @@ cat > project-create-prj.json << EndOfMessage
   "plan": "Standard",
   "currencies": ["EUR", "USD"],
   "messagesEnabled": true,
-  "forceAttributeMigrationStatus": {"attributeMigrationStatus": "Finished"}
+  "forceAttributeMigrationStatus": {"attributeMigrationStatus": "Finished"},
+  "variantMode": "StandaloneVariants"
 }
 EndOfMessage
 
