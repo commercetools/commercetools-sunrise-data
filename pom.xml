@@ -21,7 +21,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <jvm.sdk.version>1.29.0</jvm.sdk.version>
-    </properties>
+      <snakeyaml.version>2.0</snakeyaml.version>
+  </properties>
 
     <dependencies>
         <dependency>
