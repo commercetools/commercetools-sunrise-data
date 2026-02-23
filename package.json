@@ -34,6 +34,7 @@
     "clean:products": "npm run build && node dist/lib/products.js --clean",
     "clean:taxCategories": "npm run build && node dist/lib/tax-categories.js --clean",
     "clean:types": "npm run build && node dist/lib/types.js --clean",
+    "clean:order-edits": "npm run build && node dist/lib/orderedits.js --clean",
     "start": "npm run build && node dist/lib/data.js --start",
     "lint": "prettier --write ./lib/** && eslint --fix ./lib/**"
   },
