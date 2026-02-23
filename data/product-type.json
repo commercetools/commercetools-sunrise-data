@@ -7,6 +7,7 @@
       {
         "name": "creationDate",
         "label": {
+          "fr": "Date of Creation",
           "en": "Date of Creation",
           "it": "Date of Creation",
           "de": "Erstelldatum"
@@ -23,6 +24,7 @@
       {
         "name": "articleNumberManufacturer",
         "label": {
+          "fr": "AID Fabriquant",
           "de": "Herstellernummer",
           "it": "Manufacturer AID",
           "en": "Manufacturer AID"
@@ -39,6 +41,7 @@
       {
         "name": "articleNumberMax",
         "label": {
+          "fr": "Maximilian AID",
           "en": "AID Maximilian",
           "de": "Artikelnummer Maximilian",
           "it": "AID Maximilian"
@@ -55,6 +58,7 @@
       {
         "name": "matrixId",
         "label": {
+          "fr": "Matrix ID",
           "it": "Matrix ID",
           "de": "Matrix ID",
           "en": "Matrix ID"
@@ -71,6 +75,7 @@
       {
         "name": "baseId",
         "label": {
+          "fr": "BaseID",
           "de": "BasisID",
           "en": "BaseID",
           "it": "BaseID"
@@ -87,6 +92,7 @@
       {
         "name": "designer",
         "label": {
+          "fr": "Designer",
           "it": "Designer",
           "de": "Designer",
           "en": "Designer"
@@ -973,6 +979,7 @@
       {
         "name": "madeInItaly",
         "label": {
+          "fr": "Fais en Italie",
           "de": "Made in Italy",
           "en": "Made in Italy",
           "it": "Made in Italy"
@@ -999,6 +1006,7 @@
       {
         "name": "completeTheLook",
         "label": {
+          "fr": "Vente croisée",
           "en": "Crosselling",
           "it": "Crosselling",
           "de": "Crosselling"
@@ -1018,6 +1026,7 @@
       {
         "name": "commonSize",
         "label": {
+          "en": "Filtersize",
           "en": "Filtersize",
           "it": "Filtersize",
           "de": "Filtergröße"
@@ -1228,6 +1237,7 @@
       {
         "name": "size",
         "label": {
+          "fr": "Taille",
           "it": "Size",
           "de": "Größe",
           "en": "Size"
@@ -1244,6 +1254,7 @@
       {
         "name": "color",
         "label": {
+          "fr": "Filtercolor",
           "de": "Filterfarbe",
           "it": "Filtercolor",
           "en": "Filtercolor"
@@ -1255,6 +1266,7 @@
             {
               "key": "black",
               "label": {
+                "fr": "noir",
                 "en": "black",
                 "it": "nero",
                 "de": "schwarz"
@@ -1263,6 +1275,7 @@
             {
               "key": "grey",
               "label": {
+                "fr": "gris",
                 "de": "grau",
                 "en": "grey",
                 "it": "grigio"
@@ -1271,6 +1284,7 @@
             {
               "key": "beige",
               "label": {
+                "fr": "beige",
                 "it": "beige",
                 "de": "beige",
                 "en": "beige"
@@ -1279,6 +1293,7 @@
             {
               "key": "white",
               "label": {
+                "fr": "blanc",
                 "it": "blanco",
                 "de": "weiss",
                 "en": "white"
@@ -1287,6 +1302,7 @@
             {
               "key": "blue",
               "label": {
+                "fr": "bleu",
                 "de": "blau",
                 "it": "blu",
                 "en": "blue"
@@ -1295,6 +1311,7 @@
             {
               "key": "brown",
               "label": {
+                "fr": "marron",
                 "it": "marrone",
                 "de": "braun",
                 "en": "brown"
@@ -1303,6 +1320,7 @@
             {
               "key": "turquoise",
               "label": {
+                "fr": "turquoise",
                 "de": "türkis",
                 "en": "turquoise",
                 "it": "turchese"
@@ -1311,6 +1329,7 @@
             {
               "key": "petrol",
               "label": {
+                "fr": "pétrole",
                 "en": "petrol",
                 "de": "petrol",
                 "it": "petrol"
@@ -1319,6 +1338,7 @@
             {
               "key": "green",
               "label": {
+                "fr": "vert",
                 "it": "verde",
                 "en": "green",
                 "de": "grün"
@@ -1327,6 +1347,7 @@
             {
               "key": "red",
               "label": {
+                "fr": "rouge",
                 "it": "rosso",
                 "en": "red",
                 "de": "rot"
@@ -1335,6 +1356,7 @@
             {
               "key": "purple",
               "label": {
+                "fr": "violet",
                 "it": "porpora",
                 "de": "lila",
                 "en": "purple"
@@ -1343,6 +1365,7 @@
             {
               "key": "pink",
               "label": {
+                "fr": "rose",
                 "de": "rosa",
                 "en": "pink",
                 "it": "rosa"
@@ -1351,6 +1374,7 @@
             {
               "key": "orange",
               "label": {
+                "fr": "orange",
                 "en": "orange",
                 "it": "arancione",
                 "de": "orange"
@@ -1359,6 +1383,7 @@
             {
               "key": "yellow",
               "label": {
+                "fr": "jaune",
                 "it": "giallo",
                 "en": "yellow",
                 "de": "gelb"
@@ -1367,6 +1392,7 @@
             {
               "key": "oliv",
               "label": {
+                "fr": "olive",
                 "it": "oliva",
                 "en": "oliv",
                 "de": "oliv"
@@ -1375,6 +1401,7 @@
             {
               "key": "gold",
               "label": {
+                "fr": "or",
                 "en": "gold",
                 "de": "gold",
                 "it": "oro"
@@ -1383,6 +1410,7 @@
             {
               "key": "silver",
               "label": {
+                "fr": "argent",
                 "it": "argento",
                 "en": "silver",
                 "de": "silber"
@@ -1391,6 +1419,7 @@
             {
               "key": "multicolored",
               "label": {
+                "fr": "multicolore",
                 "de": "mehrfarbig",
                 "en": "multicolored",
                 "it": "policromo"
@@ -1406,6 +1435,7 @@
       {
         "name": "colorFreeDefinition",
         "label": {
+          "fr": "Description Couleur",
           "de": "Farbbezeichnung",
           "en": "Color Description",
           "it": "Color Description"
@@ -1422,6 +1452,7 @@
       {
         "name": "details",
         "label": {
+          "fr": "Details",
           "it": "Details",
           "de": "Details",
           "en": "Details"
@@ -1441,6 +1472,7 @@
       {
         "name": "style",
         "label": {
+          "fr": "Style",
           "en": "Style",
           "it": "Style",
           "de": "Stil"
@@ -1471,6 +1503,7 @@
       {
         "name": "gender",
         "label": {
+          "fr": "Genre",
           "en": "Gender",
           "it": "Gender",
           "de": "Zielgruppe"
@@ -1497,6 +1530,7 @@
       {
         "name": "season",
         "label": {
+          "fr": "Saison",
           "en": "Season",
           "de": "Saison",
           "it": "Season"
@@ -1513,6 +1547,7 @@
       {
         "name": "isOnStock",
         "label": {
+          "fr": "isOnStock",
           "it": "isOnStock",
           "de": "isOnStock",
           "en": "isOnStock"
@@ -1529,6 +1564,7 @@
       {
         "name": "isLook",
         "label": {
+          "fr": "isLook",
           "en": "isLook",
           "de": "isLook",
           "it": "isLook"
@@ -1545,6 +1581,7 @@
       {
         "name": "lookProducts",
         "label": {
+          "fr": "Lookproducts",
           "en": "Lookproducts",
           "de": "Lookprodukte",
           "it": "Lookproducts"
@@ -1564,6 +1601,7 @@
       {
         "name": "seasonNew",
         "label": {
+          "fr": "seasonNew",
           "de": "seasonNew",
           "it": "seasonNew",
           "en": "seasonNew"
@@ -1580,6 +1618,7 @@
       {
         "name": "sapExternalId",
         "label": {
+          "fr": "SAP External ID",
           "de": "SAP External ID",
           "it": "SAP External ID",
           "en": "SAP External ID"

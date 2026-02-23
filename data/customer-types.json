@@ -2,6 +2,7 @@
   {
     "key": "iOSUser",
     "name": {
+      "fr": "iOSUser",
       "de": "iOSUser",
       "en": "iOSUser"
     },
@@ -12,6 +13,7 @@
       {
         "name": "apnsToken",
         "label": {
+          "fr": "apnsToken",
           "en": "apnsToken",
           "de": "apnsToken"
         },
@@ -24,6 +26,7 @@
       {
         "name": "myStore",
         "label": {
+          "fr": "monMag",
           "en": "myStore",
           "de": "meinLaden"
         },

@@ -6,6 +6,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE San Francisco",
       "en": "SUNRISE Store San Francisco",
       "de": "SUNRISE Store San Francisco"
     },
@@ -15,6 +16,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -43,6 +45,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Chicago",
       "en": "SUNRISE Store Chicago",
       "de": "SUNRISE Store Chicago"
     },
@@ -52,6 +55,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -80,6 +84,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE New York",
       "en": "SUNRISE Store New York",
       "de": "SUNRISE Store New York"
     },
@@ -89,6 +94,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -117,6 +123,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Boston Back Bay",
       "en": "SUNRISE Store Boston Back Bay",
       "de": "SUNRISE Store Boston Back Bay"
     },
@@ -126,6 +133,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -154,6 +162,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Boston CambridgeSide Galleria",
       "en": "SUNRISE Store Boston CambridgeSide Galleria",
       "de": "SUNRISE Store Boston CambridgeSide Galleria"
     },
@@ -163,6 +172,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -191,6 +201,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Stockholm",
       "en": "SUNRISE Store Stockholm",
       "de": "SUNRISE Store Stockholm"
     },
@@ -200,6 +211,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -228,6 +240,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Brussels",
       "en": "SUNRISE Store Brussels",
       "de": "SUNRISE Store Brussels"
     },
@@ -237,6 +250,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -265,6 +279,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Cologne",
       "en": "SUNRISE Store Cologne",
       "de": "SUNRISE Store Cologne"
     },
@@ -274,6 +289,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -302,6 +318,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Barcelona",
       "en": "SUNRISE Store Barcelona",
       "de": "SUNRISE Store Barcelona"
     },
@@ -311,6 +328,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -339,6 +357,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Amsterdam",
       "en": "SUNRISE Store Amsterdam",
       "de": "SUNRISE Store Amsterdam"
     },
@@ -348,6 +367,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -376,6 +396,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE London",
       "en": "SUNRISE Store London",
       "de": "SUNRISE Store London"
     },
@@ -385,6 +406,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -413,6 +435,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Madrid",
       "en": "SUNRISE Store Madrid",
       "de": "SUNRISE Store Madrid"
     },
@@ -422,6 +445,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -450,6 +474,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Vienna",
       "en": "SUNRISE Store Vienna",
       "de": "SUNRISE Store Vienna"
     },
@@ -459,6 +484,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -487,6 +513,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Zurich",
       "en": "SUNRISE Store Zurich",
       "de": "SUNRISE Store Zurich"
     },
@@ -496,6 +523,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -524,6 +552,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Paris",
       "en": "SUNRISE Store Paris",
       "de": "SUNRISE Store Paris"
     },
@@ -533,6 +562,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -561,6 +591,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Hamburg",
       "en": "SUNRISE Store Hamburg",
       "de": "SUNRISE Store Hamburg"
     },
@@ -570,6 +601,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -598,6 +630,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Munich",
       "en": "SUNRISE Store Munich",
       "de": "SUNRISE Store Munich"
     },
@@ -607,6 +640,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },
@@ -635,6 +669,7 @@
       "ProductDistribution"
     ],
     "name": {
+      "fr": "Magasin SUNRISE Berlin",
       "en": "SUNRISE Store Berlin",
       "de": "SUNRISE Store Berlin"
     },
@@ -644,6 +679,7 @@
       },
       "fields": {
         "openingTimes": {
+          "fr": "Lu-Ve. 10:00 - 20:00\nSa. 9:00 - 18:00",
           "en": "Mo-Fr. 10:00AM - 8:00PM\nSa. 9:00AM - 6:00PM",
           "de": "Mo-Fr. 10:00 - 20:00\nSa. 9:00 - 18:00"
         },

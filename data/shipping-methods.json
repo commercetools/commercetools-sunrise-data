@@ -3,6 +3,7 @@
     "key": "std-EU",
     "localizedDescription": {
         "en":"Delivery in 5-6 working days",
+        "fr":"Livraison en 5-6 jours ouvrés",
         "de":"Lieferung in 5-6 Werktagen"
     },
     "taxCategory": {
@@ -37,6 +38,7 @@
     "key": "express-EU",
     "localizedDescription": {
         "en":"Same day delivery",
+        "fr":"Livraison le jour même",
         "de":"Lieferung am selben Tag"
     },
     "taxCategory": {
@@ -66,6 +68,7 @@
     "key": "std-US",
     "localizedDescription": {
         "en":"Delivery in 5-6 working days",
+        "fr":"Livraison en 5-6 jours ouvrés",
         "de":"Lieferung in 5-6 Werktagen"
     },
     "taxCategory": {
@@ -100,6 +103,7 @@
     "key": "express-US",
     "localizedDescription": {
         "en":"Same day delivery",
+        "fr":"Livraison le jour même",
         "de":"Lieferung am selben Tag"
     },
     "taxCategory": {
